@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import {
   Archive,
   ArrowRight,
@@ -259,10 +259,74 @@ function Sidebar({ active, onSelect, open, onClose }: { active: string; onSelect
   );
 }
 
+const sectionData: Record<string, { columns: string[]; rows: string[][] }> = {
+  Abstracts: {
+    columns: ["Name", "Abstract Title", "Email", "Country", "Phone No", "Category", "Track Name", "Address", "interested", "Oraganization", "Date", "Action"],
+    rows: [["Dr. Maya Patel", "New approaches in clinical research", "maya.patel@example.com", "India", "+91 98765 43210", "Research", "Healthcare", "Mumbai", "Yes", "Aster Labs", "10 Nov 2026", "View"]],
+  },
+  "All Members": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["MP", "Dr. Michael Peterson", "University of Oxford", "Active", "Edit"]] },
+  "Keynote Speakers": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["LS", "Dr. Laura Schmidt", "Charité Berlin", "Active", "Edit"]] },
+  "Renowned Speakers": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["AR", "Prof. Antonio Rossi", "University of Milan", "Active", "Edit"]] },
+  "Invited Speakers": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["NK", "Dr. Neha Kapoor", "AIIMS New Delhi", "Invited", "Edit"]] },
+  "Poster Presenters": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["JT", "James Thompson", "King's College London", "Active", "Edit"]] },
+  "Organizing Committee": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["SW", "Sarah Williams", "Inovine Conferences", "Active", "Edit"]] },
+  Representatives: { columns: ["Name", "Email", "Country", "Organization", "Status", "Action"], rows: [["Anita Rao", "anita.rao@example.com", "India", "Apex Events", "Active", "View"]] },
+  Tracks: { columns: ["Track Name", "Description", "Subtracks", "Status", "Action"], rows: [["Healthcare Innovation", "Clinical and digital health", "4", "Active", "Edit"]] },
+  Subtracks: { columns: ["Subtrack Name", "Track", "Status", "Action"], rows: [["Digital Diagnostics", "Healthcare Innovation", "Active", "Edit"]] },
+  Prices: { columns: ["Category", "Currency", "Early Price", "Regular Price", "Action"], rows: [["Delegate", "USD", "$450", "$550", "Edit"]] },
+  "Registration Dates": { columns: ["Registration Type", "Start Date", "End Date", "Status", "Action"], rows: [["Early Bird", "01 Jan 2026", "30 Jun 2026", "Closed", "Edit"]] },
+  "Default Currency": { columns: ["Currency", "Symbol", "Status", "Action"], rows: [["US Dollar", "USD ($)", "Default", "Edit"]] },
+  "Registration Prices": { columns: ["Category", "Currency", "Price", "Status", "Action"], rows: [["Delegate", "USD", "$550", "Published", "Edit"]] },
+  "Accommodation & Accompanying Prices": { columns: ["Room Type", "Nights", "Price", "Currency", "Action"], rows: [["Single Room", "3", "$360", "USD", "Edit"]] },
+  Registrations: { columns: ["Name", "Email", "Country", "Registration Type", "Payment", "Date", "Action"], rows: [["Priya Menon", "priya.menon@example.com", "India", "Delegate", "Success", "08 Nov 2026", "View"]] },
+  "Banner Images": { columns: ["Preview", "Title", "Image", "Status", "Action"], rows: [["IMG", "Conference Hero", "hero-banner.jpg", "Published", "Edit"]] },
+  "Media Partner": { columns: ["Logo", "Name", "Website", "Status", "Action"], rows: [["MP", "Global Health Media", "globalhealth.example", "Active", "Edit"]] },
+  Exhibitors: { columns: ["Logo", "Company", "Contact", "Booth", "Status", "Action"], rows: [["AL", "Apex Labs", "contact@apex.example", "B-12", "Active", "Edit"]] },
+  Gallery: { columns: ["Image", "Title", "Conference", "Status", "Action"], rows: [["IMG", "Opening Ceremony", "Inovine 2025", "Published", "Edit"]] },
+  Reviews: { columns: ["Name", "Organization", "Review", "Status", "Action"], rows: [["Dr. Elena Garcia", "MedTech Europe", "Excellent scientific program", "Published", "Edit"]] },
+  "Events List": { columns: ["Event Name", "Venue", "Start Date", "End Date", "Status", "Action"], rows: [["Welcome Reception", "Grand Ballroom", "12 Dec 2026", "12 Dec 2026", "Published", "Edit"]] },
+  "Conference Sessions": { columns: ["Session Name", "Track", "Date", "Time", "Room", "Action"], rows: [["Future of Digital Health", "Healthcare", "13 Dec 2026", "09:30", "Hall A", "Edit"]] },
+  "Buttons List": { columns: ["Button Text", "Link", "Placement", "Status", "Action"], rows: [["Register Now", "/registration", "Home banner", "Active", "Edit"]] },
+  "Testimonials List": { columns: ["Name", "Organization", "Testimonial", "Status", "Action"], rows: [["Prof. David Lee", "UCLA Health", "A valuable meeting for collaboration.", "Published", "Edit"]] },
+  "Video Testimonials List": { columns: ["Name", "Video URL", "Organization", "Status", "Action"], rows: [["Dr. Sofia Chen", "video.example/sofia", "Stanford Medicine", "Published", "Edit"]] },
+  Pages: { columns: ["Page Title", "Slug", "Updated", "Status", "Action"], rows: [["About the Conference", "/about", "02 Nov 2026", "Published", "Edit"]] },
+  "Home Tabs": { columns: ["Tab Title", "Order", "Content", "Status", "Action"], rows: [["Why Attend", "1", "Short content block", "Published", "Edit"]] },
+};
+
+function TablePreview({ active }: { active: string }) {
+  const data = sectionData[active] ?? { columns: ["Name", "Status", "Action"], rows: [["Sample preview record", "Active", "View"]] };
+  return (
+    <div className="data-table-shell">
+      <div className="table-controls"><label>Show <select defaultValue="10"><option>10</option><option>25</option><option>50</option><option>100</option></select> entries</label><label>Search: <input aria-label={`${active} table search`} type="search" placeholder="" /></label></div>
+      <div className="data-table-scroll"><table className="data-table"><thead><tr>{data.columns.map((column) => <th key={column}>{column}<span className="sort-mark">↕</span></th>)}</tr></thead><tbody>{data.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`}>{cellIndex === row.length - 1 ? <button type="button" className="row-action">{cell}</button> : cell}</td>)}</tr>)}</tbody></table></div>
+      <div className="table-footer"><span>Showing 1 to {data.rows.length} of {data.rows.length} entries</span><div><button type="button">Previous</button><button type="button">Next</button></div></div>
+    </div>
+  );
+}
+
+function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    if (!username.trim() || !password.trim()) {
+      setError("Please enter your username and password.");
+      return;
+    }
+    setError("");
+    onLogin();
+  };
+
+  return <main className="login-screen"><div className="login-card"><div className="login-tabs"><button type="button" className="login-tab login-tab--active">Employee Login</button><button type="button" className="login-tab">Administrator Login</button></div><form onSubmit={submit} className="login-form"><input aria-label="Username" placeholder="Username" value={username} onChange={(event) => setUsername(event.target.value)} /><input aria-label="Password" type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />{error && <p className="login-error">{error}</p>}<button type="submit" className="login-submit">LOGIN</button></form></div></main>;
+}
+
 function SectionView({ active }: { active: string }) {
   const isSearch = active === "Email Search";
   const isAddPage = active.startsWith("Add ");
   const isSettings = ["Header Section", "Footer Section", "Theme Settings", "Conference Credits"].includes(active);
+  const [searched, setSearched] = useState(false);
 
   return (
     <section className="section-page" aria-labelledby="section-page-title">
@@ -275,9 +339,12 @@ function SectionView({ active }: { active: string }) {
       </div>
       {isSearch ? (
         <div className="section-card section-card--search">
-          <div className="section-card__title"><Search size={18} /> Search Records</div>
-          <div className="search-row"><input aria-label="Search records" placeholder="Search by email or keyword" /><button type="button">Search</button></div>
-          <p className="section-card__hint">Search is available as a local preview interaction. No records are sent anywhere.</p>
+          <div className="section-card__title">Search email across coordinator records</div>
+          <label className="email-search-field">Email Address<input aria-label="Email Address" type="email" placeholder="name@example.com" /></label>
+          <p className="scope-note">Scope: All conferences and all listed tables</p>
+          <button type="button" className="primary-action email-search-button" onClick={() => setSearched(true)}><Search size={13} /> Search Email</button>
+          <div className="search-tables"><strong>Search Tables</strong><div>{["abstracts", "clients", "contact", "downloadbrochure", "editorialboard", "email_messages", "follow_up", "forms_submission", "registration", "registration_users"].map((table) => <span key={table}>{table}</span>)}</div></div>
+          {searched && <div className="search-result-preview"><TablePreview active="Registrations" /></div>}
         </div>
       ) : isAddPage ? (
         <div className="section-card section-card--form">
@@ -293,9 +360,9 @@ function SectionView({ active }: { active: string }) {
         </div>
       ) : (
         <div className="section-card">
-          <div className="section-card__title"><ClipboardList size={18} /> {active} records</div>
-          <div className="fake-table"><div className="fake-row fake-row--header"><span>NAME</span><span>STATUS</span><span>ACTION</span></div><div className="fake-row"><span>No records in preview</span><span><b className="empty-pill">0 items</b></span><span><button type="button" className="row-action">View</button></span></div></div>
-          <p className="section-card__hint">This module is wired as an in-preview screen so the menu is functional. It does not connect to the original admin system.</p>
+          <div className="section-card__title"><ClipboardList size={18} /> {active}</div>
+          <TablePreview active={active} />
+          <p className="section-card__hint">Sample preview data is shown locally to mirror the reference fields and controls. No records are sent anywhere.</p>
         </div>
       )}
     </section>
@@ -303,6 +370,7 @@ function SectionView({ active }: { active: string }) {
 }
 
 export default function Home() {
+  const [loggedIn, setLoggedIn] = useState(false);
   const [active, setActive] = useState("Dashboard");
   const [selected, setSelected] = useState<MetricCard | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -321,6 +389,8 @@ export default function Home() {
   const handleSelect = (card: MetricCard) => {
     setSelected(card);
   };
+
+  if (!loggedIn) return <LoginScreen onLogin={() => setLoggedIn(true)} />;
 
   return (
     <div className="dashboard-shell">
