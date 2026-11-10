@@ -259,6 +259,49 @@ function Sidebar({ active, onSelect, open, onClose }: { active: string; onSelect
   );
 }
 
+function SectionView({ active }: { active: string }) {
+  const isSearch = active === "Email Search";
+  const isAddPage = active.startsWith("Add ");
+  const isSettings = ["Header Section", "Footer Section", "Theme Settings", "Conference Credits"].includes(active);
+
+  return (
+    <section className="section-page" aria-labelledby="section-page-title">
+      <div className="section-page__bar">
+        <div>
+          <span className="section-kicker">COORDINATOR MODULE</span>
+          <h2 id="section-page-title">{active}</h2>
+        </div>
+        <span className="section-page__count">Preview mode</span>
+      </div>
+      {isSearch ? (
+        <div className="section-card section-card--search">
+          <div className="section-card__title"><Search size={18} /> Search Records</div>
+          <div className="search-row"><input aria-label="Search records" placeholder="Search by email or keyword" /><button type="button">Search</button></div>
+          <p className="section-card__hint">Search is available as a local preview interaction. No records are sent anywhere.</p>
+        </div>
+      ) : isAddPage ? (
+        <div className="section-card section-card--form">
+          <div className="section-card__title"><Pencil size={18} /> {active}</div>
+          <div className="form-grid"><label>Title<input placeholder="Enter a title" /></label><label>Status<select defaultValue="Draft"><option>Draft</option><option>Published</option></select></label><label className="form-grid__wide">Description<textarea placeholder="Enter a short description" /></label></div>
+          <button type="button" className="primary-action">Save preview</button>
+        </div>
+      ) : isSettings ? (
+        <div className="section-card section-card--form">
+          <div className="section-card__title"><Settings size={18} /> {active}</div>
+          <div className="form-grid"><label>Section title<input defaultValue={active} /></label><label>Visibility<select defaultValue="Visible"><option>Visible</option><option>Hidden</option></select></label><label className="form-grid__wide">Content<textarea placeholder="This is a safe, local preview of the settings editor." /></label></div>
+          <button type="button" className="primary-action">Update preview</button>
+        </div>
+      ) : (
+        <div className="section-card">
+          <div className="section-card__title"><ClipboardList size={18} /> {active} records</div>
+          <div className="fake-table"><div className="fake-row fake-row--header"><span>NAME</span><span>STATUS</span><span>ACTION</span></div><div className="fake-row"><span>No records in preview</span><span><b className="empty-pill">0 items</b></span><span><button type="button" className="row-action">View</button></span></div></div>
+          <p className="section-card__hint">This module is wired as an in-preview screen so the menu is functional. It does not connect to the original admin system.</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function Home() {
   const [active, setActive] = useState("Dashboard");
   const [selected, setSelected] = useState<MetricCard | null>(null);
@@ -276,7 +319,6 @@ export default function Home() {
   };
 
   const handleSelect = (card: MetricCard) => {
-    setActive(card.title);
     setSelected(card);
   };
 
@@ -296,7 +338,7 @@ export default function Home() {
           <div className="page-heading">
             <div>
               <p className="eyebrow">INOVINE CONFERENCES · ADMIN PANEL</p>
-              <h1>Dashboard</h1>
+              <h1>{active}</h1>
             </div>
             <div className="page-heading__state">
               <span className="status-dot" />
@@ -317,14 +359,8 @@ export default function Home() {
             </section>
           )}
 
+          {active === "Dashboard" ? <>
           <section className="dashboard-section" aria-labelledby="overview-title">
-            <div className="section-heading">
-              <div>
-                <span className="section-kicker">01 · OVERVIEW</span>
-                <h2 id="overview-title">At a glance</h2>
-              </div>
-              <span className="section-note">Last synced for preview · just now</span>
-            </div>
             <div className="metrics-grid metrics-grid--overview">
               {summaryCards.map((card) => <MetricCardView card={card} onSelect={handleSelect} key={card.title} />)}
             </div>
@@ -333,8 +369,7 @@ export default function Home() {
           <section className="dashboard-section" aria-labelledby="registrations-title">
             <div className="section-heading">
               <div>
-                <span className="section-kicker">02 · REGISTRATIONS</span>
-                <h2 id="registrations-title">Registration status</h2>
+                <h2 id="registrations-title">Registrations</h2>
               </div>
               <button type="button" className="text-link" onClick={() => handleNavigation("Registrations")}>Open registrations <ChevronRight size={14} /></button>
             </div>
@@ -346,8 +381,7 @@ export default function Home() {
           <section className="dashboard-section" aria-labelledby="editorial-title">
             <div className="section-heading">
               <div>
-                <span className="section-kicker">03 · EDITORIAL BOARD</span>
-                <h2 id="editorial-title">People &amp; committees</h2>
+                <h2 id="editorial-title">Editorial Board</h2>
               </div>
               <button type="button" className="text-link" onClick={() => handleNavigation("All Members")}>View all members <ChevronRight size={14} /></button>
             </div>
@@ -360,6 +394,7 @@ export default function Home() {
             <span>Coordinator dashboard preview</span>
             <span>Faithful layout recreation · frontend only</span>
           </footer>
+          </> : <SectionView active={active} />}
         </div>
       </main>
     </div>
