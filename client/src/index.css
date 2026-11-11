@@ -386,3 +386,12 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .employee-page-heading h1 { font-size: 2.65rem; }
   .employee-topbar-user .employee-avatar { width: 25px; height: 25px; }
 }
+
+/* Supplied Velentra Group logo */
+.brand-logo-image { display: block; width: 205px; height: 58px; object-fit: contain; object-position: left center; }
+.workspace-brand-logo { display: block; width: 112px; height: 36px; object-fit: contain; object-position: left center; }
+.employee-sidebar-logo { display: block; width: 132px; height: 44px; object-fit: contain; object-position: left center; }
+@media (max-width: 760px) {
+  .brand-logo-image { width: 170px; height: 48px; }
+  .employee-sidebar-logo { width: 136px; }
+}

@@ -69,7 +69,7 @@ export default function Workspace() {
     <div className="workspace-page">
       <header className="workspace-header">
         <button type="button" className="back-link" onClick={() => setLocation("/")}><ArrowLeft size={16} /> Back to sign in</button>
-        <div className="workspace-brand"><span className="workspace-brand-mark"><span /><span /><span /></span> Velentra</div>
+        <div className="workspace-brand"><img className="workspace-brand-logo" src="/v-logo1.webp" alt="Velentra Group" /></div>
         <span className="workspace-user">{user?.name || user?.email || (demoSession ? demoUsername : "Signed-in account")}</span>
       </header>
       <main className="workspace-card">

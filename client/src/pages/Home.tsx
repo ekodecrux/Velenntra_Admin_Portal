@@ -60,11 +60,7 @@ const roleUsernames: Record<RoleId, string> = {
 
 function BrandMark() {
   return (
-    <div className="brand-mark" aria-hidden="true">
-      <span />
-      <span />
-      <span />
-    </div>
+    <img className="brand-logo-image" src="/v-logo1.webp" alt="Velentra Group" />
   );
 }
 
@@ -134,10 +130,6 @@ export default function Home() {
         <div className="brand-topline">
           <div className="brand-lockup">
             <BrandMark />
-            <div>
-              <div className="brand-name">Velentra</div>
-              <div className="brand-kicker">Group event operations</div>
-            </div>
           </div>
           <span className="brand-version">v.01 / portal</span>
         </div>
