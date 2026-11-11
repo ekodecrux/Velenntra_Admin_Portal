@@ -432,3 +432,13 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .smart-picker-empty { display: block; padding: 10px; color: #8c999a; font-size: 12px; }
 .employee-form-grid select { width: 100%; min-height: 42px; padding: 0 10px; border: 1px solid #d5dede; border-radius: 7px; background: #fff; color: var(--ink); }
 .employee-form-grid select:focus, .employee-form-grid input[type="date"]:focus { outline: 0; border-color: #173b5a; box-shadow: 0 0 0 3px rgba(23,59,90,.1); }
+
+.employee-directory-toolbar { flex-wrap: wrap; align-items: center; }
+.employee-directory-toolbar .employee-search { flex: 1 1 220px; }
+.employee-directory-toolbar > select { min-height: 38px; padding: 0 10px; border: 1px solid #d5dede; border-radius: 7px; background: #fff; color: var(--ink); font-size: 12px; }
+.employee-directory-toolbar > select:focus { outline: 0; border-color: #173b5a; box-shadow: 0 0 0 3px rgba(23,59,90,.1); }
+.employee-role-pill { display: inline-flex; padding: 4px 8px; border-radius: 999px; background: #edf2f4; color: #365766; font-size: 11px; font-weight: 600; }
+.employee-status-pill-inactive { background: #f3e8e6; color: #9b5043; }
+.employee-row-actions { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.employee-row-delete { padding: 0; border: 0; background: transparent; color: #a34c3e; cursor: pointer; font-size: 12px; font-weight: 600; }
+.employee-row-delete:hover { color: #7d2f24; text-decoration: underline; }

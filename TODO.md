@@ -22,6 +22,8 @@
 - [x] In the Create Event form, require an Assigned Admin and allow optional Employee assignment alongside event title, dates, venue, template, event status, and website status.
 - [x] Use a role dropdown when adding an employee, searchable Admin and multi-select Employee dropdowns when creating an event, and native date-picker controls for event date fields.
 - [x] Persist newly saved Employee records in the in-session Employee Directory and newly saved Event records in All Events, including role, status, Admin, and Employee assignment notes.
+- [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
+- [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard
