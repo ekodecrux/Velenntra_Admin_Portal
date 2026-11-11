@@ -1,0 +1,1 @@
+{"routes":[{"path":"/","title":"Velentra Admin Portal Login"},{"path":"/workspace/:role","title":"Velentra Workspace"},{"path":"/404","title":"Not Found"}]} 
