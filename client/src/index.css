@@ -418,3 +418,17 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-nav-submenu .employee-nav-item > svg:first-child { display: none; }
 .employee-nav-submenu .employee-nav-item-active { color: #173b5a; background: #e8f0f2; box-shadow: none; }
 .employee-nav-submenu .employee-nav-item-active .employee-nav-chevron { color: #173b5a !important; }
+
+.smart-picker { position: relative; width: 100%; }
+.smart-picker-control { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 42px; padding: 6px 10px; border: 1px solid #d5dede; border-radius: 7px; background: #fff; }
+.smart-picker-control:focus-within { border-color: #173b5a; box-shadow: 0 0 0 3px rgba(23,59,90,.1); }
+.smart-picker-control input { min-width: 130px; flex: 1; padding: 4px 0; border: 0; outline: 0; background: transparent; color: var(--ink); }
+.smart-picker-control input::placeholder { color: #9aa6a8; }
+.smart-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: #e6f0ec; color: #285845; font-size: 11px; font-weight: 600; }
+.smart-chip button { display: inline-grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.smart-picker-menu { position: absolute; z-index: 20; top: calc(100% + 5px); left: 0; right: 0; max-height: 190px; overflow: auto; padding: 5px; border: 1px solid #d5dede; border-radius: 8px; background: #fff; box-shadow: 0 12px 28px rgba(14,27,36,.14); }
+.smart-picker-option { display: block; width: 100%; padding: 9px 10px; border: 0; border-radius: 5px; background: transparent; color: var(--ink); cursor: pointer; text-align: left; font-size: 12px; }
+.smart-picker-option:hover { background: #e8f0f2; color: #173b5a; }
+.smart-picker-empty { display: block; padding: 10px; color: #8c999a; font-size: 12px; }
+.employee-form-grid select { width: 100%; min-height: 42px; padding: 0 10px; border: 1px solid #d5dede; border-radius: 7px; background: #fff; color: var(--ink); }
+.employee-form-grid select:focus, .employee-form-grid input[type="date"]:focus { outline: 0; border-color: #173b5a; box-shadow: 0 0 0 3px rgba(23,59,90,.1); }
