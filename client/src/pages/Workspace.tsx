@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { ArrowLeft, ArrowUpRight, Check, Layers3, ShieldCheck, UsersRound, Workflow } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useRoute } from "wouter";
+import EmployeeDashboard from "./EmployeeDashboard";
 
 const workspaceDetails = {
   employee: {
@@ -42,6 +43,7 @@ export default function Workspace() {
   const detail = workspaceDetails[requestedRole];
   const Icon = detail.icon;
   const hasSession = Boolean(user) || demoSession;
+  const demoUsername = requestedRole === "admin" ? "ADMIN" : requestedRole === "super-admin" ? "SUPER ADMIN" : "EMP";
 
   if (loading) {
     return <div className="workspace-state"><div className="button-spinner" /><span>Checking your Velentra session…</span></div>;
@@ -59,12 +61,16 @@ export default function Workspace() {
     );
   }
 
+  if (requestedRole === "employee") {
+    return <EmployeeDashboard onBack={() => setLocation("/")} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} />;
+  }
+
   return (
     <div className="workspace-page">
       <header className="workspace-header">
         <button type="button" className="back-link" onClick={() => setLocation("/")}><ArrowLeft size={16} /> Back to sign in</button>
         <div className="workspace-brand"><span className="workspace-brand-mark"><span /><span /><span /></span> Velentra</div>
-        <span className="workspace-user">{user?.name || user?.email || (demoSession ? "EMP" : "Signed-in account")}</span>
+        <span className="workspace-user">{user?.name || user?.email || (demoSession ? demoUsername : "Signed-in account")}</span>
       </header>
       <main className="workspace-card">
         <div className="workspace-card-topline"><span className="eyebrow"><span className="eyebrow-dot" /> Session verified</span><span className="workspace-status"><Check size={14} /> Access ready</span></div>

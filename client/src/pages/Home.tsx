@@ -52,6 +52,12 @@ const roles: Role[] = [
   },
 ];
 
+const roleUsernames: Record<RoleId, string> = {
+  employee: "EMP",
+  admin: "ADMIN",
+  "super-admin": "SUPER ADMIN",
+};
+
 function BrandMark() {
   return (
     <div className="brand-mark" aria-hidden="true">
@@ -88,23 +94,25 @@ export default function Home() {
 
     try {
       setIsSubmitting(true);
-      const isEmployeePreview = selectedRole === "employee"
-        && identifier.trim().toUpperCase() === "EMP"
+      const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
+      const isValidPreviewLogin = (selectedRole === "super-admin"
+        ? normalizedIdentifier === "SUPER ADMIN" || normalizedIdentifier === "SUPERADMIN"
+        : normalizedIdentifier === roleUsernames[selectedRole])
         && password === "123456";
 
-      if (!isEmployeePreview) {
+      if (!isValidPreviewLogin) {
         setIsSubmitting(false);
-        setFormError("We couldn’t sign you in. Use the Employee preview credentials shown below.");
+        setFormError(`We couldn’t sign you in. Use ${roleUsernames[selectedRole]} with the shared preview password.`);
         return;
       }
 
       try {
         sessionStorage.setItem("velentra-demo-authenticated", "true");
-        sessionStorage.setItem("velentra-signin-role", "employee");
+        sessionStorage.setItem("velentra-signin-role", selectedRole);
       } catch {
         // The preview can still show the validation state if storage is blocked.
       }
-      setLocation("/workspace/employee");
+      setLocation(`/workspace/${selectedRole}`);
     } catch {
       setIsSubmitting(false);
       setFormError("Sign-in is not available right now. Please try again.");
@@ -113,7 +121,7 @@ export default function Home() {
 
   const handleRecovery = () => {
     setFormError("");
-    setNotice("This first preview uses the Employee demo account. Production password recovery will be connected after the account model is finalized.");
+    setNotice("This preview uses role-based demo accounts. Production password recovery will be connected after the account model is finalized.");
   };
 
   return (
@@ -208,13 +216,13 @@ export default function Home() {
           <div className="auth-heading">
             <div className="eyebrow"><span className="eyebrow-dot" /> Welcome back</div>
             <h2>Sign in to your workspace.</h2>
-            <p>Employee access is ready for this first slice. Admin and Super Admin workspaces will be added after their operating rules are defined.</p>
+            <p>Employee, Admin, and Super Admin access are enabled for this preview. Dashboard workflows will be added as each workspace is defined.</p>
           </div>
 
           <div className="role-section">
             <div className="section-heading">
               <span className="section-label">01 / Your access point</span>
-              <span className="section-helper">Employee sign-in available now</span>
+              <span className="section-helper">All three demo roles enabled</span>
             </div>
             <div className="role-picker" role="group" aria-label="Choose your access point">
               {roles.map(role => {
@@ -222,16 +230,11 @@ export default function Home() {
                 const isActive = role.id === selectedRole;
                 return (
                   <button
-                    className={`role-option ${isActive ? "role-option-active" : ""} ${role.id !== "employee" ? "role-option-disabled" : ""}`}
+                    className={`role-option ${isActive ? "role-option-active" : ""}`}
                     type="button"
                     key={role.id}
                     aria-pressed={isActive}
-                    aria-disabled={role.id !== "employee"}
                     onClick={() => {
-                      if (role.id !== "employee") {
-                        setNotice(`${role.label} sign-in will be enabled after its workspace rules are finalized.`);
-                        return;
-                      }
                       setSelectedRole(role.id);
                       setFormError("");
                       setNotice("");
@@ -253,7 +256,7 @@ export default function Home() {
             <span className="selected-role-icon"><ActiveRoleIcon size={17} /></span>
             <span><strong>{activeRole.label} access</strong> — {activeRole.detail}</span>
           </div>
-          <div className="demo-credential-note"><span>Employee preview credentials</span><code>EMP</code><span>/</span><code>123456</code></div>
+          <div className="demo-credential-note"><span>{activeRole.label} preview credentials</span><code>{roleUsernames[selectedRole]}</code><span>/</span><code>123456</code></div>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <div className="section-heading section-heading-form">
