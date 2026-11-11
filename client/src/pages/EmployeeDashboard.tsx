@@ -172,6 +172,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const [notice, setNotice] = useState("");
   const [savedRows, setSavedRows] = useState<Record<string, Row[]>>({});
   const [openProfile, setOpenProfile] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Workspace", "Content & outreach", "Editorial board"]));
   const active = getFeature(activeId);
 
   const rows = useMemo(() => {
@@ -181,10 +182,27 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   }, [active, savedRows, search]);
 
   const selectFeature = (id: string) => {
+    const parent = sections.find(section => section.items.some(feature => feature.id === id));
+    if (parent) {
+      setExpandedSections(current => {
+        const next = new Set(current);
+        next.add(parent.label);
+        return next;
+      });
+    }
     setActiveId(id);
     setSearch("");
     setNotice("");
     setMobileNav(false);
+  };
+
+  const toggleSection = (label: string) => {
+    setExpandedSections(current => {
+      const next = new Set(current);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
   };
 
   const addRecord = () => {
@@ -269,7 +287,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
     <div className="employee-app-shell">
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <div className="employee-sidebar-brand"><img className="employee-sidebar-logo" src="/v-logo1.webp" alt="Velentra Group" /><button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button></div>
-        <div className="employee-sidebar-scroll">{sections.map(section => <div className="employee-nav-section" key={section.label}><span className="employee-nav-label">{section.label}</span>{section.items.map(feature => { const Icon = feature.icon; return <button type="button" key={feature.id} className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div>)}</div>
+        <div className="employee-sidebar-scroll">{sections.map(section => { const isExpanded = expandedSections.has(section.label); return <div className="employee-nav-section" key={section.label}><button type="button" className="employee-nav-label employee-nav-section-toggle" aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(feature => { const Icon = feature.icon; return <button type="button" key={feature.id} className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>
         <div className="employee-sidebar-footer"><button type="button" className="employee-account-button" onClick={() => setOpenProfile(value => !value)}><span className="employee-avatar">{username.slice(0, 2).toUpperCase()}</span><span><strong>{username}</strong><small>Employee</small></span><ChevronDown size={15} /></button>{openProfile ? <div className="employee-account-menu"><button type="button" onClick={onBack}><ArrowLeft size={14} /> Back to sign in</button><button type="button" onClick={onBack}><LogOut size={14} /> Sign out</button></div> : null}</div>
       </aside>
       {mobileNav ? <button className="employee-nav-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNav(false)} /> : null}

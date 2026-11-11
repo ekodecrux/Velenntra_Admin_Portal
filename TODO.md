@@ -19,6 +19,7 @@
 - [x] Make each sidebar option open its own working in-session view; list views support search, refresh, view feedback, and context-aware actions, while create options open editable forms with save-draft feedback.
 - [x] Provide dashboard summary cards for abstracts, brochures, testimonials, unsubscribe emails, success registrations, pending registrations, and editorial-board categories, matching the inspected employee portal's workflow emphasis.
 - [x] Keep the employee dashboard responsive with mobile navigation, keyboard-accessible controls, role/session identity, and back/sign-out actions.
+- [x] Add expandable/collapsible section headers with nested submenu items; selecting a submenu automatically opens its parent section and highlights the active destination.
 
 ## Product polish
 - [x] Add the Velentra visual system: deep ink, warm paper, copper accent, editorial typography contrast, and lightweight operational status motifs.

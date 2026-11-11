@@ -395,3 +395,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .brand-logo-image { width: 170px; height: 48px; }
   .employee-sidebar-logo { width: 136px; }
 }
+
+.employee-nav-section-toggle { display: flex; align-items: center; justify-content: space-between; min-height: 28px; margin-bottom: 4px; padding: 3px 10px; border: 0; border-radius: 5px; color: #99a3a4; background: transparent; cursor: pointer; text-align: left; }
+.employee-nav-section-toggle:hover { color: var(--ink); background: #f2f6f6; }
+.employee-nav-section-toggle > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.employee-nav-section-toggle > svg { flex: 0 0 auto; color: #a5b0b1; }
+.employee-nav-submenu { display: grid; gap: 1px; }
