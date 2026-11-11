@@ -14,6 +14,11 @@
 - [x] After valid demo sign-in, route to the matching Employee, Admin, or Super Admin workspace handoff shell.
 - [x] Register the complete client route set in `client/public/manus-routes.json`.
 
+## Admin and Super Admin workspaces
+- [x] Give Admin users a dedicated workspace for event management, event details, website preview, employee assignments, employee work, review queue, content approvals, publishing readiness, notifications, and settings.
+- [x] Give Super Admin users a dedicated workspace for all events, event creation, templates, team roles, Admin assignments, employee directory, published sites, site settings, publishing rules, platform activity, audit log, and system settings.
+- [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
+
 ## Employee coordinator dashboard
 - [x] Mirror the provided employee portal's option set in a Velentra Employee workspace: Dashboard, Email Search, Unsubscribe Emails, Abstracts, Brochure Download, editorial-board member categories, registration settings and records, tracks/subtracks, events, conference sessions, media, gallery/reviews, testimonials, pages, home tabs, and site settings.
 - [x] Make each sidebar option open its own working in-session view; list views support search, refresh, view feedback, and context-aware actions, while create options open editable forms with save-draft feedback.

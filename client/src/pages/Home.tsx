@@ -208,7 +208,7 @@ export default function Home() {
           <div className="auth-heading">
             <div className="eyebrow"><span className="eyebrow-dot" /> Welcome back</div>
             <h2>Sign in to your workspace.</h2>
-            <p>Employee, Admin, and Super Admin access are enabled for this preview. Dashboard workflows will be added as each workspace is defined.</p>
+            <p>Employee, Admin, and Super Admin access are enabled for this preview. Each role opens a workspace shaped around its responsibilities.</p>
           </div>
 
           <div className="role-section">
