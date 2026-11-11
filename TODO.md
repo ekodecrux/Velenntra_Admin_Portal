@@ -21,6 +21,7 @@
 - [x] Keep the Super Admin Events menu focused on `All Events` and `Create Event`; place `Create new Event` as the primary action at the top of the All Events view.
 - [x] In the Create Event form, require an Assigned Admin and allow optional Employee assignment alongside event title, dates, venue, template, event status, and website status.
 - [x] Use a role dropdown when adding an employee, searchable Admin and multi-select Employee dropdowns when creating an event, and native date-picker controls for event date fields.
+- [x] Persist newly saved Employee records in the in-session Employee Directory and newly saved Event records in All Events, including role, status, Admin, and Employee assignment notes.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard

@@ -23,12 +23,13 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 type RoleKey = "admin" | "super-admin";
 type ViewKind = "dashboard" | "list" | "form" | "settings";
 type RoleFeature = { id: string; label: string; description: string; kind: ViewKind; icon: LucideIcon; fields?: string[]; hidden?: boolean };
 type RoleSection = { label: string; items: RoleFeature[]; direct?: boolean; icon?: LucideIcon };
+type RoleRow = { title: string; status: string; meta: string; note: string };
 
 const feature = (id: string, label: string, description: string, icon: LucideIcon, kind: ViewKind = "list", fields?: string[], hidden = false): RoleFeature => ({ id, label, description, icon, kind, fields, hidden });
 
@@ -82,6 +83,8 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
   const [notice, setNotice] = useState("");
   const [openProfile, setOpenProfile] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
+  const [employeeRows, setEmployeeRows] = useState<RoleRow[]>([{ title: "EMP", status: "Active", meta: "Preview account", note: "Employee" }]);
+  const [eventRows, setEventRows] = useState<RoleRow[]>([{ title: "All Events workspace", status: "Ready", meta: "Just now", note: "Preview event list" }]);
   const allFeatures = config.sections.flatMap(section => section.items);
   const active = allFeatures.find(item => item.id === activeId) ?? allFeatures[0];
 
@@ -94,6 +97,30 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
   };
 
   const toggleSection = (label: string) => setExpandedSections(current => { const next = new Set(current); if (next.has(label)) next.delete(label); else next.add(label); return next; });
+
+  const saveForm = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const values = new FormData(event.currentTarget);
+    if (active.id === "add-employee") {
+      const name = String(values.get("Employee name") || "New employee");
+      const usernameValue = String(values.get("Username") || "Pending username");
+      const roleValue = String(values.get("Role") || "Employee");
+      setEmployeeRows(current => [...current, { title: `${name} · ${usernameValue}`, status: "Active", meta: "Just now", note: roleValue }]);
+      setActiveId("employee-directory");
+      setNotice(`${name} added to the Employee Directory.`);
+      return;
+    }
+    if (active.id === "create-event") {
+      const title = String(values.get("Event title") || "New event");
+      const admin = String(values.get("Assigned Admin") || "Admin pending");
+      const employees = String(values.get("Assigned Employees (optional)") || "No Employees assigned");
+      setEventRows(current => [...current, { title, status: String(values.get("Event status") || "Active"), meta: "Just now", note: `${admin} · ${employees}` }]);
+      setActiveId("all-events");
+      setNotice(`${title} created and added to All Events.`);
+      return;
+    }
+    setNotice(`${active.label} ${active.kind === "settings" ? "settings saved" : "saved as a draft"}.`);
+  };
 
   const renderDashboard = () => (
     <>
@@ -110,7 +137,7 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
     return <>
       <div className="employee-page-heading"><div><span className="employee-eyebrow"><span /> {isSettings ? "Settings" : config.label}</span><h1>{active.label}</h1><p>{active.description}</p></div><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={16} /> Dashboard</button></div>
       {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
-      {isForm || isSettings ? <div className="employee-form-card"><div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> {isSettings ? "Workspace controls" : "New workflow record"}</span><h2>{isSettings ? `Configure ${active.label.toLowerCase()}` : `Build ${active.label.toLowerCase()}`}</h2></div><span className="employee-draft-chip">{isSettings ? "Protected" : "Draft"}</span></div><div className="employee-form-grid">{fields.map(field => <label key={field}><span>{field}</span><FieldControl activeId={active.id} field={field} /></label>)}</div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} ${isSettings ? "settings saved" : "saved as a draft"}.`)}><Check size={16} /> {isSettings ? "Save settings" : "Save draft"}</button></div></div> : <div className="employee-table-card"><div className="employee-toolbar"><div className="employee-search"><Activity size={16} /><input placeholder={`Search ${active.label.toLowerCase()}`} /></div><div className="employee-toolbar-actions"><button className="employee-secondary-button" type="button" onClick={() => setNotice(`${active.label} refreshed.`)}><Activity size={15} /> Refresh</button>{active.id === "all-events" ? <button className="employee-primary-button" type="button" onClick={() => selectFeature("create-event")}><Plus size={16} /> Create new Event</button> : <button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} is ready for review.`)}><Plus size={16} /> Manage</button>}</div></div><div className="employee-table-wrap"><table><thead><tr><th>Name / title</th><th>Status</th><th>Updated</th><th>Action</th></tr></thead><tbody><tr><td><strong>{active.label} workspace</strong></td><td><span className="employee-status-pill">Ready</span></td><td>Just now</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${active.label} selected for review.`)}>View <ArrowUpRight size={14} /></button></td></tr></tbody></table></div></div>}
+      {isForm || isSettings ? <form className="employee-form-card" onSubmit={saveForm}><div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> {isSettings ? "Workspace controls" : "New workflow record"}</span><h2>{isSettings ? `Configure ${active.label.toLowerCase()}` : `Build ${active.label.toLowerCase()}`}</h2></div><span className="employee-draft-chip">{isSettings ? "Protected" : "Draft"}</span></div><div className="employee-form-grid">{fields.map(field => <label key={field}><span>{field}</span><FieldControl activeId={active.id} field={field} /></label>)}</div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="submit"><Check size={16} /> {isSettings ? "Save settings" : "Save draft"}</button></div></form> : <div className="employee-table-card"><div className="employee-toolbar"><div className="employee-search"><Activity size={16} /><input placeholder={`Search ${active.label.toLowerCase()}`} /></div><div className="employee-toolbar-actions"><button className="employee-secondary-button" type="button" onClick={() => setNotice(`${active.label} refreshed.`)}><Activity size={15} /> Refresh</button>{active.id === "all-events" ? <button className="employee-primary-button" type="button" onClick={() => selectFeature("create-event")}><Plus size={16} /> Create new Event</button> : <button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} is ready for review.`)}><Plus size={16} /> Manage</button>}</div></div><div className="employee-table-wrap"><table><thead><tr><th>Name / title</th><th>Status</th><th>Updated</th><th>Notes</th><th>Action</th></tr></thead><tbody>{(active.id === "employee-directory" ? employeeRows : active.id === "all-events" ? eventRows : [{ title: `${active.label} workspace`, status: "Ready", meta: "Just now", note: "Preview workspace" }]).map((row, index) => <tr key={`${row.title}-${index}`}><td><strong>{row.title}</strong></td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.meta}</td><td>{row.note}</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>View <ArrowUpRight size={14} /></button></td></tr>)}</tbody></table></div></div>}
     </>;
   };
 
@@ -119,20 +146,20 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
 
 function FieldControl({ activeId, field }: { activeId: string; field: string }) {
   const normalized = field.toLowerCase();
-  if (normalized.includes("date")) return <input type="date" required={field === "Event dates"} />;
-  if (activeId === "add-employee" && field === "Role") return <select defaultValue=""><option value="" disabled>Select a role</option><option>Employee</option><option>Admin</option><option>Super Admin</option></select>;
-  if (normalized.includes("status")) return <select defaultValue="Active"><option>Active</option><option>In progress</option><option>Admin review</option><option>Ready to publish</option><option>Published</option><option>Archived</option></select>;
-  if (field === "Assigned Admin") return <SearchablePicker options={["Aarav Mehta", "Priya Nair", "Jordan Lee", "Maya Patel"]} placeholder="Search and select an Admin" required />;
-  if (field === "Assigned Employees (optional)") return <SearchablePicker options={["EMP", "Riya Sharma", "Daniel Thomas", "Sara Joseph", "Karan Shah"]} placeholder="Search and select Employees (optional)" multiple />;
-  if (normalized.includes("description") || normalized.includes("copy")) return <textarea rows={4} placeholder={`Add ${normalized}`} />;
-  return <input placeholder={`Add ${normalized}`} required={field === "Event title" || field === "Assigned Admin"} />;
+  if (normalized.includes("date")) return <input name={field} type="date" required={field === "Event dates"} />;
+  if (activeId === "add-employee" && field === "Role") return <select name={field} defaultValue=""><option value="" disabled>Select a role</option><option>Employee</option><option>Admin</option><option>Super Admin</option></select>;
+  if (normalized.includes("status")) return <select name={field} defaultValue="Active"><option>Active</option><option>In progress</option><option>Admin review</option><option>Ready to publish</option><option>Published</option><option>Archived</option></select>;
+  if (field === "Assigned Admin") return <SearchablePicker name={field} options={["Aarav Mehta", "Priya Nair", "Jordan Lee", "Maya Patel"]} placeholder="Search and select an Admin" required />;
+  if (field === "Assigned Employees (optional)") return <SearchablePicker name={field} options={["EMP", "Riya Sharma", "Daniel Thomas", "Sara Joseph", "Karan Shah"]} placeholder="Search and select Employees (optional)" multiple />;
+  if (normalized.includes("description") || normalized.includes("copy")) return <textarea name={field} rows={4} placeholder={`Add ${normalized}`} />;
+  return <input name={field} placeholder={`Add ${normalized}`} required={field === "Event title" || field === "Assigned Admin"} />;
 }
 
-function SearchablePicker({ options, placeholder, multiple = false, required = false }: { options: string[]; placeholder: string; multiple?: boolean; required?: boolean }) {
+function SearchablePicker({ name, options, placeholder, multiple = false, required = false }: { name: string; options: string[]; placeholder: string; multiple?: boolean; required?: boolean }) {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const filtered = options.filter(option => option.toLowerCase().includes(query.toLowerCase()) && !selected.includes(option));
   const choose = (option: string) => { setSelected(current => multiple ? [...current, option] : [option]); setQuery(multiple ? "" : option); if (!multiple) setOpen(false); };
-  return <div className="smart-picker"><div className="smart-picker-control">{selected.map(option => <span className="smart-chip" key={option}>{option}<button type="button" aria-label={`Remove ${option}`} onClick={() => setSelected(current => current.filter(item => item !== option))}>×</button></span>)}<input value={multiple ? query : (selected[0] ?? query)} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); setSelected(multiple ? selected : []); setOpen(true); }} placeholder={selected.length ? "" : placeholder} required={required && selected.length === 0} /></div>{open ? <div className="smart-picker-menu">{filtered.length ? filtered.map(option => <button type="button" className="smart-picker-option" key={option} onMouseDown={event => event.preventDefault()} onClick={() => choose(option)}>{option}</button>) : <span className="smart-picker-empty">No matching people</span>}</div> : null}</div>;
+  return <div className="smart-picker"><input type="hidden" name={name} value={selected.join(", ")} /> <div className="smart-picker-control">{selected.map(option => <span className="smart-chip" key={option}>{option}<button type="button" aria-label={`Remove ${option}`} onClick={() => setSelected(current => current.filter(item => item !== option))}>×</button></span>)}<input value={multiple ? query : (selected[0] ?? query)} onFocus={() => setOpen(true)} onChange={event => { setQuery(event.target.value); setSelected(multiple ? selected : []); setOpen(true); }} placeholder={selected.length ? "" : placeholder} required={required && selected.length === 0} /></div>{open ? <div className="smart-picker-menu">{filtered.length ? filtered.map(option => <button type="button" className="smart-picker-option" key={option} onMouseDown={event => event.preventDefault()} onClick={() => choose(option)}>{option}</button>) : <span className="smart-picker-empty">No matching people</span>}</div> : null}</div>;
 }
