@@ -30,25 +30,21 @@ import { useMemo, useState } from "react";
 
 type FeatureKind = "dashboard" | "list" | "form" | "settings";
 type Feature = { id: string; label: string; description: string; kind: FeatureKind; icon: LucideIcon; createTarget?: string };
-type Section = { label: string; items: Feature[] };
+type Section = { label: string; items: Feature[]; direct?: boolean; icon?: LucideIcon };
 
 type Row = { title: string; status: string; meta: string; note: string };
 
 const item = (id: string, label: string, description: string, icon: LucideIcon, kind: FeatureKind = "list", createTarget?: string): Feature => ({ id, label, description, icon, kind, createTarget });
 
 const sections: Section[] = [
-  { label: "Workspace", items: [item("dashboard", "Dashboard", "A live view of the event workspace and current work queues.", LayoutDashboard, "dashboard")] },
+  { label: "Dashboard", direct: true, items: [item("dashboard", "Dashboard", "A live view of the event workspace and current work queues.", LayoutDashboard, "dashboard")] },
+  { label: "Email Search", direct: true, items: [item("email-search", "Email Search", "Search conference registration and contact records.", Mail)] },
+  { label: "Unsubscribe Emails", direct: true, items: [item("unsubscribe-emails", "Unsubscribe Emails", "Review and manage email opt-out records.", Mail)] },
+  { label: "Abstracts", direct: true, items: [item("abstracts", "Abstracts", "Review submitted abstracts and their editorial status.", FileText)] },
+  { label: "Brochure Download", direct: true, items: [item("brochures", "Brochure Download", "Track brochure downloads and available materials.", BookOpenText)] },
   {
-    label: "Content & outreach",
-    items: [
-      item("email-search", "Email Search", "Search conference registration and contact records.", Mail),
-      item("unsubscribe-emails", "Unsubscribe Emails", "Review and manage email opt-out records.", Mail),
-      item("abstracts", "Abstracts", "Review submitted abstracts and their editorial status.", FileText),
-      item("brochures", "Brochure Download", "Track brochure downloads and available materials.", BookOpenText),
-    ],
-  },
-  {
-    label: "Editorial board",
+    label: "Speakers | Board Members",
+    icon: UsersRound,
     items: [
       item("boardmembers", "All Members", "Manage the event board and member records.", UsersRound),
       item("organizingcommittee", "Organizing Committee", "Review organizing committee assignments.", UsersRound),
@@ -56,11 +52,12 @@ const sections: Section[] = [
       item("renownedspeakers", "Renowned Speakers", "Manage renowned speaker profiles.", UsersRound),
       item("speakers", "Invited Speakers", "Manage invited speaker profiles.", UsersRound),
       item("posterpresenters", "Poster Presenters", "Manage poster presenter submissions.", UsersRound),
-      item("representatives", "Representatives", "Manage company and event representatives.", UsersRound),
     ],
   },
+  { label: "Representatives", direct: true, items: [item("representatives", "Representatives", "Manage company and event representatives.", UsersRound)] },
   {
-    label: "Registration",
+    label: "Registration Info",
+    icon: SlidersHorizontal,
     items: [
       item("registration-dates", "Registration Dates", "Set registration windows and key deadlines.", CalendarDays, "settings"),
       item("default-currency", "Default Currency", "Set the currency used throughout registration.", SlidersHorizontal, "settings"),
@@ -70,52 +67,51 @@ const sections: Section[] = [
     ],
   },
   {
-    label: "Event content",
-    items: [
-      item("tracks", "Tracks", "Manage conference tracks.", ClipboardList, "form"),
-      item("subtracks", "Subtracks", "Manage track-level subcategories.", ClipboardList, "form"),
-      item("events-list", "Events List", "Manage event listings and published event details.", CalendarDays, "list", "add-event"),
-      item("add-event", "Add Event", "Create an event for the assigned conference website.", CalendarDays, "form"),
-      item("conference-sessions", "Conference Sessions", "Manage sessions, rooms, times, and speakers.", CalendarDays, "list", "add-session"),
-      item("add-session", "Add Conference Session", "Create a session in the conference schedule.", CalendarDays, "form"),
-    ],
+    label: "Tracks / Subtracks",
+    icon: ClipboardList,
+    items: [item("tracks", "Tracks", "Manage conference tracks.", ClipboardList, "form"), item("subtracks", "Subtracks", "Manage track-level subcategories.", ClipboardList, "form")],
   },
   {
-    label: "Media & promotion",
-    items: [
-      item("banner-images", "Banner Images", "Upload and manage hero banners for the event website.", Image, "form"),
-      item("media-partner", "Media Partner", "Manage media partner records and logos.", Image, "form"),
-      item("exhibitors", "Exhibitors", "Manage exhibitor profiles and display details.", UsersRound, "form"),
-      item("gallery", "Gallery", "Review past conference gallery items.", Image),
-      item("reviews", "Reviews", "Manage past conference reviews.", FileText, "form"),
-      item("buttons-list", "Buttons List", "Manage uploaded CTA buttons and linked assets.", SlidersHorizontal),
-    ],
+    label: "Prices",
+    icon: BarChart3,
+    items: [item("registration-prices", "Registration Prices", "Manage registration tiers and prices.", BarChart3), item("accommodation-prices", "Accommodation & Accompanying Prices", "Manage accommodation and companion pricing.", BarChart3)],
   },
+  {
+    label: "Banner / Media",
+    icon: Image,
+    items: [item("banner-images", "Banner Images", "Upload and manage hero banners for the event website.", Image, "form"), item("media-partner", "Media Partner", "Manage media partner records and logos.", Image, "form"), item("exhibitors", "Exhibitors", "Manage exhibitor profiles and display details.", UsersRound, "form")],
+  },
+  {
+    label: "Past Conference Gallery / Review",
+    icon: Image,
+    items: [item("gallery", "Gallery", "Review past conference gallery items.", Image), item("reviews", "Reviews", "Manage past conference reviews.", FileText, "form")],
+  },
+  {
+    label: "Events",
+    icon: CalendarDays,
+    items: [item("events-list", "Events List", "Manage event listings and published event details.", CalendarDays, "list", "add-event"), item("add-event", "Add Event", "Create an event for the assigned conference website.", CalendarDays, "form")],
+  },
+  {
+    label: "Conference Sessions",
+    icon: CalendarDays,
+    items: [item("conference-sessions", "Conference Sessions", "Manage sessions, rooms, times, and speakers.", CalendarDays, "list", "add-session"), item("add-session", "Add Conference Session", "Create a session in the conference schedule.", CalendarDays, "form")],
+  },
+  { label: "Buttons List", direct: true, items: [item("buttons-list", "Buttons List", "Manage uploaded CTA buttons and linked assets.", SlidersHorizontal)] },
   {
     label: "Testimonials",
-    items: [
-      item("testimonials-list", "Testimonials List", "Review and manage written testimonials.", FileText, "list", "add-testimonial"),
-      item("add-testimonial", "Add Testimonial", "Create a written testimonial for the website.", FileText, "form"),
-      item("video-testimonials", "Video Testimonials List", "Review and manage video testimonials.", Video, "list", "add-video-testimonial"),
-      item("add-video-testimonial", "Add Video Testimonials", "Add a video testimonial and its supporting copy.", Video, "form"),
-    ],
+    icon: FileText,
+    items: [item("testimonials-list", "Testimonials List", "Review and manage written testimonials.", FileText, "list", "add-testimonial"), item("add-testimonial", "Add Testimonial", "Create a written testimonial for the website.", FileText, "form"), item("video-testimonials", "Video Testimonials List", "Review and manage video testimonials.", Video, "list", "add-video-testimonial"), item("add-video-testimonial", "Add Video Testimonials", "Add a video testimonial and its supporting copy.", Video, "form")],
+  },
+  { label: "Pages", direct: true, items: [item("pages", "Pages", "Manage the event website's reusable pages.", FileText, "form")] },
+  {
+    label: "Home Tabs",
+    icon: SlidersHorizontal,
+    items: [item("home-tabs", "Home Tabs", "Manage content tabs displayed on the homepage.", SlidersHorizontal, "list", "add-home-tab"), item("add-home-tab", "Add New Tab", "Add a new homepage content tab.", Plus, "form")],
   },
   {
-    label: "Website structure",
-    items: [
-      item("pages", "Pages", "Manage the event website's reusable pages.", FileText, "form"),
-      item("home-tabs", "Home Tabs", "Manage content tabs displayed on the homepage.", SlidersHorizontal, "list", "add-home-tab"),
-      item("add-home-tab", "Add New Tab", "Add a new homepage content tab.", Plus, "form"),
-    ],
-  },
-  {
-    label: "Site settings",
-    items: [
-      item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"),
-      item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"),
-      item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"),
-      item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings"),
-    ],
+    label: "Site Settings",
+    icon: Settings2,
+    items: [item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
   },
 ];
 
@@ -172,7 +168,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const [notice, setNotice] = useState("");
   const [savedRows, setSavedRows] = useState<Record<string, Row[]>>({});
   const [openProfile, setOpenProfile] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Workspace", "Content & outreach", "Editorial board"]));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const active = getFeature(activeId);
 
   const rows = useMemo(() => {
@@ -287,7 +283,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
     <div className="employee-app-shell">
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <div className="employee-sidebar-brand"><img className="employee-sidebar-logo" src="/v-logo1.webp" alt="Velentra Group" /><button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button></div>
-        <div className="employee-sidebar-scroll">{sections.map(section => { const isExpanded = expandedSections.has(section.label); return <div className="employee-nav-section" key={section.label}><button type="button" className="employee-nav-label employee-nav-section-toggle" aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(feature => { const Icon = feature.icon; return <button type="button" key={feature.id} className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>
+        <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nestedFeature.id)}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>
         <div className="employee-sidebar-footer"><button type="button" className="employee-account-button" onClick={() => setOpenProfile(value => !value)}><span className="employee-avatar">{username.slice(0, 2).toUpperCase()}</span><span><strong>{username}</strong><small>Employee</small></span><ChevronDown size={15} /></button>{openProfile ? <div className="employee-account-menu"><button type="button" onClick={onBack}><ArrowLeft size={14} /> Back to sign in</button><button type="button" onClick={onBack}><LogOut size={14} /> Sign out</button></div> : null}</div>
       </aside>
       {mobileNav ? <button className="employee-nav-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNav(false)} /> : null}

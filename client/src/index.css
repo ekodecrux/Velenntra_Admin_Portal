@@ -401,3 +401,20 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-nav-section-toggle > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .employee-nav-section-toggle > svg { flex: 0 0 auto; color: #a5b0b1; }
 .employee-nav-submenu { display: grid; gap: 1px; }
+
+/* Reference portal menu treatment */
+.employee-sidebar-scroll { padding: 8px 8px 22px; }
+.employee-nav-section + .employee-nav-section { margin-top: 0; }
+.employee-nav-item { min-height: 38px; padding: 9px 8px; border-bottom: 1px solid #e3e8e8; border-radius: 0; color: #596668; font-size: 13px; }
+.employee-nav-item:hover { color: var(--ink); background: #f4f7f7; }
+.employee-nav-item > svg:first-child { color: #79a66f; }
+.employee-nav-item-active, .employee-nav-item-active:hover { color: #fff; background: #173b5a; box-shadow: 0 2px 0 rgba(14,27,36,.2); }
+.employee-nav-item-active > svg:first-child { color: #b8d7a4; }
+.employee-nav-group-toggle { font-weight: 500; }
+.employee-nav-group-toggle .employee-nav-chevron { color: inherit !important; }
+.employee-nav-submenu { gap: 0; margin-left: 18px; }
+.employee-nav-submenu .employee-nav-item { min-height: 38px; padding-left: 15px; border-bottom: 0; color: #596668; font-size: 12px; }
+.employee-nav-submenu .employee-nav-item:hover { color: var(--ink); background: #f4f7f7; }
+.employee-nav-submenu .employee-nav-item > svg:first-child { display: none; }
+.employee-nav-submenu .employee-nav-item-active { color: #173b5a; background: #e8f0f2; box-shadow: none; }
+.employee-nav-submenu .employee-nav-item-active .employee-nav-chevron { color: #173b5a !important; }
