@@ -18,6 +18,8 @@
 - [x] Give Admin users a dedicated workspace for event management, event details, website preview, employee assignments, employee work, review queue, content approvals, publishing readiness, notifications, and settings.
 - [x] Give Super Admin users a dedicated workspace for all events, event creation, templates, team roles, Admin assignments, employee directory, published sites, site settings, publishing rules, platform activity, audit log, and system settings.
 - [x] Give Super Admin users controls to add and manage employees, create and manage roles and permissions, assign Admins and Employees to events, modify event details, change event status, manage event websites, and control publishing rules.
+- [x] Keep the Super Admin Events menu focused on `All Events` and `Create Event`; place `Create new Event` as the primary action at the top of the All Events view.
+- [x] In the Create Event form, require an Assigned Admin and allow optional Employee assignment alongside event title, dates, venue, template, event status, and website status.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard
