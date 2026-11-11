@@ -12,12 +12,15 @@ import {
   FileCheck2,
   FileText,
   Globe2,
+  Eye,
   LayoutDashboard,
   LogOut,
   Menu,
+  Pencil,
   Plus,
   Settings2,
   ShieldCheck,
+  Trash2,
   UsersRound,
   Workflow,
   X,
@@ -30,7 +33,7 @@ type ViewKind = "dashboard" | "list" | "form" | "settings";
 type RoleFeature = { id: string; label: string; description: string; kind: ViewKind; icon: LucideIcon; fields?: string[]; hidden?: boolean };
 type RoleSection = { label: string; items: RoleFeature[]; direct?: boolean; icon?: LucideIcon };
 type RoleRow = { title: string; status: string; meta: string; note: string };
-type EmployeeRecord = { id: string; name: string; username: string; email: string; role: string; status: string; updated: string };
+type EmployeeRecord = { id: string; employeeId: string; name: string; username: string; email: string; contactNumber: string; address: string; role: string; status: string; updated: string };
 
 const feature = (id: string, label: string, description: string, icon: LucideIcon, kind: ViewKind = "list", fields?: string[], hidden = false): RoleFeature => ({ id, label, description, icon, kind, fields, hidden });
 
@@ -70,7 +73,7 @@ const roleConfigs: Record<RoleKey, { label: string; shortLabel: string; eyebrow:
     sections: [
       { label: "Dashboard", direct: true, items: [feature("dashboard", "Dashboard", "A live view of platform activity and event status.", LayoutDashboard, "dashboard")] },
       { label: "Events", icon: Globe2, items: [feature("all-events", "All Events", "Review, modify, publish, archive, and manage every conference event.", Globe2), feature("create-event", "Create Event", "Create an event, assign its Admin, and optionally assign Employees.", Plus, "form", ["Event title", "Event dates", "Venue", "Assigned Admin", "Assigned Employees (optional)", "Event template", "Event status", "Website status"]), feature("edit-event", "Modify Event", "Update event details, ownership, status, and publishing readiness.", FileText, "form", ["Event to modify", "Event title", "Event dates", "Venue", "Assigned Admin", "Publishing status"], true), feature("event-templates", "Event Templates", "Manage reusable conference website templates.", FileText, "list", undefined, true), feature("event-status", "Event Status", "Move events between review, in progress, ready to publish, published, and archived.", Workflow, "settings", ["Event status", "Publishing status"], true)] },
-      { label: "Team & access", icon: UsersRound, items: [feature("employee-directory", "Employee Directory", "Review, modify, activate, deactivate, and manage employees.", UsersRound), feature("add-employee", "Add Employee", "Create an Employee account and add them to the team.", Plus, "form", ["Employee name", "Username", "Work email", "Temporary password", "Role", "Account status"]), feature("team-roles", "Roles & Permissions", "Create and manage Employee, Admin, and Super Admin roles and permissions.", ShieldCheck, "settings", ["Role name", "Role description", "Can create events", "Can assign employees", "Can approve content", "Can publish websites", "Can manage team"]), feature("admin-assignments", "Admin Assignments", "Assign Admins to events and review ownership.", UsersRound, "form", ["Admin", "Event", "Access level", "Assignment status"]), feature("employee-event-assignments", "Employee Event Assignments", "Assign employees to events, tasks, and content workflows.", UsersRound, "form", ["Employee", "Event", "Task or responsibility", "Due date", "Assignment status"])] },
+      { label: "Team & access", icon: UsersRound, items: [feature("employee-directory", "Employee Directory", "Review, modify, activate, deactivate, and manage employees.", UsersRound), feature("add-employee", "Add Employee", "Create an Employee account and add them to the team.", Plus, "form", ["Employee ID", "Employee name", "Username", "Work email", "Contact number", "Address", "Temporary password", "Role", "Account status"]), feature("team-roles", "Roles & Permissions", "Create and manage Employee, Admin, and Super Admin roles and permissions.", ShieldCheck, "settings", ["Role name", "Role description", "Can create events", "Can assign employees", "Can approve content", "Can publish websites", "Can manage team"]), feature("admin-assignments", "Admin Assignments", "Assign Admins to events and review ownership.", UsersRound, "form", ["Admin", "Event", "Access level", "Assignment status"]), feature("employee-event-assignments", "Employee Event Assignments", "Assign employees to events, tasks, and content workflows.", UsersRound, "form", ["Employee", "Event", "Task or responsibility", "Due date", "Assignment status"])] },
       { label: "Websites & publishing", icon: Globe2, items: [feature("published-sites", "Published Sites", "Review and manage published event websites.", Globe2), feature("manage-websites", "Manage Event Websites", "Open event websites, templates, content status, and publish controls.", Globe2), feature("site-settings", "Site Settings", "Manage platform and website defaults.", Settings2, "settings", ["Default site title", "Default contact email", "Default publishing mode", "Default template"]), feature("publishing-rules", "Publishing Rules", "Manage review and publishing workflow settings.", Workflow, "settings", ["Require Admin approval", "Require Super Admin approval", "Allow employee edits after publish", "Archive behavior"])] },
       { label: "Operations", icon: Activity, items: [feature("activity", "Platform Activity", "Review recent changes across Velentra.", Activity), feature("audit-log", "Audit Log", "Trace role, content, assignment, and publishing changes.", FileText), feature("system-settings", "System Settings", "Manage platform-level settings and access controls.", Settings2, "settings", ["Platform name", "Session timeout", "Notification defaults", "Maintenance mode"]), feature("super-notifications", "Notifications", "Review platform alerts and team activity notifications.", Bell)] },
     ],
@@ -87,9 +90,13 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
   const [employeeRows, setEmployeeRows] = useState<EmployeeRecord[]>(() => {
     try {
       const stored = sessionStorage.getItem("velentra-super-admin-employees");
-      return stored ? JSON.parse(stored) as EmployeeRecord[] : [{ id: "emp-preview", name: "EMP", username: "EMP", email: "employee@velentra.preview", role: "Employee", status: "Active", updated: "Preview account" }];
+      if (stored) {
+        const parsed = JSON.parse(stored) as Partial<EmployeeRecord>[];
+        return parsed.map((employee, index) => ({ id: employee.id ?? `employee-${index}`, employeeId: employee.employeeId ?? `EMP-${String(index + 1).padStart(4, "0")}`, name: employee.name ?? "Unnamed employee", username: employee.username ?? "Not provided", email: employee.email ?? "Not provided", contactNumber: employee.contactNumber ?? "Not provided", address: employee.address ?? "Not provided", role: employee.role ?? "Employee", status: employee.status ?? "Active", updated: employee.updated ?? "Just now" }));
+      }
+      return [{ id: "emp-preview", employeeId: "EMP-0001", name: "EMP", username: "EMP", email: "employee@velentra.preview", contactNumber: "Not provided", address: "Preview account", role: "Employee", status: "Active", updated: "Preview account" }];
     } catch {
-      return [{ id: "emp-preview", name: "EMP", username: "EMP", email: "employee@velentra.preview", role: "Employee", status: "Active", updated: "Preview account" }];
+      return [{ id: "emp-preview", employeeId: "EMP-0001", name: "EMP", username: "EMP", email: "employee@velentra.preview", contactNumber: "Not provided", address: "Preview account", role: "Employee", status: "Active", updated: "Preview account" }];
     }
   });
   const [eventRows, setEventRows] = useState<RoleRow[]>([{ title: "All Events workspace", status: "Ready", meta: "Just now", note: "Preview event list" }]);
@@ -116,18 +123,21 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
     const values = new FormData(event.currentTarget);
     if (active.id === "add-employee") {
       const name = String(values.get("Employee name") || "New employee");
+      const employeeId = String(values.get("Employee ID") || `EMP-${String(employeeRows.length + 1).padStart(4, "0")}`);
       const usernameValue = String(values.get("Username") || "Pending username");
       const email = String(values.get("Work email") || "No email provided");
+      const contactNumber = String(values.get("Contact number") || "Not provided");
+      const address = String(values.get("Address") || "Not provided");
       const roleValue = String(values.get("Role") || "Employee");
       const statusValue = String(values.get("Account status") || "Active");
       if (editingEmployee) {
-        setEmployeeRows(current => current.map(employee => employee.id === editingEmployee.id ? { ...employee, name, username: usernameValue, email, role: roleValue, status: statusValue, updated: "Just now" } : employee));
+        setEmployeeRows(current => current.map(employee => employee.id === editingEmployee.id ? { ...employee, employeeId, name, username: usernameValue, email, contactNumber, address, role: roleValue, status: statusValue, updated: "Just now" } : employee));
         setEditingEmployee(null);
         setActiveId("employee-directory");
         setNotice(`${name} updated in the Employee Directory.`);
         return;
       }
-      setEmployeeRows(current => [...current, { id: `employee-${Date.now()}`, name, username: usernameValue, email, role: roleValue, status: statusValue, updated: "Just now" }]);
+      setEmployeeRows(current => [...current, { id: `employee-${Date.now()}`, employeeId, name, username: usernameValue, email, contactNumber, address, role: roleValue, status: statusValue, updated: "Just now" }]);
       setActiveId("employee-directory");
       setNotice(`${name} added to the Employee Directory.`);
       return;
@@ -148,7 +158,7 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
   const deleteEmployee = (employee: EmployeeRecord) => { setEmployeeRows(current => current.filter(item => item.id !== employee.id)); setNotice(`${employee.name} deleted from the Employee Directory.`); };
   const employeeFieldValue = (field: string) => {
     if (!editingEmployee) return undefined;
-    return ({ "Employee name": editingEmployee.name, Username: editingEmployee.username, "Work email": editingEmployee.email, Role: editingEmployee.role, "Account status": editingEmployee.status } as Record<string, string>)[field];
+    return ({ "Employee ID": editingEmployee.employeeId, "Employee name": editingEmployee.name, Username: editingEmployee.username, "Work email": editingEmployee.email, "Contact number": editingEmployee.contactNumber, Address: editingEmployee.address, Role: editingEmployee.role, "Account status": editingEmployee.status } as Record<string, string>)[field];
   };
 
   const renderDashboard = () => (
@@ -161,13 +171,13 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
 
   const renderEmployeeDirectory = () => {
     const filteredEmployees = employeeRows.filter(employee => {
-      const haystack = `${employee.name} ${employee.username} ${employee.email} ${employee.role} ${employee.status}`.toLowerCase();
+      const haystack = `${employee.employeeId} ${employee.name} ${employee.username} ${employee.email} ${employee.contactNumber} ${employee.address} ${employee.role} ${employee.status}`.toLowerCase();
       return haystack.includes(employeeSearch.toLowerCase()) && (employeeRoleFilter === "All roles" || employee.role === employeeRoleFilter) && (employeeStatusFilter === "All statuses" || employee.status === employeeStatusFilter);
     });
     return <>
       <div className="employee-page-heading"><div><span className="employee-eyebrow"><span /> Super Admin workspace</span><h1>Employee Directory</h1><p>Review, modify, activate, deactivate, and manage employees.</p></div><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={16} /> Dashboard</button></div>
       {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
-      <div className="employee-table-card"><div className="employee-toolbar employee-directory-toolbar"><div className="employee-search"><Activity size={16} /><input value={employeeSearch} onChange={event => setEmployeeSearch(event.target.value)} placeholder="Search employees" /></div><select value={employeeRoleFilter} onChange={event => setEmployeeRoleFilter(event.target.value)} aria-label="Filter by role"><option>All roles</option><option>Employee</option><option>Admin</option><option>Super Admin</option></select><select value={employeeStatusFilter} onChange={event => setEmployeeStatusFilter(event.target.value)} aria-label="Filter by status"><option>All statuses</option><option>Active</option><option>Inactive</option></select><div className="employee-toolbar-actions"><button className="employee-secondary-button" type="button" onClick={() => setNotice("Employee Directory refreshed.")}><Activity size={15} /> Refresh</button><button className="employee-primary-button" type="button" onClick={() => { setEditingEmployee(null); selectFeature("add-employee"); }}><Plus size={16} /> Add Employee</button></div></div><div className="employee-table-wrap"><table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead><tbody>{filteredEmployees.map(employee => <tr key={employee.id}><td><strong>{employee.name}</strong></td><td>{employee.username}</td><td>{employee.email}</td><td><span className="employee-role-pill">{employee.role}</span></td><td><span className={`employee-status-pill ${employee.status === "Inactive" ? "employee-status-pill-inactive" : ""}`}>{employee.status}</span></td><td>{employee.updated}</td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => editEmployee(employee)}>Edit</button><button className="employee-row-delete" type="button" onClick={() => deleteEmployee(employee)}>Delete</button></div></td></tr>)}</tbody></table>{filteredEmployees.length === 0 ? <div className="employee-empty">No employees match the selected filters.</div> : null}</div></div>
+      <div className="employee-table-card"><div className="employee-toolbar employee-directory-toolbar"><div className="employee-search"><Activity size={16} /><input value={employeeSearch} onChange={event => setEmployeeSearch(event.target.value)} placeholder="Search employees" /></div><select value={employeeRoleFilter} onChange={event => setEmployeeRoleFilter(event.target.value)} aria-label="Filter by role"><option>All roles</option><option>Employee</option><option>Admin</option><option>Super Admin</option></select><select value={employeeStatusFilter} onChange={event => setEmployeeStatusFilter(event.target.value)} aria-label="Filter by status"><option>All statuses</option><option>Active</option><option>Inactive</option></select><div className="employee-toolbar-actions"><button className="employee-secondary-button" type="button" onClick={() => setNotice("Employee Directory refreshed.")}><Activity size={15} /> Refresh</button><button className="employee-primary-button" type="button" onClick={() => { setEditingEmployee(null); selectFeature("add-employee"); }}><Plus size={16} /> Add Employee</button></div></div><div className="employee-table-wrap"><table><thead><tr><th>Employee ID</th><th>Name</th><th>Username</th><th>Email</th><th>Contact</th><th>Address</th><th>Role</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead><tbody>{filteredEmployees.map(employee => <tr key={employee.id}><td><strong>{employee.employeeId}</strong></td><td>{employee.name}</td><td>{employee.username}</td><td>{employee.email}</td><td>{employee.contactNumber}</td><td>{employee.address}</td><td><span className="employee-role-pill">{employee.role}</span></td><td><span className={`employee-status-pill ${employee.status === "Inactive" ? "employee-status-pill-inactive" : ""}`}>{employee.status}</span></td><td>{employee.updated}</td><td><div className="employee-row-actions"><button className="employee-icon-action" type="button" aria-label={`View ${employee.name}`} title="View" onClick={() => setNotice(`${employee.name}: ${employee.employeeId}, ${employee.email}, ${employee.contactNumber}, ${employee.address}.`)}><Eye size={16} /></button><button className="employee-icon-action" type="button" aria-label={`Edit ${employee.name}`} title="Edit" onClick={() => editEmployee(employee)}><Pencil size={16} /></button><button className="employee-icon-action employee-icon-action-danger" type="button" aria-label={`Delete ${employee.name}`} title="Delete" onClick={() => deleteEmployee(employee)}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table>{filteredEmployees.length === 0 ? <div className="employee-empty">No employees match the selected filters.</div> : null}</div></div>
     </>;
   };
 
@@ -190,6 +200,8 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
 function FieldControl({ activeId, field, initialValue }: { activeId: string; field: string; initialValue?: string }) {
   const normalized = field.toLowerCase();
   if (normalized.includes("date")) return <input name={field} type="date" defaultValue={initialValue} required={field === "Event dates"} />;
+  if (activeId === "add-employee" && field === "Contact number") return <input name={field} type="tel" placeholder="Add contact number" defaultValue={initialValue} />;
+  if (activeId === "add-employee" && field === "Address") return <textarea name={field} rows={3} placeholder="Add address" defaultValue={initialValue} />;
   if (activeId === "add-employee" && field === "Role") return <select name={field} defaultValue={initialValue ?? ""}><option value="" disabled>Select a role</option><option>Employee</option><option>Admin</option><option>Super Admin</option></select>;
   if (normalized.includes("status")) return <select name={field} defaultValue={initialValue ?? "Active"}><option>Active</option><option>Inactive</option><option>In progress</option><option>Admin review</option><option>Ready to publish</option><option>Published</option><option>Archived</option></select>;
   if (field === "Assigned Admin") return <SearchablePicker name={field} options={["Aarav Mehta", "Priya Nair", "Jordan Lee", "Maya Patel"]} placeholder="Search and select an Admin" required />;

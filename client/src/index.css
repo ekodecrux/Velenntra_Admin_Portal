@@ -442,3 +442,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-row-actions { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
 .employee-row-delete { padding: 0; border: 0; background: transparent; color: #a34c3e; cursor: pointer; font-size: 12px; font-weight: 600; }
 .employee-row-delete:hover { color: #7d2f24; text-decoration: underline; }
+
+.employee-icon-action { display: inline-grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 1px solid #d8e0e1; border-radius: 6px; background: #fff; color: #365766; cursor: pointer; }
+.employee-icon-action:hover { border-color: #173b5a; background: #edf3f4; color: #173b5a; }
+.employee-icon-action-danger { color: #a34c3e; }
+.employee-icon-action-danger:hover { border-color: #a34c3e; background: #f8ece9; color: #7d2f24; }
+.employee-table-wrap td { vertical-align: middle; }
