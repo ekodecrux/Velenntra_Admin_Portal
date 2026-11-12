@@ -140,26 +140,25 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     overlayStyle.textContent = `.manus-editor-target{position:relative!important;outline:2px dashed #2f87a3!important;outline-offset:3px!important;cursor:pointer!important}.manus-inline-edit{position:absolute!important;right:8px!important;top:8px!important;z-index:99999!important;width:30px!important;height:30px!important;border:1px solid #2f87a3!important;border-radius:7px!important;background:#fff!important;color:#145d75!important;box-shadow:0 3px 10px rgba(22,61,75,.22)!important;font:700 16px/1 Arial!important;cursor:pointer!important}.manus-inline-edit:hover{background:#e9f7fb!important;transform:scale(1.05)!important}`;
     document.getElementById("manus-editor-overlays")?.remove();
     document.head.appendChild(overlayStyle);
-    const mark = (selector: string, sectionId: string, field: string) => {
-      document.querySelectorAll<HTMLElement>(selector).forEach(targetElement => {
-        const frameElement = targetElement.tagName === "IMG" ? (targetElement.parentElement ?? targetElement) : targetElement;
-        if (frameElement.dataset.manusEditorTarget) return;
-        frameElement.dataset.manusEditorTarget = sectionId;
-        frameElement.classList.add("manus-editor-target");
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "manus-inline-edit";
-        editButton.title = `Edit ${field}`;
-        editButton.setAttribute("aria-label", `Edit ${field}`);
-        editButton.textContent = "✎";
-        editButton.addEventListener("click", clickEvent => {
-          clickEvent.preventDefault();
-          clickEvent.stopPropagation();
-          window.parent.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId, field } }));
-        });
-        frameElement.appendChild(editButton);
+    const addFrame = (targetElement: HTMLElement, sectionId: string, field: string) => {
+      const frameElement = targetElement.tagName === "IMG" ? (targetElement.parentElement ?? targetElement) : targetElement;
+      if (frameElement.dataset.manusEditorTarget) return;
+      frameElement.dataset.manusEditorTarget = sectionId;
+      frameElement.classList.add("manus-editor-target");
+      const editButton = document.createElement("button");
+      editButton.type = "button";
+      editButton.className = "manus-inline-edit";
+      editButton.title = `Edit ${field}`;
+      editButton.setAttribute("aria-label", `Edit ${field}`);
+      editButton.textContent = "✎";
+      editButton.addEventListener("click", clickEvent => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        window.parent.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId, field } }));
       });
+      frameElement.appendChild(editButton);
     };
+    const mark = (selector: string, sectionId: string, field: string) => document.querySelectorAll<HTMLElement>(selector).forEach(targetElement => addFrame(targetElement, sectionId, field));
     mark(".hybrid-text", "header", "Top header text");
     mark(".top-header .top-logo", "header", "Logo image");
     mark(".top-header h1", "header", "Left header content");
@@ -171,6 +170,16 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     mark("[id*='testimonial'], [class*='testimonial']", "testimonials", "Testimonials");
     mark("[id*='gallery'], [class*='gallery']", "gallery", "Gallery images");
     mark("footer", "footer", "Footer content");
+    const genericTargets = document.querySelectorAll<HTMLElement>("h1,h2,h3,h4,h5,h6,p,li,a,button,span,img,input,textarea,select");
+    genericTargets.forEach(targetElement => {
+      if (!targetElement.textContent?.trim() && !["IMG", "INPUT", "TEXTAREA", "SELECT"].includes(targetElement.tagName)) return;
+      if (targetElement.closest(".manus-inline-edit") || targetElement.classList.contains("sr-only")) return;
+      const area = targetElement.closest(".top-header,.hybrid-text,#mainMenu,footer,[id*='about'],[class*='about'],[id*='speaker'],[class*='speaker'],[id*='testimonial'],[class*='testimonial'],[id*='gallery'],[class*='gallery']");
+      const areaText = `${area?.className ?? ""} ${area?.id ?? ""}`.toLowerCase();
+      const sectionId = area?.closest("footer") ? "footer" : areaText.includes("testimonial") ? "testimonials" : areaText.includes("speaker") ? "speakers" : areaText.includes("gallery") ? "gallery" : areaText.includes("about") ? "about" : areaText.includes("top-header") || areaText.includes("hybrid") || areaText.includes("mainmenu") ? "header" : "pages";
+      const field = sectionId === "header" ? (targetElement.tagName === "IMG" ? "Logo image" : targetElement.closest("nav,#mainMenu") ? "Navigation links" : targetElement.closest(".top-add-text-1,.top-add-text-2") ? "Right header content" : targetElement.closest(".hybrid-text") ? "Top header text" : "Left header content") : sectionId === "footer" ? "Footer content" : sectionId === "speakers" ? "Speaker profiles" : sectionId === "testimonials" ? "Testimonials" : sectionId === "gallery" ? "Gallery images" : sectionId === "about" ? "About content" : "Page content";
+      addFrame(targetElement, sectionId, field);
+    });
     document.addEventListener("click", clickEvent => {
       const target = clickEvent.target instanceof HTMLElement ? clickEvent.target : null;
       const element = target?.closest("a,button,header,nav,footer,section,article,div") as HTMLElement | null;
