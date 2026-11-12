@@ -475,3 +475,20 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 
 .employee-dashboard-heading { align-items: center; margin-bottom: 24px; padding: 17px 20px; border: 1px solid #dce4e6; border-radius: 10px; background: rgba(255,255,255,.78); box-shadow: 0 9px 22px rgba(14,27,36,.04); }
 .employee-dashboard-heading h1 { margin: 7px 0 0; font-family: inherit; font-size: 1.55rem; font-weight: 800; letter-spacing: -.04em; }
+
+.employee-email-search-card, .employee-search-tables-card { overflow: hidden; margin-bottom: 18px; border: 1px solid #dce4e6; border-radius: 17px; background: rgba(255,255,255,.82); box-shadow: 0 12px 25px rgba(14,27,36,.06); }
+.employee-email-search-heading { padding: 17px 16px; color: #fff; background: #347fb8; font-size: 16px; font-weight: 600; }
+.employee-email-search-body { display: grid; grid-template-columns: minmax(0, 1fr) 325px; align-items: end; gap: 26px; padding: 24px 26px 26px; }
+.employee-email-search-body label { display: flex; flex-direction: column; gap: 8px; color: #404d50; font-size: 12px; }
+.employee-email-search-body input { min-height: 38px; padding: 0 11px; border: 1px solid #cbd5d6; border-radius: 4px; outline: 0; color: var(--ink); background: #fff; }
+.employee-email-search-body input:focus { border-color: #347fb8; box-shadow: 0 0 0 3px rgba(52,127,184,.12); }
+.employee-email-search-body small { grid-column: 1 / -1; margin-top: -16px; color: #7e898b; font-size: 12px; }
+.employee-email-search-button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 32px; border: 0; border-radius: 3px; color: #fff; background: #347fb8; font-size: 12px; font-weight: 600; }
+.employee-email-search-button:hover { background: #286c9f; }
+.employee-search-tables-card h2 { margin: 0; padding: 20px 16px; border-bottom: 1px solid #dce4e6; color: #283538; font-size: 16px; }
+.employee-search-tables-card > div { display: flex; flex-wrap: wrap; gap: 8px; padding: 27px 26px 29px; }
+.employee-search-tables-card span { padding: 2px 6px; border-radius: 2px; color: #fff; background: #777; font-size: 10px; font-weight: 700; }
+@media (max-width: 760px) {
+  .employee-email-search-body { grid-template-columns: 1fr; gap: 14px; padding: 18px; }
+  .employee-email-search-body small { grid-column: auto; margin-top: 0; }
+}

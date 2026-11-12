@@ -40,6 +40,7 @@
 - [x] Match the original Employee Dashboard card layout: four cards across the first row (Abstracts, Brochures, Testimonials, Email Search), Unsubscribe Emails wrapping to the next row, separate action footers, and compact Dashboard heading treatment.
 - [x] Verify the original Employee account `ent-2027 / 75501` and compare its authenticated dashboard/menu against Velentra without mutating external records.
 - [x] Make audited list pages open their matching Add forms; make form fields editable; save new records locally, return to the originating list, prefill Edit flows, and support local Delete actions without changing the external portal.
+- [x] Recreate Coordinator Email Search as a dedicated page with the blue search panel, Email Address field, Search Email action, scope text, and Search Tables pills: abstracts, clients, contact, downloadbrochure, editorialboard, email_messages, follow_up, forms_submission, registration, and registration_users.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard

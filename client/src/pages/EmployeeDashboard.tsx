@@ -213,6 +213,7 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
 };
 
 const formActionLabels: Record<string, string> = { "unsubscribe-emails": "Add Unsubscribe Email", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
+const emailSearchTables = ["abstracts", "clients", "contact", "downloadbrochure", "editorialboard", "email_messages", "follow_up", "forms_submission", "registration", "registration_users"];
 
 const defaultRows = (feature: Feature): Row[] => [
   { title: `${feature.label} workspace`, status: "Ready", meta: "No records yet", note: "Create the first record to begin" },
@@ -364,11 +365,19 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
     return (
       <>
         <div className="employee-page-heading">
-          <div><span className="employee-eyebrow"><span /> {active.kind === "settings" ? "Settings" : "Employee workspace"}</span><h1>{active.label}</h1><p>{active.description}</p></div>
+          <div><span className="employee-eyebrow"><span /> {active.id === "email-search" ? "Coordinator module" : active.kind === "settings" ? "Settings" : "Employee workspace"}</span><h1>{active.id === "email-search" ? "Coordinator Email Search" : active.label}</h1><p>{active.id === "email-search" ? "Search email across coordinator records." : active.description}</p></div>
           <button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={16} /> Dashboard</button>
         </div>
         {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
-        {isSettings ? (
+        {active.id === "email-search" ? (
+          <>
+            <section className="employee-email-search-card">
+              <div className="employee-email-search-heading">Search email across coordinator records</div>
+              <div className="employee-email-search-body"><label><span>Email Address</span><input type="email" value={formValues["Email Address"] ?? ""} onChange={event => setFormValues(values => ({ ...values, "Email Address": event.target.value }))} placeholder="name@example.com" /></label><button className="employee-email-search-button" type="button" onClick={() => setNotice(formValues["Email Address"] ? `Searching all coordinator tables for ${formValues["Email Address"]}.` : "Enter an email address to search.")}><Search size={15} /> Search Email</button><small>Scope: All conferences and all listed tables</small></div>
+            </section>
+            <section className="employee-search-tables-card"><h2>Search Tables</h2><div>{emailSearchTables.map(table => <span key={table}>{table}</span>)}</div></section>
+          </>
+        ) : isSettings ? (
           <div className="employee-settings-grid">
             {activeFields.map(field => <label className="employee-setting-card" key={field.label}><span>{field.label}</span>{field.type === "select" ? <select defaultValue={field.options?.[0]}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} placeholder={field.placeholder ?? "Enter content"} /> : <input type={field.type ?? "text"} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}
             <button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} changes saved.`)}><Check size={16} /> Update preview</button>
