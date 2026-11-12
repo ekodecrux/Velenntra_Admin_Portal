@@ -18,7 +18,7 @@ export default function Workspace() {
   });
   const requestedRole = params?.role === "admin" || params?.role === "super-admin" ? params.role : "employee";
   const hasSession = Boolean(user) || demoSession;
-  const demoUsername = requestedRole === "admin" ? "ADMIN" : requestedRole === "super-admin" ? "SUPER ADMIN" : "EMP";
+  const demoUsername = requestedRole === "admin" ? "ADMIN" : requestedRole === "super-admin" ? "SUPER ADMIN" : "EMP001";
 
   if (loading) {
     return <div className="workspace-state"><div className="button-spinner" /><span>Checking your Velentra session…</span></div>;

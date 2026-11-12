@@ -27,6 +27,13 @@
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.
 - [x] Keep only icon-only Edit and Delete controls in each Employee Directory row with accessible labels and tooltips; remove the separate Username column and View action.
 - [x] Tighten Employee ID and Name column widths so the directory does not leave excessive space between the identifier and employee name.
+
+## Employee portal parity audit
+- [x] Validate the provided Employee portal with `emp001 / 123456` and mirror its top-level menu order: Dashboard, Email Search, Unsubscribe Emails, Abstracts, Brochure Download, Speakers | Board Members, Representatives, Tracks, Registration Info, Banner/ Media, Past Conference Gallery/Review, Events, Conference Sessions, Buttons List, Testimonials, Pages, Home Tabs, and Site Settings.
+- [x] Mirror the audited expandable submenu items, including board-member categories, Tracks/Subtracks/Prices, registration options, Events List/Add Event, Conference Sessions/Add Conference Sessions, testimonial variants, Home Tabs/Add New Tab, and Site Settings sections.
+- [x] Align list destinations with Show 10/25/50/100 entries, Search, table actions, and Previous/Next pagination controls.
+- [x] Align create destinations with Title, Status (Draft/Published), Description, and Save draft; align site settings with Section title, Visibility (Visible/Hidden), Content, and Update preview.
+- [x] Make Employee login accept `emp001 / 123456` and retain `EMP / 123456` compatibility for the existing preview account.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard

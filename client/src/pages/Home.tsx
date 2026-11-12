@@ -53,7 +53,7 @@ const roles: Role[] = [
 ];
 
 const roleUsernames: Record<RoleId, string> = {
-  employee: "EMP",
+  employee: "EMP001",
   admin: "ADMIN",
   "super-admin": "SUPER ADMIN",
 };
@@ -91,7 +91,9 @@ export default function Home() {
     try {
       setIsSubmitting(true);
       const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
-      const isValidPreviewLogin = (selectedRole === "super-admin"
+      const isValidPreviewLogin = (selectedRole === "employee"
+        ? normalizedIdentifier === "EMP001" || normalizedIdentifier === "EMP"
+        : selectedRole === "super-admin"
         ? normalizedIdentifier === "SUPER ADMIN" || normalizedIdentifier === "SUPERADMIN"
         : normalizedIdentifier === roleUsernames[selectedRole])
         && password === "123456";
@@ -266,7 +268,7 @@ export default function Home() {
                   type="text"
                   value={identifier}
                   onChange={event => setIdentifier(event.target.value)}
-                  placeholder="EMP"
+                placeholder="EMP001"
                   autoComplete="username"
                   aria-invalid={Boolean(formError) && !identifier.trim()}
                   disabled={isSubmitting}

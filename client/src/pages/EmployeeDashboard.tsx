@@ -38,7 +38,7 @@ const item = (id: string, label: string, description: string, icon: LucideIcon, 
 
 const sections: Section[] = [
   { label: "Dashboard", direct: true, items: [item("dashboard", "Dashboard", "A live view of the event workspace and current work queues.", LayoutDashboard, "dashboard")] },
-  { label: "Email Search", direct: true, items: [item("email-search", "Email Search", "Search conference registration and contact records.", Mail)] },
+  { label: "Email Search", direct: true, items: [item("email-search", "Email Search", "Search conference registration and contact records.", Mail, "form")] },
   { label: "Unsubscribe Emails", direct: true, items: [item("unsubscribe-emails", "Unsubscribe Emails", "Review and manage email opt-out records.", Mail)] },
   { label: "Abstracts", direct: true, items: [item("abstracts", "Abstracts", "Review submitted abstracts and their editorial status.", FileText)] },
   { label: "Brochure Download", direct: true, items: [item("brochures", "Brochure Download", "Track brochure downloads and available materials.", BookOpenText)] },
@@ -47,11 +47,11 @@ const sections: Section[] = [
     icon: UsersRound,
     items: [
       item("boardmembers", "All Members", "Manage the event board and member records.", UsersRound),
-      item("organizingcommittee", "Organizing Committee", "Review organizing committee assignments.", UsersRound),
       item("keynotespeakers", "Keynote Speakers", "Manage keynote speaker profiles.", UsersRound),
       item("renownedspeakers", "Renowned Speakers", "Manage renowned speaker profiles.", UsersRound),
       item("speakers", "Invited Speakers", "Manage invited speaker profiles.", UsersRound),
       item("posterpresenters", "Poster Presenters", "Manage poster presenter submissions.", UsersRound),
+      item("organizingcommittee", "Organizing Committee", "Review organizing committee assignments.", UsersRound),
     ],
   },
   { label: "Representatives", direct: true, items: [item("representatives", "Representatives", "Manage company and event representatives.", UsersRound)] },
@@ -59,54 +59,49 @@ const sections: Section[] = [
     label: "Registration Info",
     icon: SlidersHorizontal,
     items: [
-      item("registration-dates", "Registration Dates", "Set registration windows and key deadlines.", CalendarDays, "settings"),
-      item("default-currency", "Default Currency", "Set the currency used throughout registration.", SlidersHorizontal, "settings"),
+      item("registration-dates", "Registration Dates", "Review registration date records.", CalendarDays),
+      item("default-currency", "Default Currency", "Review currency records used throughout registration.", SlidersHorizontal),
       item("registration-prices", "Registration Prices", "Manage registration tiers and prices.", BarChart3),
       item("accommodation-prices", "Accommodation & Accompanying Prices", "Manage accommodation and companion pricing.", BarChart3),
       item("registrations", "Registrations", "Review successful and pending registrations.", ClipboardList),
     ],
   },
   {
-    label: "Tracks / Subtracks",
+    label: "Tracks",
     icon: ClipboardList,
-    items: [item("tracks", "Tracks", "Manage conference tracks.", ClipboardList, "form"), item("subtracks", "Subtracks", "Manage track-level subcategories.", ClipboardList, "form")],
+    items: [item("tracks", "Tracks", "Manage conference tracks.", ClipboardList), item("subtracks", "Subtracks", "Manage track-level subcategories.", ClipboardList), item("prices", "Prices", "Manage conference pricing records.", BarChart3)],
   },
   {
-    label: "Prices",
-    icon: BarChart3,
-    items: [item("registration-prices", "Registration Prices", "Manage registration tiers and prices.", BarChart3), item("accommodation-prices", "Accommodation & Accompanying Prices", "Manage accommodation and companion pricing.", BarChart3)],
-  },
-  {
-    label: "Banner / Media",
+    label: "Banner/ Media",
     icon: Image,
-    items: [item("banner-images", "Banner Images", "Upload and manage hero banners for the event website.", Image, "form"), item("media-partner", "Media Partner", "Manage media partner records and logos.", Image, "form"), item("exhibitors", "Exhibitors", "Manage exhibitor profiles and display details.", UsersRound, "form")],
+    items: [item("banner-images", "Banner Images", "Review and manage hero banners for the event website.", Image), item("media-partner", "Media Partner", "Manage media partner records and logos.", Image), item("exhibitors", "Exhibitors", "Manage exhibitor profiles and display details.", UsersRound)],
   },
   {
-    label: "Past Conference Gallery / Review",
+    label: "Past Conference Gallery/Review",
     icon: Image,
-    items: [item("gallery", "Gallery", "Review past conference gallery items.", Image), item("reviews", "Reviews", "Manage past conference reviews.", FileText, "form")],
+    items: [item("gallery", "Gallery", "Review past conference gallery items.", Image), item("reviews", "Reviews", "Manage past conference reviews.", FileText)],
   },
   {
     label: "Events",
     icon: CalendarDays,
-    items: [item("events-list", "Events List", "Manage event listings and published event details.", CalendarDays, "list", "add-event"), item("add-event", "Add Event", "Create an event for the assigned conference website.", CalendarDays, "form")],
+    items: [item("events-list", "Events List", "Manage event listings and published event details.", CalendarDays), item("add-event", "Add Event", "Create an event for the assigned conference website.", CalendarDays, "form")],
   },
   {
     label: "Conference Sessions",
     icon: CalendarDays,
-    items: [item("conference-sessions", "Conference Sessions", "Manage sessions, rooms, times, and speakers.", CalendarDays, "list", "add-session"), item("add-session", "Add Conference Session", "Create a session in the conference schedule.", CalendarDays, "form")],
+    items: [item("conference-sessions", "Conference Sessions", "Manage sessions, rooms, times, and speakers.", CalendarDays), item("add-session", "Add Conference Sessions", "Create a session in the conference schedule.", CalendarDays, "form")],
   },
   { label: "Buttons List", direct: true, items: [item("buttons-list", "Buttons List", "Manage uploaded CTA buttons and linked assets.", SlidersHorizontal)] },
   {
     label: "Testimonials",
     icon: FileText,
-    items: [item("testimonials-list", "Testimonials List", "Review and manage written testimonials.", FileText, "list", "add-testimonial"), item("add-testimonial", "Add Testimonial", "Create a written testimonial for the website.", FileText, "form"), item("video-testimonials", "Video Testimonials List", "Review and manage video testimonials.", Video, "list", "add-video-testimonial"), item("add-video-testimonial", "Add Video Testimonials", "Add a video testimonial and its supporting copy.", Video, "form")],
+    items: [item("testimonials-list", "Testimonials List", "Review and manage written testimonials.", FileText), item("add-testimonial", "Add Testimonial", "Create a written testimonial for the website.", FileText, "form"), item("video-testimonials", "Video Testimonials List", "Review and manage video testimonials.", Video), item("add-video-testimonial", "Add Video Testimonials", "Add a video testimonial and its supporting copy.", Video, "form")],
   },
-  { label: "Pages", direct: true, items: [item("pages", "Pages", "Manage the event website's reusable pages.", FileText, "form")] },
+  { label: "Pages", direct: true, items: [item("pages", "Pages", "Manage the event website's reusable pages.", FileText)] },
   {
     label: "Home Tabs",
     icon: SlidersHorizontal,
-    items: [item("home-tabs", "Home Tabs", "Manage content tabs displayed on the homepage.", SlidersHorizontal, "list", "add-home-tab"), item("add-home-tab", "Add New Tab", "Add a new homepage content tab.", Plus, "form")],
+    items: [item("home-tabs", "Home Tabs", "Manage content tabs displayed on the homepage.", SlidersHorizontal), item("add-home-tab", "Add New Tab", "Add a new homepage content tab.", Plus, "form")],
   },
   {
     label: "Site Settings",
@@ -137,8 +132,9 @@ const rowsByFeature: Record<string, Row[]> = {
 };
 
 const formFields: Record<string, string[]> = {
-  "add-event": ["Event title", "Short summary", "Event dates", "Website status"],
-  "add-session": ["Session title", "Date and time", "Room / venue", "Speaker or moderator"],
+  "email-search": ["Email Address"],
+  "add-event": ["Title", "Status", "Description"],
+  "add-session": ["Title", "Status", "Description"],
   tracks: ["Track name", "Short description", "Display order"],
   subtracks: ["Subtrack name", "Parent track", "Display order"],
   "registration-prices": ["Price name", "Amount", "Currency", "Availability"],
@@ -147,11 +143,12 @@ const formFields: Record<string, string[]> = {
   "media-partner": ["Partner name", "Website URL", "Logo URL", "Display status"],
   exhibitors: ["Company name", "Contact email", "Booth or profile URL", "Description"],
   reviews: ["Reviewer name", "Review copy", "Event year", "Publish status"],
-  "add-testimonial": ["Person name", "Organization", "Testimonial copy", "Publish status"],
-  "add-video-testimonial": ["Person name", "Video URL", "Supporting copy", "Publish status"],
-  pages: ["Page title", "Page slug", "Content summary", "Publish status"],
-  "add-home-tab": ["Tab label", "Tab heading", "Tab copy", "Display order"],
+  "add-testimonial": ["Title", "Status", "Description"],
+  "add-video-testimonial": ["Title", "Status", "Description"],
+  "add-home-tab": ["Title", "Status", "Description"],
 };
+
+const settingsFields = ["Section title", "Visibility", "Content"];
 
 const defaultRows = (feature: Feature): Row[] => [
   { title: `${feature.label} workspace`, status: "Ready", meta: "No records yet", note: "Create the first record to begin" },
@@ -167,6 +164,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
   const [savedRows, setSavedRows] = useState<Record<string, Row[]>>({});
+  const [pageSize, setPageSize] = useState("10");
   const [openProfile, setOpenProfile] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const active = getFeature(activeId);
@@ -210,6 +208,10 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   };
 
   const saveForm = () => {
+    if (active.id === "email-search") {
+      setNotice("Email search completed in the local preview.");
+      return;
+    }
     const newRow: Row = {
       title: `${active.label} draft ${Date.now().toString().slice(-4)}`,
       status: "Draft",
@@ -260,19 +262,19 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
         {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
         {isSettings ? (
           <div className="employee-settings-grid">
-            {(formFields[active.id] ?? ["Section title", "Supporting copy", "Display status"]).map(field => <label className="employee-setting-card" key={field}><span>{field}</span><input defaultValue={field.includes("status") ? "Published" : ""} placeholder={`Enter ${field.toLowerCase()}`} /></label>)}
-            <button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} changes saved.`)}><Check size={16} /> Save settings</button>
+            {settingsFields.map(field => <label className="employee-setting-card" key={field}><span>{field}</span>{field === "Visibility" ? <select defaultValue="Visible"><option>Visible</option><option>Hidden</option></select> : field === "Content" ? <textarea rows={4} placeholder="This is a safe, local preview of the settings editor." /> : <input placeholder="Enter section title" />}</label>)}
+            <button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} changes saved.`)}><Check size={16} /> Update preview</button>
           </div>
         ) : isForm ? (
           <div className="employee-form-card">
             <div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> New record</span><h2>Build this {active.label.toLowerCase()}</h2></div><span className="employee-draft-chip">Draft</span></div>
-            <div className="employee-form-grid">{(formFields[active.id] ?? ["Name", "Description", "Status"]).map(field => <label key={field}><span>{field}</span>{field.toLowerCase().includes("description") || field.toLowerCase().includes("copy") ? <textarea rows={4} placeholder={`Add ${field.toLowerCase()}`} /> : <input placeholder={`Add ${field.toLowerCase()}`} />}</label>)}</div>
-            <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> Save draft</button></div>
+            <div className="employee-form-grid">{(formFields[active.id] ?? ["Title", "Status", "Description"]).map(field => <label key={field}><span>{field}</span>{field === "Status" ? <select defaultValue="Draft"><option>Draft</option><option>Published</option></select> : field === "Description" ? <textarea rows={4} placeholder="Enter a short description" /> : <input type={field === "Email Address" ? "email" : "text"} placeholder={field === "Email Address" ? "name@example.com" : "Enter a title"} />}</label>)}</div>
+            <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {active.id === "email-search" ? "Search Email" : "Save draft"}</button></div>
           </div>
         ) : (
           <div className="employee-table-card">
-            <div className="employee-toolbar"><div className="employee-search"><Search size={16} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder={`Search ${active.label.toLowerCase()}`} /></div><div className="employee-toolbar-actions"><button className="employee-secondary-button" type="button" onClick={() => setNotice(`${active.label} list refreshed.`)}><Activity size={15} /> Refresh</button><button className="employee-primary-button" type="button" onClick={addRecord}><Plus size={16} /> {active.createTarget ? "Add new" : "Manage"}</button></div></div>
-            <div className="employee-table-wrap"><table><thead><tr><th>Name / title</th><th>Status</th><th>Updated</th><th>Notes</th><th /></tr></thead><tbody>{rows.map((row, index) => <tr key={`${row.title}-${index}`}><td><strong>{row.title}</strong></td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.meta}</td><td>{row.note}</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>View <ArrowUpRight size={14} /></button></td></tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div>
+            <div className="employee-table-controls"><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><div className="employee-search"><Search size={16} /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search:" /></div></div>
+            <div className="employee-table-wrap"><table><thead><tr><th>Name / title</th><th>Status</th><th>Updated</th><th>Notes</th><th>Action</th></tr></thead><tbody>{rows.slice(0, Number(pageSize)).map((row, index) => <tr key={`${row.title}-${index}`}><td><strong>{row.title}</strong></td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.meta}</td><td>{row.note}</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button></td></tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, Number(pageSize))} of {rows.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
           </div>
         )}
       </>
