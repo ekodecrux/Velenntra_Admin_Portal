@@ -103,11 +103,6 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   const selectedContent = selected ? content[selected.id] ?? {} : {};
 
   return <>
-    <div className="employee-page-heading employee-editor-heading">
-      <div><span className="employee-eyebrow"><span /> Website Configuration</span><h1>{eventTitle}</h1><p>{showSectionMenu ? "Choose a website section to edit its content." : "Preview the complete website before making changes."}</p></div>
-      <div className="website-editor-heading-actions"><button className="employee-secondary-button" type="button" onClick={() => setShowSectionMenu(current => !current)}><Eye size={16} /> {showSectionMenu ? "Preview website" : "Edit sections"}</button>{onHome ? <button className="employee-secondary-button" type="button" onClick={onHome}><ArrowLeft size={16} /> Go to Home</button> : null}<button className="employee-secondary-button" type="button" onClick={onBack}><X size={16} /> Back</button></div>
-    </div>
-
     {showSectionMenu ? <div className="website-config-workspace">
       <aside className="website-config-menu">
         <div className="website-config-menu-heading"><span className="employee-eyebrow"><span /> Website sections</span><strong>Content menu</strong><small>Click any section name to open its editor.</small></div>
