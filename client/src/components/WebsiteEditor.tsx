@@ -86,11 +86,13 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
 
   useEffect(() => {
     const handleExternalSectionField = (event: Event) => {
-      const detail = (event as CustomEvent<{ sectionId: string; field?: string }>).detail;
+      const detail = (event as CustomEvent<{ sectionId: string; field?: string; existingText?: string }>).detail;
       const section = sections.find(item => item.id === detail.sectionId);
       if (!section) return;
       setSelectedId(section.id);
-      setFocusedField(popupFields(section).find(field => field.label === detail.field)?.name ?? null);
+      const fieldName = popupFields(section).find(field => field.label === detail.field)?.name ?? null;
+      setFocusedField(fieldName);
+      if (fieldName && detail.existingText) setContent(current => { const next: SectionContent = { ...(current[section.id] ?? {}), [fieldName]: detail.existingText as string }; return { ...current, [section.id]: next }; });
       setEditingSection(section);
     };
     window.addEventListener("velentra:edit-section-field", handleExternalSectionField);
@@ -154,7 +156,8 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       editButton.addEventListener("click", clickEvent => {
         clickEvent.preventDefault();
         clickEvent.stopPropagation();
-        window.parent.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId, field } }));
+        const existingText = targetElement.tagName === "IMG" ? (targetElement as HTMLImageElement).src : (targetElement as HTMLInputElement).value || targetElement.textContent?.trim() || "";
+        window.parent.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId, field, existingText } }));
       });
       frameElement.appendChild(editButton);
     };
