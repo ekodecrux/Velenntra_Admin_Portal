@@ -889,3 +889,8 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-edit-modal-fields input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 .website-edit-modal-fields input[type="color"]::-webkit-color-swatch { border: 1px solid #b7cbd0; border-radius: 5px; }
 .website-edit-modal-fields input[type="color"]::-moz-color-swatch { border: 1px solid #b7cbd0; border-radius: 5px; }
+
+.website-config-menu-list { margin: 12px 0 0; border-top: 1px solid #e5ecee; padding-top: 8px; }
+.website-config-menu-item { justify-content: flex-start !important; padding: 9px 10px !important; border-top: 0 !important; border-radius: 6px; color: #496f7c !important; font-size: 12px !important; font-weight: 600; }
+.website-config-menu-item:hover, .website-config-menu-item-active { background: #eaf5f8 !important; color: #1b5c72 !important; }
+.website-config-menu-item-active { box-shadow: inset 3px 0 0 #2f87a3; }
