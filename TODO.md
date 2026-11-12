@@ -47,6 +47,7 @@
 - [x] Remove the remaining Full Website Preview heading, event title, live badge, and card chrome so the imported website iframe itself begins immediately.
 - [x] In Website Configuration mode, replace the normal portal sidebar items with a rail showing only Website Configuration at the top and Back To Home with a left arrow below it, while the website remains on the right.
 - [x] Clicking a section inside the live website preview selects the related section and displays its modification details below Back To Home in the left rail for Admin and Employee users.
+- [x] Do not open the old Website Sections/Content menu or Full Website Preview header after a website click; keep the website full-width and show only the clicked section’s related modification details in the left rail.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.

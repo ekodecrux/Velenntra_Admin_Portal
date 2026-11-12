@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Eye, Plus, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useState, type FormEvent, type SyntheticEvent } from "react";
 
 const defaultSections = [
@@ -64,7 +64,6 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   const [sections, setSections] = useState<WebsiteSection[]>(() => readStorage(sectionStorageKey(eventId), defaultSections));
   const [content, setContent] = useState<Record<string, SectionContent>>(() => readStorage(contentStorageKey(eventId), {}));
   const [selectedId, setSelectedId] = useState(sections[0]?.id ?? "logo");
-  const [showSectionMenu, setShowSectionMenu] = useState(false);
   const [editingSection, setEditingSection] = useState<WebsiteSection | null>(null);
   const [newSectionType, setNewSectionType] = useState("Video Testimonials");
   const selected = sections.find(section => section.id === selectedId) ?? sections[0];
@@ -112,24 +111,12 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       const text = `${element?.innerText ?? ""} ${target?.getAttribute("href") ?? ""}`.toLowerCase();
       const sectionId = text.includes("testimonial") || text.includes("review") ? (text.includes("video") || text.includes("youtube") ? "video-testimonials" : "testimonials") : text.includes("speaker") || text.includes("committee") ? "speakers" : text.includes("contact") || element?.closest("footer") ? "footer" : text.includes("gallery") || text.includes("media") ? "gallery" : text.includes("register") || text.includes("abstract") || element?.closest("header") ? "hero" : element?.closest("nav") ? "header" : target?.tagName === "IMG" ? "logo" : "pages";
       setSelectedId(sectionId);
-      setShowSectionMenu(true);
       onSectionSelected?.(sectionId);
     });
   };
 
   return <>
-    {showSectionMenu ? <div className="website-config-workspace">
-      <aside className="website-config-menu">
-        <div className="website-config-menu-heading"><span className="employee-eyebrow"><span /> Website sections</span><strong>Content menu</strong><small>Click any section name to open its editor.</small></div>
-        <div className="website-config-section-list">{sections.map(section => <button type="button" className={`website-config-section-row ${selectedId === section.id ? "website-config-section-row-active" : ""}`} key={section.id} onClick={() => openEditor(section)}><span className="website-config-section-select"><strong>{section.name}</strong><small>{section.summary}</small></span><em>{section.status}</em></button>)}</div>
-        <div className="website-config-add"><strong>Add a website section</strong><select value={newSectionType} onChange={event => setNewSectionType(event.target.value)}><option>Video Testimonials</option><option>Testimonials</option><option>New Page</option><option>Image Gallery</option><option>Speaker Section</option><option>Custom Content</option></select><button className="employee-primary-button" type="button" onClick={addSection}><Plus size={15} /> Add section</button></div>
-      </aside>
-      <section className="website-config-preview">
-        <div className="website-config-preview-heading"><div><span className="employee-eyebrow"><span /> Full website preview</span><h2>{selected?.name ?? "Website"}</h2><p>Click a section name on the left to modify its details.</p></div><span className="website-preview-badge"><Eye size={16} /> Live website</span></div>
-        <div className="website-config-preview-actions"><span>Complete website content preview</span></div>
-        <div className="website-config-iframe-wrap"><iframe title={`${eventTitle} full website preview`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div>
-      </section>
-    </div> : <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div></section>}
+    <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div></section>
 
     {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website section</span><h2>{editingSection.name}</h2><p>Update the real content fields for this section.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => setEditingSection(null)}><X size={18} /></button></div><div className="website-edit-modal-fields">{popupFields(editingSection).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => setEditingSection(null)}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
   </>;
