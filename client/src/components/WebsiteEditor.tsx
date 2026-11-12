@@ -111,6 +111,12 @@ function writeStorage(key: string, value: unknown) {
   try { sessionStorage.setItem(key, JSON.stringify(value)); } catch { /* Preview storage can be unavailable. */ }
 }
 
+function colorInputValue(value: string) {
+  if (value.startsWith("#")) return value;
+  const match = value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  return match ? `#${[match[1], match[2], match[3]].map(part => Number(part).toString(16).padStart(2, "0")).join("")}` : "#ffffff";
+}
+
 export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onSaved, onSectionSelected }: Props) {
   const [sections, setSections] = useState<WebsiteSection[]>(() => readStorage(sectionStorageKey(eventId), defaultSections));
   const [content, setContent] = useState<Record<string, SectionContent>>(() => readStorage(contentStorageKey(eventId), {}));
@@ -123,7 +129,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
 
   useEffect(() => {
     const handleExternalSectionField = (event: Event) => {
-      const detail = (event as CustomEvent<{ sectionId: string; field?: string; existingText?: string }>).detail;
+      const detail = (event as CustomEvent<{ sectionId: string; field?: string; existingText?: string; styleValues?: { fontFamily: string; fontSize: string; fontColor: string; fontWeight: string; sectionBackgroundColor: string; spacing: string } }>).detail;
       const section = sections.find(item => item.id === detail.sectionId);
       if (!section) return;
       setSelectedId(section.id);
@@ -131,7 +137,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       const fieldName = fieldAliases[detail.field ?? ""] ?? scopedPopupFields(section, detail.field ?? null).find(field => field.label === detail.field)?.name ?? null;
       setEditingField(detail.field ?? null);
       setFocusedField(fieldName);
-      if (fieldName && detail.existingText) setContent(current => { const next: SectionContent = { ...(current[section.id] ?? {}), [fieldName]: detail.existingText as string }; return { ...current, [section.id]: next }; });
+      if (fieldName || detail.styleValues) setContent(current => { const next: SectionContent = { ...(current[section.id] ?? {}) }; if (fieldName && detail.existingText) next[fieldName] = detail.existingText; if (detail.styleValues) { next.fontFamily = detail.styleValues.fontFamily; next.fontSize = detail.styleValues.fontSize; next.fontColor = colorInputValue(detail.styleValues.fontColor); next.fontWeight = detail.styleValues.fontWeight; next.sectionBackgroundColor = colorInputValue(detail.styleValues.sectionBackgroundColor); next.spacing = detail.styleValues.spacing; } return { ...current, [section.id]: next }; });
       setEditingSection(section);
     };
     window.addEventListener("velentra:edit-section-field", handleExternalSectionField);
@@ -197,8 +203,15 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       editButton.addEventListener("click", clickEvent => {
         clickEvent.preventDefault();
         clickEvent.stopPropagation();
-        const existingText = targetElement.tagName === "IMG" ? (targetElement as HTMLImageElement).src : (targetElement as HTMLInputElement).value || targetElement.textContent?.trim() || "";
-        window.parent.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId, field, existingText } }));
+        const textClone = targetElement.cloneNode(true) as HTMLElement;
+        textClone.querySelectorAll(".manus-inline-edit").forEach(button => button.remove());
+        const existingText = targetElement.tagName === "IMG" ? (targetElement as HTMLImageElement).src : (targetElement as HTMLInputElement).value || textClone.textContent?.trim() || "";
+        const computed = window.getComputedStyle(targetElement);
+        let backgroundColor = computed.backgroundColor;
+        let parent = targetElement.parentElement;
+        while ((backgroundColor === "transparent" || backgroundColor === "rgba(0, 0, 0, 0)") && parent) { backgroundColor = window.getComputedStyle(parent).backgroundColor; parent = parent.parentElement; }
+        const styleValues = { fontFamily: computed.fontFamily, fontSize: computed.fontSize, fontColor: computed.color, fontWeight: computed.fontWeight, sectionBackgroundColor: backgroundColor, spacing: computed.padding };
+        window.parent.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId, field, existingText, styleValues } }));
       });
       frameElement.appendChild(editButton);
     };
