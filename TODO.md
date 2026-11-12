@@ -29,9 +29,10 @@
 - [x] Give Admin users additional unified workspace controls for all events, event creation, templates, team roles, Admin assignments, employee directory, published sites, site settings, publishing rules, platform activity, audit log, and system settings.
 - [x] Give Admin users controls to add and manage employees, create and manage roles and permissions, assign Admins and Employees to events, modify event details, change event status, manage event websites, and control publishing rules.
 - [x] Retain the Admin Events primary destinations `All Events` and `Create Event`; place `Create new Event` as the primary action at the top of the All Events view.
-- [x] In the Create Event form, require an Assigned Admin and allow optional Employee assignment alongside event title, dates, venue, template, event status, and website status.
+- [x] In the Create Event form, show only Event title, Start date, End date, Venue, Event status, Subdomain, Domain, and Website status; do not assign the event to an Admin or Employee.
 - [x] Use a role dropdown when adding an employee, searchable Admin and multi-select Employee dropdowns when creating an event, and native date-picker controls for event date fields.
-- [x] Persist newly saved Employee records in the in-session Employee Directory and newly saved Event records in All Events, including role, status, Admin, and Employee assignment notes.
+- [x] Persist newly saved Employee records in the in-session Employee Directory and newly saved Event records in All Events, including the event status and global Employee login details.
+- [x] After an event is created, display one global Employee login using the event subdomain as the username and `123456` as the password; allow that subdomain login from the global Employee sign-in.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.

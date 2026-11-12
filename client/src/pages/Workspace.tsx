@@ -50,7 +50,10 @@ export default function Workspace() {
     }
   });
   const hasSession = Boolean(user) || demoSession;
-  const demoUsername = requestedRole === "admin" ? "ADMIN" : "EMP001";
+  const demoUsername = useState(() => {
+    if (requestedRole === "admin") return "ADMIN";
+    try { return sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
+  })[0];
 
   if (loading) {
     return <div className="workspace-state"><div className="button-spinner" /><span>Checking your Velentra session…</span></div>;

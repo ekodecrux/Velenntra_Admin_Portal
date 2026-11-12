@@ -65,9 +65,13 @@ export default function Home() {
   const [formError, setFormError] = useState("");
   const [notice, setNotice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [globalEmployeeUsername] = useState(() => {
+    try { return sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
+  });
 
   const activeRole = roles.find(role => role.id === selectedRole) ?? roles[0];
   const ActiveRoleIcon = activeRole.icon;
+  const activeUsername = selectedRole === "employee" ? globalEmployeeUsername : roleUsernames[selectedRole];
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -83,13 +87,13 @@ export default function Home() {
       setIsSubmitting(true);
       const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
       const isValidPreviewLogin = (selectedRole === "employee"
-        ? normalizedIdentifier === "EMP001" || normalizedIdentifier === "EMP"
+        ? normalizedIdentifier === activeUsername.toUpperCase() || normalizedIdentifier === "EMP001" || normalizedIdentifier === "EMP"
         : normalizedIdentifier === roleUsernames[selectedRole])
         && password === "123456";
 
       if (!isValidPreviewLogin) {
         setIsSubmitting(false);
-        setFormError(`We couldn’t sign you in. Use ${roleUsernames[selectedRole]} with the shared preview password.`);
+        setFormError(`We couldn’t sign you in. Use ${activeUsername} with the shared preview password.`);
         return;
       }
 
@@ -239,7 +243,7 @@ export default function Home() {
             <span className="selected-role-icon"><ActiveRoleIcon size={17} /></span>
             <span><strong>{activeRole.label} access</strong> — {activeRole.detail}</span>
           </div>
-          <div className="demo-credential-note"><span>{activeRole.label} preview credentials</span><code>{roleUsernames[selectedRole]}</code><span>/</span><code>123456</code></div>
+          <div className="demo-credential-note"><span>{activeRole.label} preview credentials</span><code>{activeUsername}</code><span>/</span><code>123456</code></div>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <div className="section-heading section-heading-form">
@@ -257,7 +261,7 @@ export default function Home() {
                   type="text"
                   value={identifier}
                   onChange={event => setIdentifier(event.target.value)}
-                  placeholder={roleUsernames[selectedRole]}
+                  placeholder={activeUsername}
                   autoComplete="username"
                   aria-invalid={Boolean(formError) && !identifier.trim()}
                   disabled={isSubmitting}
