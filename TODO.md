@@ -34,6 +34,9 @@
 - [x] Align list destinations with Show 10/25/50/100 entries, Search, table actions, and Previous/Next pagination controls.
 - [x] Align create destinations with Title, Status (Draft/Published), Description, and Save draft; align site settings with Section title, Visibility (Visible/Hidden), Content, and Update preview.
 - [x] Make Employee login accept `emp001 / 123456` and retain `EMP / 123456` compatibility for the existing preview account.
+- [x] Expand the dashboard with the missing Email Search summary card and richer editorial-board cards.
+- [x] Expand Abstracts rows with Name, Abstract Title, Email, Country, Phone No, Category, Track Name, Address, Interested, Organization, Date, and Action columns, with horizontal scrolling for the full field set.
+- [x] Add audited field groups for Unsubscribe Emails, accommodation prices, registration dates, currency, event/session creation, buttons/uploads, testimonials, video testimonials, Home Tabs, Header, Footer, Theme, and Conference Credits.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard

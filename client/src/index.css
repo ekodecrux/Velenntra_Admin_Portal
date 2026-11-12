@@ -296,7 +296,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-secondary-button:hover { border-color: #b8c8c9; color: var(--ink); background: #fff; }
 .employee-link-button { padding: 5px 0; border: 0; color: var(--copper); background: transparent; }
 .employee-link-button:hover { text-decoration: underline; text-underline-offset: 3px; }
-.employee-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+.employee-stats-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 13px; }
 .employee-stat-card { display: flex; align-items: center; gap: 12px; min-height: 112px; padding: 15px; border: 0; border-radius: 11px; color: #fff; text-align: left; box-shadow: 0 11px 21px rgba(14,27,36,.08); transition: transform .18s ease, box-shadow .18s ease; }
 .employee-stat-card:hover { transform: translateY(-2px); box-shadow: 0 16px 26px rgba(14,27,36,.14); }
 .employee-stat-card-blue { background: #2e7db7; }
@@ -328,7 +328,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-search:focus-within { border-color: var(--copper); box-shadow: 0 0 0 3px rgba(195,103,64,.09); }
 .employee-search input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 12px; }
 .employee-table-wrap { overflow-x: auto; }
-.employee-table-wrap table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.employee-table-wrap table { width: 100%; min-width: 860px; border-collapse: collapse; font-size: 11px; }
 .employee-table-wrap th { padding: 13px 15px; color: #8b9697; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-align: left; text-transform: uppercase; background: #fafcfc; }
 .employee-table-wrap td { padding: 16px 15px; border-top: 1px solid #edf1f1; color: #758183; white-space: nowrap; }
 .employee-table-wrap td:first-child { min-width: 270px; color: var(--ink); }
@@ -354,7 +354,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 
 @media (max-width: 1100px) {
   .employee-sidebar { flex-basis: 226px; width: 226px; }
-  .employee-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .employee-stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .employee-mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {

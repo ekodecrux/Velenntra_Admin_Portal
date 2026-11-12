@@ -31,15 +31,16 @@ import { useMemo, useState } from "react";
 type FeatureKind = "dashboard" | "list" | "form" | "settings";
 type Feature = { id: string; label: string; description: string; kind: FeatureKind; icon: LucideIcon; createTarget?: string };
 type Section = { label: string; items: Feature[]; direct?: boolean; icon?: LucideIcon };
+type FieldSpec = { label: string; type?: "text" | "email" | "url" | "date" | "select" | "textarea" | "file"; options?: string[]; placeholder?: string };
 
-type Row = { title: string; status: string; meta: string; note: string };
+type Row = { title: string; status: string; meta: string; note: string; details?: Record<string, string> };
 
 const item = (id: string, label: string, description: string, icon: LucideIcon, kind: FeatureKind = "list", createTarget?: string): Feature => ({ id, label, description, icon, kind, createTarget });
 
 const sections: Section[] = [
   { label: "Dashboard", direct: true, items: [item("dashboard", "Dashboard", "A live view of the event workspace and current work queues.", LayoutDashboard, "dashboard")] },
   { label: "Email Search", direct: true, items: [item("email-search", "Email Search", "Search conference registration and contact records.", Mail, "form")] },
-  { label: "Unsubscribe Emails", direct: true, items: [item("unsubscribe-emails", "Unsubscribe Emails", "Review and manage email opt-out records.", Mail)] },
+  { label: "Unsubscribe Emails", direct: true, items: [item("unsubscribe-emails", "Unsubscribe Emails", "Review and manage email opt-out records.", Mail, "form")] },
   { label: "Abstracts", direct: true, items: [item("abstracts", "Abstracts", "Review submitted abstracts and their editorial status.", FileText)] },
   { label: "Brochure Download", direct: true, items: [item("brochures", "Brochure Download", "Track brochure downloads and available materials.", BookOpenText)] },
   {
@@ -59,17 +60,17 @@ const sections: Section[] = [
     label: "Registration Info",
     icon: SlidersHorizontal,
     items: [
-      item("registration-dates", "Registration Dates", "Review registration date records.", CalendarDays),
-      item("default-currency", "Default Currency", "Review currency records used throughout registration.", SlidersHorizontal),
+      item("registration-dates", "Registration Dates", "Review registration date records.", CalendarDays, "form"),
+      item("default-currency", "Default Currency", "Review currency records used throughout registration.", SlidersHorizontal, "form"),
       item("registration-prices", "Registration Prices", "Manage registration tiers and prices.", BarChart3),
-      item("accommodation-prices", "Accommodation & Accompanying Prices", "Manage accommodation and companion pricing.", BarChart3),
+      item("accommodation-prices", "Accommodation & Accompanying Prices", "Manage accommodation and companion pricing.", BarChart3, "form"),
       item("registrations", "Registrations", "Review successful and pending registrations.", ClipboardList),
     ],
   },
   {
     label: "Tracks",
     icon: ClipboardList,
-    items: [item("tracks", "Tracks", "Manage conference tracks.", ClipboardList), item("subtracks", "Subtracks", "Manage track-level subcategories.", ClipboardList), item("prices", "Prices", "Manage conference pricing records.", BarChart3)],
+    items: [item("tracks", "Tracks", "Manage conference tracks.", ClipboardList), item("subtracks", "Subtracks", "Manage track-level subcategories.", ClipboardList), item("prices", "Prices", "Manage conference pricing records.", BarChart3, "form")],
   },
   {
     label: "Banner/ Media",
@@ -91,7 +92,7 @@ const sections: Section[] = [
     icon: CalendarDays,
     items: [item("conference-sessions", "Conference Sessions", "Manage sessions, rooms, times, and speakers.", CalendarDays), item("add-session", "Add Conference Sessions", "Create a session in the conference schedule.", CalendarDays, "form")],
   },
-  { label: "Buttons List", direct: true, items: [item("buttons-list", "Buttons List", "Manage uploaded CTA buttons and linked assets.", SlidersHorizontal)] },
+  { label: "Buttons List", direct: true, items: [item("buttons-list", "Buttons List", "Manage uploaded CTA buttons and linked assets.", SlidersHorizontal, "form")] },
   {
     label: "Testimonials",
     icon: FileText,
@@ -114,8 +115,8 @@ const allFeatures = sections.flatMap(section => section.items);
 
 const rowsByFeature: Record<string, Row[]> = {
   abstracts: [
-    { title: "Abstract #1042 — Future of sustainable events", status: "In review", meta: "Updated today", note: "Awaiting editorial review" },
-    { title: "Abstract #1041 — Designing for accessibility", status: "Approved", meta: "Updated yesterday", note: "Ready for website" },
+    { title: "Dr. Maya Patel", status: "In review", meta: "10 Nov 2026", note: "View", details: { "Abstract Title": "New approaches in clinical research", Email: "maya.patel@example.com", Country: "India", "Phone No": "+91 98765 43210", Category: "Research", "Track Name": "Healthcare", Address: "Mumbai", Interested: "Yes", Organization: "Aster Labs" } },
+    { title: "Dr. Arjun Rao", status: "Approved", meta: "09 Nov 2026", note: "View", details: { "Abstract Title": "Designing accessible conferences", Email: "arjun.rao@example.com", Country: "India", "Phone No": "+91 98765 11111", Category: "Accessibility", "Track Name": "Operations", Address: "Delhi", Interested: "Yes", Organization: "Velentra Group" } },
   ],
   brochures: [{ title: "Velentra 2027 Conference Brochure", status: "Published", meta: "7 downloads", note: "PDF • 4.8 MB" }],
   registrations: [
@@ -129,6 +130,16 @@ const rowsByFeature: Record<string, Row[]> = {
   "video-testimonials": [{ title: "Why we return to Velentra", status: "Ready", meta: "02:14", note: "Video review pending" }],
   "email-search": [{ title: "Search the registration directory", status: "Ready", meta: "400 records", note: "Use the search field above" }],
   "unsubscribe-emails": [{ title: "Unsubscribe records", status: "400 records", meta: "Last sync today", note: "Export or review opt-outs" }],
+};
+
+const listColumns: Record<string, string[]> = {
+  abstracts: ["Name", "Abstract Title", "Email", "Country", "Phone No", "Category", "Track Name", "Address", "Interested", "Organization", "Date", "Action"],
+  brochures: ["Name", "Email", "Brochure", "Downloaded", "Date", "Action"],
+  "unsubscribe-emails": ["Email", "Date", "Action"],
+  registrations: ["Name", "Email", "Registration Type", "Status", "Date", "Action"],
+  boardmembers: ["Name", "Email", "Designation", "Category", "Status", "Action"],
+  "events-list": ["Event Name", "Start Date", "End Date", "Venue", "Status", "Action"],
+  "conference-sessions": ["Title", "Date", "Venue", "Speaker", "Status", "Action"],
 };
 
 const formFields: Record<string, string[]> = {
@@ -149,6 +160,27 @@ const formFields: Record<string, string[]> = {
 };
 
 const settingsFields = ["Section title", "Visibility", "Content"];
+
+const fieldSpecs: Record<string, FieldSpec[]> = {
+  "email-search": [{ label: "Email Address", type: "email", placeholder: "name@example.com" }],
+  "unsubscribe-emails": [{ label: "Email Address", type: "email", placeholder: "name@example.com" }],
+  prices: ["Accommodation price 1", "Accommodation price 2", "Accommodation price 3"].map(label => ({ label })),
+  "registration-dates": ["Conference date 1", "Conference date 2", "Conference date 3", "Conference date 4"].map(label => ({ label, type: "date" as const })),
+  "default-currency": [{ label: "Default currency", type: "select", options: ["USD", "EUR", "GBP"] }],
+  "accommodation-prices": ([{ label: "Accommodation status", type: "select" as const, options: ["Enable", "Disable"] }, { label: "Accommodation price 1" }, { label: "Accommodation price 2" }] as FieldSpec[]),
+  "buttons-list": ["Button name 1", "File 1", "Button name 2", "File 2", "Button name 3", "File 3"].map(label => ({ label, type: label.startsWith("File") ? "file" as const : "text" as const })),
+  "add-event": [{ label: "Name", placeholder: "Enter event name" }, { label: "Start date", type: "date" }, { label: "End date", type: "date" }, { label: "Venue" }, { label: "Link", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
+  "add-session": [{ label: "Title" }, { label: "Link", type: "url" }, { label: "Description", type: "textarea" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
+  "add-testimonial": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Designation" }, { label: "Comment", type: "textarea" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
+  "add-video-testimonial": [{ label: "Name" }, { label: "Video URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-home-tab": [{ label: "Title" }, { label: "Content", type: "textarea" }],
+  "header-section": ["Header copy", "Event start date", "Event end date", "Venue", "Hotel", "Address", "About image", "SEO title", "SEO description", "SEO keywords"].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("description") || label.includes("keywords") ? "textarea" as const : label === "About image" ? "file" as const : "text" as const })),
+  "footer-section": ["Footer address", "Email 1", "Email 2", "Email 3", "Phone", "WhatsApp", "Website URL", "Conference short name", "Theme", "Facebook", "X / Twitter", "YouTube", "LinkedIn", "Instagram", "Blog"].map(label => ({ label, type: label.startsWith("Email") ? "email" as const : label.includes("URL") || label === "Facebook" || label === "X / Twitter" || label === "YouTube" || label === "LinkedIn" || label === "Instagram" || label === "Blog" ? "url" as const : "text" as const })),
+  "theme-settings": [{ label: "Theme color", type: "text" }, { label: "Accent color", type: "text" }, { label: "Conference logo", type: "file" }, { label: "Logo alt text" }, { label: "Logo title" }, { label: "Theme banner", type: "file" }],
+  "conference-credits": [{ label: "Credit title" }, { label: "Credit content", type: "textarea" }],
+};
+
+const formActionLabels: Record<string, string> = { "unsubscribe-emails": "Add Unsubscribe Email", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
 
 const defaultRows = (feature: Feature): Row[] => [
   { title: `${feature.label} workspace`, status: "Ready", meta: "No records yet", note: "Create the first record to begin" },
@@ -172,8 +204,18 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const rows = useMemo(() => {
     const source = savedRows[active.id] ?? rowsByFeature[active.id] ?? defaultRows(active);
     if (!search.trim()) return source;
-    return source.filter(row => `${row.title} ${row.status} ${row.meta} ${row.note}`.toLowerCase().includes(search.toLowerCase()));
+    return source.filter(row => `${row.title} ${row.status} ${row.meta} ${row.note} ${Object.values(row.details ?? {}).join(" ")}`.toLowerCase().includes(search.toLowerCase()));
   }, [active, savedRows, search]);
+
+  const columns = listColumns[active.id] ?? ["Name / title", "Status", "Updated", "Notes", "Action"];
+  const rowValue = (row: Row, column: string) => {
+    if (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title") return row.title;
+    if (column === "Status") return row.status;
+    if (column === "Date" || column === "Updated") return row.meta;
+    if (column === "Notes") return row.note;
+    if (column === "Action") return "";
+    return row.details?.[column] ?? (column === "Email" ? "employee@velentra.preview" : column === "Country" ? "India" : column === "Organization" ? "Velentra Group" : "—");
+  };
 
   const selectFeature = (id: string) => {
     const parent = sections.find(section => section.items.some(feature => feature.id === id));
@@ -232,6 +274,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
         <StatCard label="Abstracts" value="0" icon={FileText} tone="blue" action={() => selectFeature("abstracts")} />
         <StatCard label="Brochures" value="7" icon={BookOpenText} tone="blue" action={() => selectFeature("brochures")} />
         <StatCard label="Testimonials" value="0" icon={FileText} tone="blue" action={() => selectFeature("testimonials-list")} />
+        <StatCard label="Email Search" value="400" icon={Search} tone="blue" action={() => selectFeature("email-search")} />
         <StatCard label="Unsubscribe emails" value="400" icon={Mail} tone="blue" action={() => selectFeature("unsubscribe-emails")} />
       </div>
       <section className="employee-dashboard-section">
@@ -253,6 +296,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const renderFeature = () => {
     const isForm = active.kind === "form" || activeId.startsWith("add-");
     const isSettings = active.kind === "settings";
+    const activeFields = fieldSpecs[active.id] ?? (formFields[active.id] ?? settingsFields).map(label => ({ label }));
     return (
       <>
         <div className="employee-page-heading">
@@ -262,19 +306,19 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
         {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
         {isSettings ? (
           <div className="employee-settings-grid">
-            {settingsFields.map(field => <label className="employee-setting-card" key={field}><span>{field}</span>{field === "Visibility" ? <select defaultValue="Visible"><option>Visible</option><option>Hidden</option></select> : field === "Content" ? <textarea rows={4} placeholder="This is a safe, local preview of the settings editor." /> : <input placeholder="Enter section title" />}</label>)}
+            {activeFields.map(field => <label className="employee-setting-card" key={field.label}><span>{field.label}</span>{field.type === "select" ? <select defaultValue={field.options?.[0]}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} placeholder={field.placeholder ?? "Enter content"} /> : <input type={field.type ?? "text"} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}
             <button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} changes saved.`)}><Check size={16} /> Update preview</button>
           </div>
         ) : isForm ? (
           <div className="employee-form-card">
             <div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> New record</span><h2>Build this {active.label.toLowerCase()}</h2></div><span className="employee-draft-chip">Draft</span></div>
-            <div className="employee-form-grid">{(formFields[active.id] ?? ["Title", "Status", "Description"]).map(field => <label key={field}><span>{field}</span>{field === "Status" ? <select defaultValue="Draft"><option>Draft</option><option>Published</option></select> : field === "Description" ? <textarea rows={4} placeholder="Enter a short description" /> : <input type={field === "Email Address" ? "email" : "text"} placeholder={field === "Email Address" ? "name@example.com" : "Enter a title"} />}</label>)}</div>
-            <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {active.id === "email-search" ? "Search Email" : "Save draft"}</button></div>
+            <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select defaultValue={field.options?.[0]}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}</div>
+            <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {formActionLabels[active.id] ?? (active.id === "email-search" ? "Search Email" : "Save draft")}</button></div>
           </div>
         ) : (
           <div className="employee-table-card">
             <div className="employee-table-controls"><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><div className="employee-search"><Search size={16} /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search:" /></div></div>
-            <div className="employee-table-wrap"><table><thead><tr><th>Name / title</th><th>Status</th><th>Updated</th><th>Notes</th><th>Action</th></tr></thead><tbody>{rows.slice(0, Number(pageSize)).map((row, index) => <tr key={`${row.title}-${index}`}><td><strong>{row.title}</strong></td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.meta}</td><td>{row.note}</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button></td></tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, Number(pageSize))} of {rows.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
+            <div className="employee-table-wrap"><table><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead><tbody>{rows.slice(0, Number(pageSize)).map((row, index) => <tr key={`${row.title}-${index}`}>{columns.map(column => <td key={column}>{column === "Action" ? <button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button> : column === "Status" ? <span className="employee-status-pill">{rowValue(row, column)}</span> : column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? <strong>{rowValue(row, column)}</strong> : rowValue(row, column)}</td>)}</tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, Number(pageSize))} of {rows.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
           </div>
         )}
       </>
