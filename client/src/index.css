@@ -860,3 +860,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-config-section-row { width: 100%; padding: 0; text-align: left; cursor: pointer; background: transparent; font: inherit; }
 .website-config-section-row:hover { border-color: #c3dfe6; background: #f5fbfc; }
 .website-config-section-row .website-config-section-select { width: 100%; }
+
+.website-config-full-preview { min-width: 0; border: 1px solid #d9e2e5; border-radius: 10px; background: #fff; box-shadow: 0 10px 26px rgba(31, 61, 78, .06); }
+.website-config-full-preview .website-config-iframe-wrap { height: calc(100vh - 235px); min-height: 640px; }
+@media (max-width: 720px) { .website-config-full-preview .website-config-iframe-wrap { height: calc(100vh - 280px); min-height: 480px; } }
