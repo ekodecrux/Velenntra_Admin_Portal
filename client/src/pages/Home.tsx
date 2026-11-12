@@ -8,7 +8,6 @@ import {
   Eye,
   EyeOff,
   KeyRound,
-  Layers3,
   LockKeyhole,
   ShieldCheck,
   Sparkles,
@@ -18,7 +17,7 @@ import {
 import { FormEvent, useState } from "react";
 import { useLocation } from "wouter";
 
-type RoleId = "employee" | "admin" | "super-admin";
+type RoleId = "employee" | "admin";
 
 type Role = {
   id: RoleId;
@@ -39,23 +38,15 @@ const roles: Role[] = [
   {
     id: "admin",
     label: "Admin",
-    summary: "My event workspace",
-    detail: "Review event details, coordinate teams, and approve updates.",
-    icon: Workflow,
-  },
-  {
-    id: "super-admin",
-    label: "Super Admin",
     summary: "All operations",
-    detail: "Create events, manage roles, and shape the platform settings.",
-    icon: Layers3,
+    detail: "Manage events and employees, shape roles, review work, publish updates, and configure platform settings.",
+    icon: Workflow,
   },
 ];
 
 const roleUsernames: Record<RoleId, string> = {
   employee: "EMP001",
   admin: "ADMIN",
-  "super-admin": "SUPER ADMIN",
 };
 
 function BrandMark() {
@@ -93,8 +84,6 @@ export default function Home() {
       const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
       const isValidPreviewLogin = (selectedRole === "employee"
         ? normalizedIdentifier === "EMP001" || normalizedIdentifier === "EMP"
-        : selectedRole === "super-admin"
-        ? normalizedIdentifier === "SUPER ADMIN" || normalizedIdentifier === "SUPERADMIN"
         : normalizedIdentifier === roleUsernames[selectedRole])
         && password === "123456";
 
@@ -210,13 +199,13 @@ export default function Home() {
           <div className="auth-heading">
             <div className="eyebrow"><span className="eyebrow-dot" /> Welcome back</div>
             <h2>Sign in to your workspace.</h2>
-            <p>Employee, Admin, and Super Admin access are enabled for this preview. Each role opens a workspace shaped around its responsibilities.</p>
+            <p>Employee and Admin access are enabled for this preview. Each role opens a workspace shaped around its responsibilities.</p>
           </div>
 
           <div className="role-section">
             <div className="section-heading">
               <span className="section-label">01 / Your access point</span>
-              <span className="section-helper">All three demo roles enabled</span>
+              <span className="section-helper">Both demo roles enabled</span>
             </div>
             <div className="role-picker" role="group" aria-label="Choose your access point">
               {roles.map(role => {
@@ -254,7 +243,7 @@ export default function Home() {
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <div className="section-heading section-heading-form">
-              <span className="section-label">02 / Employee credentials</span>
+              <span className="section-label">02 / {activeRole.label} credentials</span>
               <span className="secure-note"><LockKeyhole size={13} /> Preview access</span>
             </div>
 
@@ -268,7 +257,7 @@ export default function Home() {
                   type="text"
                   value={identifier}
                   onChange={event => setIdentifier(event.target.value)}
-                placeholder="EMP001"
+                  placeholder={roleUsernames[selectedRole]}
                   autoComplete="username"
                   aria-invalid={Boolean(formError) && !identifier.trim()}
                   disabled={isSubmitting}

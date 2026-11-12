@@ -1,24 +1,29 @@
 # Velentra Admin Portal — implementation outcomes
 
+## Unified Admin role
+- [x] Offer only Employee and Admin at sign-in. Admin handles all former Admin and Super Admin tasks: event management and creation, event details and preview, templates and status, employee directory and account management, roles and permissions, Admin and Employee assignments, review queues and approvals, publishing readiness and rules, websites, notifications, activity, audit logs, and workspace/site/system settings.
+- [x] Route Admin to one combined workspace; normalize existing `/workspace/super-admin` links to `/workspace/admin` and preserve employee records stored in the old preview session.
+- [x] Remove Super Admin from role selectors and approval settings; migrate legacy employee records with the Super Admin role to Admin. Keep Employee behavior unchanged and use `ADMIN / 123456` for the single Admin demo account.
+
 ## Login surface and role-aware entry
 - [x] Deliver a polished, responsive admin portal login page branded for Velentra Group Event Operations.
-- [x] Provide one streamlined entry point for Employee, Admin, and Super Admin demo sign-in, with role-specific workspace handoff paths.
+- [x] Provide one streamlined entry point for Employee and Admin demo sign-in, with role-specific workspace handoff paths.
 - [x] Include concise platform context about event content, workflow, and publishing operations without distracting from sign-in.
 
 ## Sign-in experience
 - [x] Provide labeled username and password controls with visible focus states, password visibility toggle, client-side validation, loading/disabled behavior, and clear error/help feedback.
-- [x] Implement the requested demo logins with usernames `EMP`, `ADMIN`, and `SUPER ADMIN`, all using password `123456`; keep demo sessions in browser session storage only for this UI slice.
+- [x] Implement the requested demo logins with usernames `EMP001` (or `EMP`) and `ADMIN`, both using password `123456`; keep demo sessions in browser session storage only for this UI slice.
 - [x] Include a forgot-password/account-access entry point with clear guidance for users who cannot access their account.
 
 ## Workspace handoff
-- [x] After valid demo sign-in, route to the matching Employee, Admin, or Super Admin workspace handoff shell.
+- [x] After valid demo sign-in, route to the matching Employee or unified Admin workspace handoff shell.
 - [x] Register the complete client route set in `client/public/manus-routes.json`.
 
-## Admin and Super Admin workspaces
+## Unified Admin workspace
 - [x] Give Admin users a dedicated workspace for event management, event details, website preview, employee assignments, employee work, review queue, content approvals, publishing readiness, notifications, and settings.
-- [x] Give Super Admin users a dedicated workspace for all events, event creation, templates, team roles, Admin assignments, employee directory, published sites, site settings, publishing rules, platform activity, audit log, and system settings.
-- [x] Give Super Admin users controls to add and manage employees, create and manage roles and permissions, assign Admins and Employees to events, modify event details, change event status, manage event websites, and control publishing rules.
-- [x] Keep the Super Admin Events menu focused on `All Events` and `Create Event`; place `Create new Event` as the primary action at the top of the All Events view.
+- [x] Give Admin users additional unified workspace controls for all events, event creation, templates, team roles, Admin assignments, employee directory, published sites, site settings, publishing rules, platform activity, audit log, and system settings.
+- [x] Give Admin users controls to add and manage employees, create and manage roles and permissions, assign Admins and Employees to events, modify event details, change event status, manage event websites, and control publishing rules.
+- [x] Retain the Admin Events primary destinations `All Events` and `Create Event`; place `Create new Event` as the primary action at the top of the All Events view.
 - [x] In the Create Event form, require an Assigned Admin and allow optional Employee assignment alongside event title, dates, venue, template, event status, and website status.
 - [x] Use a role dropdown when adding an employee, searchable Admin and multi-select Employee dropdowns when creating an event, and native date-picker controls for event date fields.
 - [x] Persist newly saved Employee records in the in-session Employee Directory and newly saved Event records in All Events, including role, status, Admin, and Employee assignment notes.

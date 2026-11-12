@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import EmployeeDashboard from "./EmployeeDashboard";
 import RoleDashboard from "./RoleDashboard";
@@ -9,6 +9,23 @@ export default function Workspace() {
   const [, params] = useRoute("/workspace/:role");
   const [, setLocation] = useLocation();
   const { user, loading } = useAuth();
+  const isLegacySuperAdminRoute = params?.role === "super-admin";
+  const requestedRole = params?.role === "admin" ? "admin" : "employee";
+
+  useEffect(() => {
+    if (!isLegacySuperAdminRoute) return;
+
+    try {
+      if (sessionStorage.getItem("velentra-signin-role") === "super-admin") {
+        sessionStorage.setItem("velentra-signin-role", "admin");
+      }
+    } catch {
+      // Continue with the canonical route if session storage is unavailable.
+    }
+
+    setLocation("/workspace/admin", { replace: true });
+  }, [isLegacySuperAdminRoute, setLocation]);
+
   const [demoSession] = useState(() => {
     try {
       return sessionStorage.getItem("velentra-demo-authenticated") === "true";
@@ -16,12 +33,15 @@ export default function Workspace() {
       return false;
     }
   });
-  const requestedRole = params?.role === "admin" || params?.role === "super-admin" ? params.role : "employee";
   const hasSession = Boolean(user) || demoSession;
-  const demoUsername = requestedRole === "admin" ? "ADMIN" : requestedRole === "super-admin" ? "SUPER ADMIN" : "EMP001";
+  const demoUsername = requestedRole === "admin" ? "ADMIN" : "EMP001";
 
   if (loading) {
     return <div className="workspace-state"><div className="button-spinner" /><span>Checking your Velentra session…</span></div>;
+  }
+
+  if (isLegacySuperAdminRoute) {
+    return <div className="workspace-state"><div className="button-spinner" /><span>Opening your Admin workspace…</span></div>;
   }
 
   if (!hasSession) {
@@ -40,5 +60,5 @@ export default function Workspace() {
     return <EmployeeDashboard onBack={() => setLocation("/")} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} />;
   }
 
-  return <RoleDashboard role={requestedRole} onBack={() => setLocation("/")} username={user?.name || user?.email || demoUsername} />;
+  return <RoleDashboard role="admin" onBack={() => setLocation("/")} username={user?.name || user?.email || demoUsername} />;
 }
