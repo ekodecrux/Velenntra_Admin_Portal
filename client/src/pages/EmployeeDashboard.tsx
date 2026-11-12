@@ -333,7 +333,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const renderDashboard = () => (
     <>
       <div className="employee-page-heading employee-dashboard-heading">
-        <div><span className="employee-eyebrow"><span /> Velentra Group · Employee portal</span><h1>Dashboard</h1></div>
+        <div><h1>Dashboard</h1></div>
       </div>
       <div className="employee-stats-grid">
         <StatCard label="Abstracts" value="0" actionLabel="View Details" icon={FileText} tone="blue" action={() => selectFeature("abstracts")} />
@@ -343,14 +343,14 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
         <StatCard label="Unsubscribe Emails" value="400" actionLabel="View Records" icon={Mail} tone="blue" action={() => selectFeature("unsubscribe-emails")} />
       </div>
       <section className="employee-dashboard-section">
-        <div className="employee-section-heading"><div><span className="employee-eyebrow"><span /> Registrations</span><h2>Registration pipeline</h2></div><button className="employee-link-button" type="button" onClick={() => selectFeature("registrations")}>View all <ArrowUpRight size={15} /></button></div>
+        <div className="employee-section-heading"><div><h2>Registrations</h2></div><button className="employee-link-button" type="button" onClick={() => selectFeature("registrations")}>Open registrations <ArrowUpRight size={15} /></button></div>
         <div className="employee-registration-grid">
           <StatCard label="Success registrations" value="0" actionLabel="View Details" icon={Check} tone="green" action={() => selectFeature("registrations")} />
           <StatCard label="Pending registrations" value="0" actionLabel="View Details" icon={ClipboardList} tone="red" action={() => selectFeature("registrations")} />
         </div>
       </section>
       <section className="employee-dashboard-section">
-        <div className="employee-section-heading"><div><span className="employee-eyebrow"><span /> Editorial board</span><h2>People and program</h2></div><button className="employee-link-button" type="button" onClick={() => selectFeature("boardmembers")}>Manage people <ArrowUpRight size={15} /></button></div>
+        <div className="employee-section-heading"><div><h2>Editorial Board</h2></div><button className="employee-link-button" type="button" onClick={() => selectFeature("boardmembers")}>View all members <ArrowUpRight size={15} /></button></div>
         <div className="employee-mini-grid">
           {["Organizing Committee", "Keynote Speakers", "Renowned Speakers", "Poster Presenters", "Invited Speakers", "Representatives"].map(label => <button key={label} type="button" className="employee-mini-card" onClick={() => selectFeature(allFeatures.find(feature => feature.label === label)?.id ?? "boardmembers")}><UsersRound size={17} /><span><strong>0</strong><small>{label}</small></span><ChevronRight size={15} /></button>)}
         </div>
@@ -364,9 +364,8 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
     const activeFields = fieldSpecs[active.id] ?? (formFields[active.id] ?? settingsFields).map(label => ({ label }));
     return (
       <>
-        <div className="employee-page-heading">
-          <div><span className="employee-eyebrow"><span /> {active.id === "email-search" ? "Coordinator module" : active.kind === "settings" ? "Settings" : "Employee workspace"}</span><h1>{active.id === "email-search" ? "Coordinator Email Search" : active.label}</h1><p>{active.id === "email-search" ? "Search email across coordinator records." : active.description}</p></div>
-          <button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={16} /> Dashboard</button>
+        <div className="employee-page-heading employee-feature-heading">
+          <div><h1>{active.id === "email-search" ? "Coordinator Email Search" : active.label}</h1></div>
         </div>
         {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
         {active.id === "email-search" ? (
@@ -384,9 +383,8 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
           </div>
         ) : isForm ? (
           <div className="employee-form-card">
-            <div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> New record</span><h2>Build this {active.label.toLowerCase()}</h2></div><span className="employee-draft-chip">Draft</span></div>
             <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select value={formValues[field.label] ?? field.options?.[0] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}</div>
-            <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {formActionLabels[active.id] ?? (active.id === "email-search" ? "Search Email" : "Save draft")}</button></div>
+            <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature(formReturnTargets[active.id] ?? "dashboard")}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {formActionLabels[active.id] ?? (active.id === "email-search" ? "Search Email" : "Submit")}</button></div>
           </div>
         ) : (
           <div className="employee-table-card">
