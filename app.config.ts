@@ -1,3 +1,3 @@
 export default {
-  logoUrl: "https://inovinegroup.com/admin/assets/inovine-conferences-logo.png",
+  logoUrl: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663797400997/oOUQrZodXWZQknPE.webp",
 };

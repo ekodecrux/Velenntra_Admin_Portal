@@ -1,486 +1,331 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import {
-  Archive,
-  ArrowRight,
-  BarChart3,
-  BookOpen,
-  BriefcaseBusiness,
+  ArrowUpRight,
   CalendarDays,
-  ChevronDown,
+  Check,
   ChevronRight,
   CircleHelp,
-  ClipboardList,
-  FileImage,
-  FileText,
-  Image,
-  LayoutDashboard,
-  Mail,
-  Menu,
-  MessageSquare,
-  Pencil,
-  Search,
-  Settings,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Layers3,
+  LockKeyhole,
   ShieldCheck,
-  Star,
-  Tag,
-  Ticket,
-  Users,
-  UserRound,
-  X,
+  Sparkles,
+  UsersRound,
+  Workflow,
 } from "lucide-react";
+import { FormEvent, useState } from "react";
+import { useLocation } from "wouter";
 
-type IconType = typeof LayoutDashboard;
+type RoleId = "employee" | "admin" | "super-admin";
 
-type NavigationItem = {
+type Role = {
+  id: RoleId;
   label: string;
-  icon: IconType;
-  section?: string;
+  summary: string;
+  detail: string;
+  icon: typeof UsersRound;
 };
 
-type NavigationGroup = {
-  label?: string;
-  icon?: IconType;
-  items: NavigationItem[];
-};
-
-type MetricCard = {
-  title: string;
-  count?: string;
-  caption?: string;
-  icon: IconType;
-  tone: "blue" | "green" | "red";
-  action: string;
-};
-
-const navigationGroups: NavigationGroup[] = [
-  { items: [{ label: "Dashboard", icon: LayoutDashboard }] },
+const roles: Role[] = [
   {
-    items: [
-      { label: "Email Search", icon: Search },
-      { label: "Unsubscribe Emails", icon: Mail },
-      { label: "Abstracts", icon: FileText },
-      { label: "Brochure Download", icon: Archive },
-    ],
+    id: "employee",
+    label: "Employee",
+    summary: "My assigned work",
+    detail: "Complete content and operations tasks assigned to you.",
+    icon: UsersRound,
   },
   {
-    label: "Speakers | Board Members",
-    icon: Users,
-    items: [
-      { label: "All Members", icon: Users },
-      { label: "Keynote Speakers", icon: Star },
-      { label: "Renowned Speakers", icon: Star },
-      { label: "Invited Speakers", icon: UserRound },
-      { label: "Poster Presenters", icon: FileImage },
-      { label: "Organizing Committee", icon: BriefcaseBusiness },
-    ],
-  },
-  { items: [{ label: "Representatives", icon: UserRound }] },
-  {
-    label: "Tracks",
-    icon: Tag,
-    items: [
-      { label: "Tracks", icon: Tag },
-      { label: "Subtracks", icon: Tag },
-      { label: "Prices", icon: Ticket },
-    ],
+    id: "admin",
+    label: "Admin",
+    summary: "My event workspace",
+    detail: "Review event details, coordinate teams, and approve updates.",
+    icon: Workflow,
   },
   {
-    label: "Registration Info",
-    icon: ClipboardList,
-    items: [
-      { label: "Registration Dates", icon: CalendarDays },
-      { label: "Default Currency", icon: CircleHelp },
-      { label: "Registration Prices", icon: Ticket },
-      { label: "Accommodation & Accompanying Prices", icon: BriefcaseBusiness },
-      { label: "Registrations", icon: ClipboardList },
-    ],
-  },
-  {
-    label: "Banner/ Media",
-    icon: Image,
-    items: [
-      { label: "Banner Images", icon: Image },
-      { label: "Media Partner", icon: BriefcaseBusiness },
-      { label: "Exhibitors", icon: Users },
-    ],
-  },
-  {
-    label: "Past Conference Gallery/Review",
-    icon: Image,
-    items: [
-      { label: "Gallery", icon: Image },
-      { label: "Reviews", icon: MessageSquare },
-    ],
-  },
-  {
-    label: "Events",
-    icon: CalendarDays,
-    items: [
-      { label: "Events List", icon: CalendarDays },
-      { label: "Add Event", icon: Pencil },
-    ],
-  },
-  {
-    label: "Conference Sessions",
-    icon: CalendarDays,
-    items: [
-      { label: "Conference Sessions", icon: CalendarDays },
-      { label: "Add Conference Sessions", icon: Pencil },
-    ],
-  },
-  { items: [{ label: "Buttons List", icon: BarChart3 }] },
-  {
-    label: "Testimonials",
-    icon: MessageSquare,
-    items: [
-      { label: "Testimonials List", icon: MessageSquare },
-      { label: "Add Testimonial", icon: Pencil },
-      { label: "Video Testimonials List", icon: FileImage },
-      { label: "Add Video Testimonials", icon: Pencil },
-    ],
-  },
-  { label: "Pages", icon: BookOpen, items: [{ label: "Pages", icon: BookOpen }] },
-  {
-    label: "Home Tabs",
-    icon: LayoutDashboard,
-    items: [
-      { label: "Home Tabs", icon: LayoutDashboard },
-      { label: "Add New Tab", icon: Pencil },
-    ],
-  },
-  {
-    label: "Site Settings",
-    icon: Settings,
-    items: [
-      { label: "Header Section", icon: Settings },
-      { label: "Footer Section", icon: Settings },
-      { label: "Theme Settings", icon: Settings },
-      { label: "Conference Credits", icon: ShieldCheck },
-    ],
+    id: "super-admin",
+    label: "Super Admin",
+    summary: "All operations",
+    detail: "Create events, manage roles, and shape the platform settings.",
+    icon: Layers3,
   },
 ];
 
-const summaryCards: MetricCard[] = [
-  { title: "Abstracts", count: "0", icon: FileText, tone: "blue", action: "View Details" },
-  { title: "Brochures", count: "7", icon: FileText, tone: "blue", action: "View Details" },
-  { title: "Testimonials", count: "0", icon: MessageSquare, tone: "blue", action: "View Details" },
-  { title: "Email Search", icon: Search, tone: "blue", action: "Search Records" },
-  { title: "Unsubscribe", count: "400", caption: "Emails", icon: Mail, tone: "blue", action: "View Records" },
-];
-
-const registrationCards: MetricCard[] = [
-  { title: "Success", count: "0", caption: "registrations", icon: Pencil, tone: "green", action: "View Details" },
-  { title: "Pending", count: "0", caption: "registrations", icon: Pencil, tone: "red", action: "View Details" },
-];
-
-const editorialCards: MetricCard[] = [
-  { title: "Organizing Committee", count: "0", icon: Users, tone: "blue", action: "View Details" },
-  { title: "Keynote Speakers", count: "0", icon: Users, tone: "blue", action: "View Details" },
-  { title: "Renowned Speakers", count: "0", icon: Users, tone: "blue", action: "View Details" },
-  { title: "Poster Presenters", count: "0", icon: FileImage, tone: "blue", action: "View Details" },
-  { title: "Invited Speakers", count: "0", icon: Users, tone: "blue", action: "View Details" },
-  { title: "Representatives", count: "0", icon: Users, tone: "blue", action: "View Details" },
-];
-
-function LogoMark() {
-  return (
-    <div className="brand-mark" aria-label="Inovine Conferences">
-      <div className="brand-wordmark">
-        <span>inovine</span>
-        <i aria-hidden="true" />
-      </div>
-      <span className="brand-tagline">Scientific Meetings</span>
-    </div>
-  );
-}
-
-function SiteHeader() {
-  return (
-    <header className="site-header">
-      <img className="site-header__logo" src="https://inovinegroup.com/admin/assets/inovine-conferences-logo.png" alt="Inovine Conferences" />
-      <div className="site-header__profile" aria-label="Employee profile">
-        <UserRound size={16} fill="currentColor" strokeWidth={1.5} />
-        <ChevronDown size={12} strokeWidth={2.5} />
-      </div>
-    </header>
-  );
-}
-
-function MetricCardView({ card, onSelect }: { card: MetricCard; onSelect: (card: MetricCard) => void }) {
-  const Icon = card.icon;
-  return (
-    <button className={`metric-card metric-card--${card.tone}`} onClick={() => onSelect(card)} type="button">
-      <span className="metric-card__top">
-        <Icon size={24} strokeWidth={1.75} />
-        {card.count ? <strong>{card.count}</strong> : <span className="metric-card__empty" />}
-      </span>
-      <span className="metric-card__title">{card.title}</span>
-      {card.caption && <span className="metric-card__caption">{card.caption}</span>}
-      <span className="metric-card__footer">
-        <span>{card.action}</span>
-        <ArrowRight size={13} />
-      </span>
-    </button>
-  );
-}
-
-function Sidebar({ active, onSelect, open, onClose }: { active: string; onSelect: (label: string) => void; open: boolean; onClose: () => void }) {
-  const [openGroups, setOpenGroups] = useState<Record<number, boolean>>({});
-
-  return (
-    <>
-      {open && <button className="sidebar-scrim" aria-label="Close navigation" onClick={onClose} type="button" />}
-      <aside className={`sidebar ${open ? "sidebar--open" : ""}`}>
-        <div className="sidebar__brand">
-          <LogoMark />
-          <button className="sidebar__close" aria-label="Close navigation" onClick={onClose} type="button">
-            <X size={18} />
-          </button>
-        </div>
-        <nav className="sidebar__nav" aria-label="Coordinator navigation">
-          {navigationGroups.map((group, index) => (
-            <div className="nav-group" key={`${group.label ?? "items"}-${index}`}>
-              {group.label && (
-                <button className="nav-group__heading" type="button" onClick={() => setOpenGroups((current) => ({ ...current, [index]: !current[index] }))}>
-                  {group.icon && <group.icon size={12} />}
-                  <span>{group.label}</span>
-                  <ChevronDown className={openGroups[index] ? "nav-group__chevron nav-group__chevron--open" : "nav-group__chevron"} size={11} />
-                </button>
-              )}
-              {(!group.label || openGroups[index] || group.items.some((item) => active === item.label)) && group.items.map((item) => {
-                const ItemIcon = item.icon;
-                const selected = active === item.label;
-                return (
-                  <button
-                    type="button"
-                    className={`nav-item ${selected ? "nav-item--active" : ""}`}
-                    key={item.label}
-                    onClick={() => {
-                      onSelect(item.label);
-                      onClose();
-                    }}
-                  >
-                    <ItemIcon size={13} strokeWidth={1.7} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-      </aside>
-    </>
-  );
-}
-
-const sectionData: Record<string, { columns: string[]; rows: string[][] }> = {
-  Abstracts: {
-    columns: ["Name", "Abstract Title", "Email", "Country", "Phone No", "Category", "Track Name", "Address", "interested", "Oraganization", "Date", "Action"],
-    rows: [["Dr. Maya Patel", "New approaches in clinical research", "maya.patel@example.com", "India", "+91 98765 43210", "Research", "Healthcare", "Mumbai", "Yes", "Aster Labs", "10 Nov 2026", "View"]],
-  },
-  "All Members": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["MP", "Dr. Michael Peterson", "University of Oxford", "Active", "Edit"]] },
-  "Keynote Speakers": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["LS", "Dr. Laura Schmidt", "Charité Berlin", "Active", "Edit"]] },
-  "Renowned Speakers": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["AR", "Prof. Antonio Rossi", "University of Milan", "Active", "Edit"]] },
-  "Invited Speakers": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["NK", "Dr. Neha Kapoor", "AIIMS New Delhi", "Invited", "Edit"]] },
-  "Poster Presenters": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["JT", "James Thompson", "King's College London", "Active", "Edit"]] },
-  "Organizing Committee": { columns: ["Photo", "Name", "University", "Status", "Action"], rows: [["SW", "Sarah Williams", "Inovine Conferences", "Active", "Edit"]] },
-  Representatives: { columns: ["Name", "Email", "Country", "Organization", "Status", "Action"], rows: [["Anita Rao", "anita.rao@example.com", "India", "Apex Events", "Active", "View"]] },
-  Tracks: { columns: ["Track Name", "Description", "Subtracks", "Status", "Action"], rows: [["Healthcare Innovation", "Clinical and digital health", "4", "Active", "Edit"]] },
-  Subtracks: { columns: ["Subtrack Name", "Track", "Status", "Action"], rows: [["Digital Diagnostics", "Healthcare Innovation", "Active", "Edit"]] },
-  Prices: { columns: ["Category", "Currency", "Early Price", "Regular Price", "Action"], rows: [["Delegate", "USD", "$450", "$550", "Edit"]] },
-  "Registration Dates": { columns: ["Registration Type", "Start Date", "End Date", "Status", "Action"], rows: [["Early Bird", "01 Jan 2026", "30 Jun 2026", "Closed", "Edit"]] },
-  "Default Currency": { columns: ["Currency", "Symbol", "Status", "Action"], rows: [["US Dollar", "USD ($)", "Default", "Edit"]] },
-  "Registration Prices": { columns: ["Category", "Currency", "Price", "Status", "Action"], rows: [["Delegate", "USD", "$550", "Published", "Edit"]] },
-  "Accommodation & Accompanying Prices": { columns: ["Room Type", "Nights", "Price", "Currency", "Action"], rows: [["Single Room", "3", "$360", "USD", "Edit"]] },
-  Registrations: { columns: ["Name", "Email", "Country", "Registration Type", "Payment", "Date", "Action"], rows: [["Priya Menon", "priya.menon@example.com", "India", "Delegate", "Success", "08 Nov 2026", "View"]] },
-  "Banner Images": { columns: ["Preview", "Title", "Image", "Status", "Action"], rows: [["IMG", "Conference Hero", "hero-banner.jpg", "Published", "Edit"]] },
-  "Media Partner": { columns: ["Logo", "Name", "Website", "Status", "Action"], rows: [["MP", "Global Health Media", "globalhealth.example", "Active", "Edit"]] },
-  Exhibitors: { columns: ["Logo", "Company", "Contact", "Booth", "Status", "Action"], rows: [["AL", "Apex Labs", "contact@apex.example", "B-12", "Active", "Edit"]] },
-  Gallery: { columns: ["Image", "Title", "Conference", "Status", "Action"], rows: [["IMG", "Opening Ceremony", "Inovine 2025", "Published", "Edit"]] },
-  Reviews: { columns: ["Name", "Organization", "Review", "Status", "Action"], rows: [["Dr. Elena Garcia", "MedTech Europe", "Excellent scientific program", "Published", "Edit"]] },
-  "Events List": { columns: ["Event Name", "Venue", "Start Date", "End Date", "Status", "Action"], rows: [["Welcome Reception", "Grand Ballroom", "12 Dec 2026", "12 Dec 2026", "Published", "Edit"]] },
-  "Conference Sessions": { columns: ["Session Name", "Track", "Date", "Time", "Room", "Action"], rows: [["Future of Digital Health", "Healthcare", "13 Dec 2026", "09:30", "Hall A", "Edit"]] },
-  "Buttons List": { columns: ["Button Text", "Link", "Placement", "Status", "Action"], rows: [["Register Now", "/registration", "Home banner", "Active", "Edit"]] },
-  "Testimonials List": { columns: ["Name", "Organization", "Testimonial", "Status", "Action"], rows: [["Prof. David Lee", "UCLA Health", "A valuable meeting for collaboration.", "Published", "Edit"]] },
-  "Video Testimonials List": { columns: ["Name", "Video URL", "Organization", "Status", "Action"], rows: [["Dr. Sofia Chen", "video.example/sofia", "Stanford Medicine", "Published", "Edit"]] },
-  Pages: { columns: ["Page Title", "Slug", "Updated", "Status", "Action"], rows: [["About the Conference", "/about", "02 Nov 2026", "Published", "Edit"]] },
-  "Home Tabs": { columns: ["Tab Title", "Order", "Content", "Status", "Action"], rows: [["Why Attend", "1", "Short content block", "Published", "Edit"]] },
+const roleUsernames: Record<RoleId, string> = {
+  employee: "EMP001",
+  admin: "ADMIN",
+  "super-admin": "SUPER ADMIN",
 };
 
-function TablePreview({ active }: { active: string }) {
-  const data = sectionData[active] ?? { columns: ["Name", "Status", "Action"], rows: [["Sample preview record", "Active", "View"]] };
+function BrandMark() {
   return (
-    <div className="data-table-shell">
-      <div className="table-controls"><label>Show <select defaultValue="10"><option>10</option><option>25</option><option>50</option><option>100</option></select> entries</label><label>Search: <input aria-label={`${active} table search`} type="search" placeholder="" /></label></div>
-      <div className="data-table-scroll"><table className="data-table"><thead><tr>{data.columns.map((column) => <th key={column}>{column}<span className="sort-mark">↕</span></th>)}</tr></thead><tbody>{data.rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`}>{cellIndex === row.length - 1 ? <button type="button" className="row-action">{cell}</button> : cell}</td>)}</tr>)}</tbody></table></div>
-      <div className="table-footer"><span>Showing 1 to {data.rows.length} of {data.rows.length} entries</span><div><button type="button">Previous</button><button type="button">Next</button></div></div>
-    </div>
-  );
-}
-
-function LoginScreen({ onLogin }: { onLogin: () => void }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (!username.trim() || !password.trim()) {
-      setError("Please enter your username and password.");
-      return;
-    }
-    setError("");
-    onLogin();
-  };
-
-  return <main className="login-screen"><div className="login-card"><div className="login-tabs"><button type="button" className="login-tab login-tab--active">Employee Login</button><button type="button" className="login-tab">Administrator Login</button></div><form onSubmit={submit} className="login-form"><input aria-label="Username" placeholder="Username" value={username} onChange={(event) => setUsername(event.target.value)} /><input aria-label="Password" type="password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />{error && <p className="login-error">{error}</p>}<button type="submit" className="login-submit">LOGIN</button></form></div></main>;
-}
-
-function SectionView({ active }: { active: string }) {
-  const isSearch = active === "Email Search";
-  const isAddPage = active.startsWith("Add ");
-  const isSettings = ["Header Section", "Footer Section", "Theme Settings", "Conference Credits"].includes(active);
-  const [searched, setSearched] = useState(false);
-
-  return (
-    <section className="section-page" aria-labelledby="section-page-title">
-      <div className="section-page__bar">
-        <div>
-          <span className="section-kicker">COORDINATOR MODULE</span>
-          <h2 id="section-page-title">{active}</h2>
-        </div>
-        <span className="section-page__count">Preview mode</span>
-      </div>
-      {isSearch ? (
-        <div className="section-card section-card--search">
-          <div className="section-card__title">Search email across coordinator records</div>
-          <label className="email-search-field">Email Address<input aria-label="Email Address" type="email" placeholder="name@example.com" /></label>
-          <p className="scope-note">Scope: All conferences and all listed tables</p>
-          <button type="button" className="primary-action email-search-button" onClick={() => setSearched(true)}><Search size={13} /> Search Email</button>
-          <div className="search-tables"><strong>Search Tables</strong><div>{["abstracts", "clients", "contact", "downloadbrochure", "editorialboard", "email_messages", "follow_up", "forms_submission", "registration", "registration_users"].map((table) => <span key={table}>{table}</span>)}</div></div>
-          {searched && <div className="search-result-preview"><TablePreview active="Registrations" /></div>}
-        </div>
-      ) : isAddPage ? (
-        <div className="section-card section-card--form">
-          <div className="section-card__title"><Pencil size={18} /> {active}</div>
-          <div className="form-grid"><label>Title<input placeholder="Enter a title" /></label><label>Status<select defaultValue="Draft"><option>Draft</option><option>Published</option></select></label><label className="form-grid__wide">Description<textarea placeholder="Enter a short description" /></label></div>
-          <button type="button" className="primary-action">Save preview</button>
-        </div>
-      ) : isSettings ? (
-        <div className="section-card section-card--form">
-          <div className="section-card__title"><Settings size={18} /> {active}</div>
-          <div className="form-grid"><label>Section title<input defaultValue={active} /></label><label>Visibility<select defaultValue="Visible"><option>Visible</option><option>Hidden</option></select></label><label className="form-grid__wide">Content<textarea placeholder="This is a safe, local preview of the settings editor." /></label></div>
-          <button type="button" className="primary-action">Update preview</button>
-        </div>
-      ) : (
-        <div className="section-card">
-          <div className="section-card__title"><ClipboardList size={18} /> {active}</div>
-          <TablePreview active={active} />
-          <p className="section-card__hint">Sample preview data is shown locally to mirror the reference fields and controls. No records are sent anywhere.</p>
-        </div>
-      )}
-    </section>
+    <img className="brand-logo-image" src="/v-logo1.webp" alt="Velentra Group" />
   );
 }
 
 export default function Home() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [active, setActive] = useState("Dashboard");
-  const [selected, setSelected] = useState<MetricCard | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [, setLocation] = useLocation();
+  const { user, loading: sessionLoading } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<RoleId>("employee");
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const activeContext = useMemo(() => {
-    if (selected) return selected.title;
-    if (active === "Dashboard") return "Dashboard overview";
-    return active;
-  }, [active, selected]);
+  const activeRole = roles.find(role => role.id === selectedRole) ?? roles[0];
+  const ActiveRoleIcon = activeRole.icon;
 
-  const handleNavigation = (label: string) => {
-    setActive(label);
-    setSelected(null);
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormError("");
+    setNotice("");
+
+    if (!identifier.trim() || !password.trim()) {
+      setFormError("Enter your work email or username and password to continue.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
+      const isValidPreviewLogin = (selectedRole === "employee"
+        ? normalizedIdentifier === "EMP001" || normalizedIdentifier === "EMP"
+        : selectedRole === "super-admin"
+        ? normalizedIdentifier === "SUPER ADMIN" || normalizedIdentifier === "SUPERADMIN"
+        : normalizedIdentifier === roleUsernames[selectedRole])
+        && password === "123456";
+
+      if (!isValidPreviewLogin) {
+        setIsSubmitting(false);
+        setFormError(`We couldn’t sign you in. Use ${roleUsernames[selectedRole]} with the shared preview password.`);
+        return;
+      }
+
+      try {
+        sessionStorage.setItem("velentra-demo-authenticated", "true");
+        sessionStorage.setItem("velentra-signin-role", selectedRole);
+      } catch {
+        // The preview can still show the validation state if storage is blocked.
+      }
+      setLocation(`/workspace/${selectedRole}`);
+    } catch {
+      setIsSubmitting(false);
+      setFormError("Sign-in is not available right now. Please try again.");
+    }
   };
 
-  const handleSelect = (card: MetricCard) => {
-    setSelected(card);
+  const handleRecovery = () => {
+    setFormError("");
+    setNotice("This preview uses role-based demo accounts. Production password recovery will be connected after the account model is finalized.");
   };
-
-  if (!loggedIn) return <LoginScreen onLogin={() => setLoggedIn(true)} />;
 
   return (
-    <div className="dashboard-shell">
-      <SiteHeader />
-      <Sidebar active={active} onSelect={handleNavigation} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className="dashboard-main">
-        <header className="mobile-topbar">
-          <button className="icon-button" onClick={() => setSidebarOpen(true)} aria-label="Open navigation" type="button">
-            <Menu size={20} />
-          </button>
-          <LogoMark />
-          <div className="mobile-topbar__status">Preview</div>
-        </header>
+    <div className="velentra-shell">
+      <section className="brand-panel" aria-label="Velentra platform overview">
+        <div className="brand-grid" aria-hidden="true" />
+        <div className="brand-orbit brand-orbit-one" aria-hidden="true" />
+        <div className="brand-orbit brand-orbit-two" aria-hidden="true" />
 
-        <div className="dashboard-content">
-          <div className="page-heading">
-            <div>
-              <p className="eyebrow">INOVINE CONFERENCES · ADMIN PANEL</p>
-              <h1>{active}</h1>
+        <div className="brand-topline">
+          <div className="brand-lockup">
+            <BrandMark />
+          </div>
+          <span className="brand-version">v.01 / portal</span>
+        </div>
+
+        <div className="brand-hero">
+          <div className="eyebrow eyebrow-light">
+            <span className="eyebrow-dot" /> Operations portal
+          </div>
+          <h1>
+            Every event, <em>moving</em> in one direction.
+          </h1>
+          <p>
+            A shared workspace for the teams shaping what guests see, what gets
+            approved, and what goes live.
+          </p>
+
+          <div className="signal-stack" aria-label="Platform capabilities">
+            <div className="signal-card signal-card-featured">
+              <div className="signal-icon"><CalendarDays size={17} /></div>
+              <div>
+                <strong>18 live events</strong>
+                <span>Across 04 active programs</span>
+              </div>
+              <ArrowUpRight size={16} className="signal-arrow" />
             </div>
-            <div className="page-heading__state">
-              <span className="status-dot" />
-              <span>{activeContext}</span>
+            <div className="signal-row">
+              <div className="signal-card">
+                <div className="signal-icon signal-icon-teal"><Workflow size={16} /></div>
+                <div>
+                  <strong>One workflow</strong>
+                  <span>Review to publish</span>
+                </div>
+              </div>
+              <div className="signal-card">
+                <div className="signal-icon signal-icon-copper"><Sparkles size={16} /></div>
+                <div>
+                  <strong>42 teammates</strong>
+                  <span>One clear rhythm</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="brand-footer">
+          <span>Content / People / Progress</span>
+          <span className="footer-rule" aria-hidden="true" />
+          <span>Built for the moments that matter.</span>
+        </div>
+      </section>
+
+      <main className="auth-panel">
+        <div className="auth-topline">
+          <span className="auth-topline-label">Secure team access</span>
+          <span className="auth-topline-status"><span /> System ready</span>
+        </div>
+
+        <div className="auth-content">
+          {user && !sessionLoading ? (
+            <div className="session-banner" role="status">
+              <div className="session-banner-icon"><Check size={16} /></div>
+              <div>
+                <strong>You’re already signed in</strong>
+                <span>{user.name || user.email || "Your Velentra account"} is ready to continue.</span>
+              </div>
+              <button
+                className="session-banner-action"
+                type="button"
+                onClick={() => setLocation(`/workspace/${user.role === "admin" ? "admin" : "employee"}`)}
+              >
+                Open workspace <ArrowUpRight size={15} />
+              </button>
+            </div>
+          ) : null}
+
+          <div className="auth-heading">
+            <div className="eyebrow"><span className="eyebrow-dot" /> Welcome back</div>
+            <h2>Sign in to your workspace.</h2>
+            <p>Employee, Admin, and Super Admin access are enabled for this preview. Each role opens a workspace shaped around its responsibilities.</p>
+          </div>
+
+          <div className="role-section">
+            <div className="section-heading">
+              <span className="section-label">01 / Your access point</span>
+              <span className="section-helper">All three demo roles enabled</span>
+            </div>
+            <div className="role-picker" role="group" aria-label="Choose your access point">
+              {roles.map(role => {
+                const RoleIcon = role.icon;
+                const isActive = role.id === selectedRole;
+                return (
+                  <button
+                    className={`role-option ${isActive ? "role-option-active" : ""}`}
+                    type="button"
+                    key={role.id}
+                    aria-pressed={isActive}
+                    onClick={() => {
+                      setSelectedRole(role.id);
+                      setFormError("");
+                      setNotice("");
+                    }}
+                  >
+                    <span className="role-option-icon"><RoleIcon size={17} /></span>
+                    <span className="role-option-copy">
+                      <strong>{role.label}</strong>
+                      <small>{role.summary}</small>
+                    </span>
+                    <ChevronRight size={16} className="role-option-arrow" />
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {selected && (
-            <section className="selection-strip" aria-live="polite">
-              <div>
-                <span className="selection-strip__label">Preview selection</span>
-                <strong>{selected.title}</strong>
+          <div className="selected-role-note">
+            <span className="selected-role-icon"><ActiveRoleIcon size={17} /></span>
+            <span><strong>{activeRole.label} access</strong> — {activeRole.detail}</span>
+          </div>
+          <div className="demo-credential-note"><span>{activeRole.label} preview credentials</span><code>{roleUsernames[selectedRole]}</code><span>/</span><code>123456</code></div>
+
+          <form className="auth-form" onSubmit={handleSubmit} noValidate>
+            <div className="section-heading section-heading-form">
+              <span className="section-label">02 / Employee credentials</span>
+              <span className="secure-note"><LockKeyhole size={13} /> Preview access</span>
+            </div>
+
+            <div className="field-group">
+              <label htmlFor="identifier">Username</label>
+              <div className="input-shell">
+                <KeyRound size={17} aria-hidden="true" />
+                <input
+                  id="identifier"
+                  name="identifier"
+                  type="text"
+                  value={identifier}
+                  onChange={event => setIdentifier(event.target.value)}
+                placeholder="EMP001"
+                  autoComplete="username"
+                  aria-invalid={Boolean(formError) && !identifier.trim()}
+                  disabled={isSubmitting}
+                />
               </div>
-              <p>This interaction is local to the preview and does not connect to the original admin system.</p>
-              <button onClick={() => setSelected(null)} type="button" aria-label="Clear selection">
-                Clear <X size={14} />
-              </button>
-            </section>
-          )}
-
-          {active === "Dashboard" ? <>
-          <section className="dashboard-section" aria-labelledby="overview-title">
-            <div className="metrics-grid metrics-grid--overview">
-              {summaryCards.map((card) => <MetricCardView card={card} onSelect={handleSelect} key={card.title} />)}
             </div>
-          </section>
 
-          <section className="dashboard-section" aria-labelledby="registrations-title">
-            <div className="section-heading">
-              <div>
-                <h2 id="registrations-title">Registrations</h2>
+            <div className="field-group">
+              <div className="field-label-row">
+                <label htmlFor="password">Password</label>
+                <button className="text-link" type="button" onClick={handleRecovery}>
+                  Forgot password?
+                </button>
               </div>
-              <button type="button" className="text-link" onClick={() => handleNavigation("Registrations")}>Open registrations <ChevronRight size={14} /></button>
-            </div>
-            <div className="metrics-grid metrics-grid--registrations">
-              {registrationCards.map((card) => <MetricCardView card={card} onSelect={handleSelect} key={card.title} />)}
-            </div>
-          </section>
-
-          <section className="dashboard-section" aria-labelledby="editorial-title">
-            <div className="section-heading">
-              <div>
-                <h2 id="editorial-title">Editorial Board</h2>
+              <div className="input-shell">
+                <LockKeyhole size={17} aria-hidden="true" />
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  aria-invalid={Boolean(formError) && !password.trim()}
+                  disabled={isSubmitting}
+                />
+                <button
+                  className="input-action"
+                  type="button"
+                  onClick={() => setShowPassword(value => !value)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  disabled={isSubmitting}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
               </div>
-              <button type="button" className="text-link" onClick={() => handleNavigation("All Members")}>View all members <ChevronRight size={14} /></button>
             </div>
-            <div className="metrics-grid metrics-grid--editorial">
-              {editorialCards.map((card) => <MetricCardView card={card} onSelect={handleSelect} key={card.title} />)}
-            </div>
-          </section>
 
-          <footer className="dashboard-footer">
-            <span>Coordinator dashboard preview</span>
-            <span>Faithful layout recreation · frontend only</span>
-          </footer>
-          </> : <SectionView active={active} />}
+            {formError ? <div className="form-message form-message-error" role="alert">{formError}</div> : null}
+            {notice ? <div className="form-message form-message-notice" role="status"><CircleHelp size={16} /> {notice}</div> : null}
+
+            <button className="signin-button" type="submit" disabled={isSubmitting}>
+              <span>{isSubmitting ? "Opening secure sign-in…" : "Continue to sign in"}</span>
+              {isSubmitting ? <span className="button-spinner" aria-hidden="true" /> : <ArrowUpRight size={18} />}
+            </button>
+          </form>
+
+          <div className="auth-trust-row">
+            <div><ShieldCheck size={17} /> Your role and access are protected by Velentra controls.</div>
+            <button type="button" className="help-link" onClick={handleRecovery}><CircleHelp size={15} /> Need access?</button>
+          </div>
         </div>
+
+        <footer className="auth-footer">
+          <span>© 2026 Velentra Group · Internal operations portal</span>
+        </footer>
       </main>
     </div>
   );

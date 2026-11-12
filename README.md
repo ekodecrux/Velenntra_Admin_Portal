@@ -1,4 +1,4 @@
-# Coordinator Dashboard Preview
+# Velentra Admin Portal
 
 React / Express / tRPC / Drizzle starter, adapted from the Sandbox web-db-user template.
 
