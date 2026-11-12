@@ -2,7 +2,7 @@ import { Check, Eye, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 const editorFields = [
-  "Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status",
+  "Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status", "Default site title", "Default contact email", "Default publishing mode", "Default template", "Require Admin approval", "Allow employee edits after publish", "Archive behavior", "Credit title", "Credit content",
 ];
 
 const defaultSections = [
@@ -92,7 +92,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onSaved }: 
   };
 
   return <>
-    <div className="employee-page-heading employee-editor-heading"><div><span className="employee-eyebrow"><span /> Website Editor</span><h1>{eventTitle}</h1><p>Edit the event website section by section. Changes are available to both Admin and Employee preview access.</p></div><button className="employee-secondary-button" type="button" onClick={onBack}><X size={16} /> Close editor</button></div>
+    <div className="employee-page-heading employee-editor-heading"><div><span className="employee-eyebrow"><span /> Website Configuration</span><h1>{eventTitle}</h1><p>Configure the event website section by section. Changes are available to both Admin and Employee preview access.</p></div><button className="employee-secondary-button" type="button" onClick={onBack}><X size={16} /> Close configuration</button></div>
     <form className="website-editor-split" onSubmit={save}>
       <section className="website-editor-controls">
         <div className="website-editor-panel-heading"><div><span className="employee-eyebrow"><span /> Content controls</span><h2>Website sections</h2></div><span className="employee-draft-chip">{sections.length} sections</span></div>

@@ -14,7 +14,7 @@ describe("unified Admin workspace", () => {
       "dashboard", "all-events", "create-event", "employee-directory",
       "add-employee", "team-roles", "admin-assignments", "employee-event-assignments",
       "assignments", "employee-work", "review-queue", "content-approvals",
-      "publishing-readiness", "published-sites", "manage-websites", "site-settings",
+      "publishing-readiness", "published-sites", "manage-websites", "website-editor",
       "publishing-rules", "activity", "audit-log", "system-settings", "notifications",
       "admin-settings", "access-help",
     ];
