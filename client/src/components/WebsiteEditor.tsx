@@ -19,7 +19,7 @@ type SectionContent = Record<string, string> & { status?: string };
 
 type PopupField = { name: string; label: string; type?: "text" | "url" | "date" | "color"; placeholder?: string; wide?: boolean };
 
-function popupFields(section: WebsiteSection): PopupField[] {
+function basePopupFields(section: WebsiteSection): PopupField[] {
   switch (section.id) {
     case "logo": return [{ name: "brandName", label: "Brand name", placeholder: "Velentra" }, { name: "logoUrl", label: "Logo URL", type: "url", placeholder: "https://..." }, { name: "faviconUrl", label: "Favicon URL", type: "url", placeholder: "https://..." }, { name: "logoAlt", label: "Logo alt text", placeholder: "Company logo" }];
     case "header": return [{ name: "logoUrl", label: "Logo image", type: "url", placeholder: "/event-site/assets-front/images/logo.png" }, { name: "leftContent", label: "Left header content", placeholder: "Conference title and headline", wide: true }, { name: "rightContent", label: "Right header content", placeholder: "Address, phone, email", wide: true }, { name: "topText", label: "Top header text", placeholder: "Hybrid event announcement", wide: true }, { name: "topTextColor", label: "Top header text color", type: "color" }, { name: "title", label: "Event title", placeholder: "Conference title" }, { name: "startDate", label: "Start date", type: "date" }, { name: "endDate", label: "End date", type: "date" }, { name: "venue", label: "Venue", placeholder: "Event venue" }, { name: "backgroundColor", label: "Header background color", type: "color" }, { name: "bottomBarColor", label: "Bottom date bar color", type: "color" }, { name: "navigation", label: "Navigation links", placeholder: "Home, About, Program, Contact", wide: true }];
@@ -33,6 +33,17 @@ function popupFields(section: WebsiteSection): PopupField[] {
     case "footer": return [{ name: "address", label: "Address", placeholder: "Conference address", wide: true }, { name: "email", label: "Contact email", placeholder: "hello@example.com" }, { name: "phone", label: "Phone number", placeholder: "+1 000 000 0000" }, { name: "socialLinks", label: "Social links", placeholder: "Facebook, LinkedIn, Instagram", wide: true }, { name: "body", label: "Footer content", placeholder: "Footer credits and supporting text", wide: true }];
     default: return [{ name: "title", label: "Section title", placeholder: "Section title" }, { name: "body", label: "Section content", placeholder: "Write section content...", wide: true }];
   }
+}
+
+function popupFields(section: WebsiteSection): PopupField[] {
+  return [...basePopupFields(section),
+    { name: "fontFamily", label: "Font family", placeholder: "Open Sans, Arial, sans-serif" },
+    { name: "fontSize", label: "Font size", placeholder: "16px" },
+    { name: "fontColor", label: "Text color", type: "color" },
+    { name: "fontWeight", label: "Font weight", placeholder: "400 / 600 / 700" },
+    { name: "sectionBackgroundColor", label: "Background color", type: "color" },
+    { name: "spacing", label: "Spacing and padding", placeholder: "16px 24px" },
+  ];
 }
 
 type Props = {
@@ -124,6 +135,42 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   const handlePreviewLoad = (event: SyntheticEvent<HTMLIFrameElement>) => {
     const document = event.currentTarget.contentDocument;
     if (!document) return;
+    const overlayStyle = document.createElement("style");
+    overlayStyle.id = "manus-editor-overlays";
+    overlayStyle.textContent = `.manus-editor-target{position:relative!important;outline:2px dashed #2f87a3!important;outline-offset:3px!important;cursor:pointer!important}.manus-inline-edit{position:absolute!important;right:8px!important;top:8px!important;z-index:99999!important;width:30px!important;height:30px!important;border:1px solid #2f87a3!important;border-radius:7px!important;background:#fff!important;color:#145d75!important;box-shadow:0 3px 10px rgba(22,61,75,.22)!important;font:700 16px/1 Arial!important;cursor:pointer!important}.manus-inline-edit:hover{background:#e9f7fb!important;transform:scale(1.05)!important}`;
+    document.getElementById("manus-editor-overlays")?.remove();
+    document.head.appendChild(overlayStyle);
+    const mark = (selector: string, sectionId: string, field: string) => {
+      document.querySelectorAll<HTMLElement>(selector).forEach(targetElement => {
+        const frameElement = targetElement.tagName === "IMG" ? (targetElement.parentElement ?? targetElement) : targetElement;
+        if (frameElement.dataset.manusEditorTarget) return;
+        frameElement.dataset.manusEditorTarget = sectionId;
+        frameElement.classList.add("manus-editor-target");
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "manus-inline-edit";
+        editButton.title = `Edit ${field}`;
+        editButton.setAttribute("aria-label", `Edit ${field}`);
+        editButton.textContent = "✎";
+        editButton.addEventListener("click", clickEvent => {
+          clickEvent.preventDefault();
+          clickEvent.stopPropagation();
+          window.parent.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId, field } }));
+        });
+        frameElement.appendChild(editButton);
+      });
+    };
+    mark(".hybrid-text", "header", "Top header text");
+    mark(".top-header .top-logo", "header", "Logo image");
+    mark(".top-header h1", "header", "Left header content");
+    mark(".top-header .top-add-text-1, .top-header .top-add-text-2", "header", "Right header content");
+    mark(".top-header h4, .top-header .c-date", "header", "Venue");
+    mark("#mainMenu", "header", "Navigation links");
+    mark("#about, [id*='about'], [class*='about']", "about", "About content");
+    mark("[id*='speaker'], [class*='speaker']", "speakers", "Speaker profiles");
+    mark("[id*='testimonial'], [class*='testimonial']", "testimonials", "Testimonials");
+    mark("[id*='gallery'], [class*='gallery']", "gallery", "Gallery images");
+    mark("footer", "footer", "Footer content");
     document.addEventListener("click", clickEvent => {
       const target = clickEvent.target instanceof HTMLElement ? clickEvent.target : null;
       const element = target?.closest("a,button,header,nav,footer,section,article,div") as HTMLElement | null;

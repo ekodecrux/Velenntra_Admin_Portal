@@ -51,6 +51,7 @@
 - [x] Make every related modification detail in the left rail clickable; clicking an option opens the section popup with the appropriate fields for editing or adding content.
 - [x] Header modification options include the existing logo, left and right header content, top announcement text and color, event title, start/end dates, venue, header background color, bottom date-bar color, and navigation links, with current Biofuels conference values prefilled for editing.
 - [x] Map clicks on the imported site `.top-header`, announcement bar, and `#mainMenu` navigation to the Header section so Header options are not incorrectly shown as Pages.
+- [x] Add Canva-style dashed edit frames and edit icons over logo, header blocks, navigation, content sections, gallery, testimonials, speakers, and footer; each icon opens a section-specific popup with content/media plus font family, font size, text color, font weight, background color, and spacing controls.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.
