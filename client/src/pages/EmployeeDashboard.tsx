@@ -110,7 +110,8 @@ const sections: Section[] = [
   {
     label: "Website Configuration",
     icon: Settings2,
-    items: [item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("website-editor", "Website Editor", "Manage website content, sections, images, logos, SEO, and publishing controls.", Settings2, "form"), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
+    direct: true,
+    items: [item("website-editor", "Website Configuration", "Manage website content, sections, images, logos, SEO, and publishing controls.", Settings2, "form"), item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
   },
 ];
 

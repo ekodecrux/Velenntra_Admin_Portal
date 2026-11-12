@@ -98,10 +98,10 @@ export const roleConfigs: Record<RoleKey, { label: string; shortLabel: string; e
         feature("content-approvals", "Content Approvals", "Approve or return event content changes.", FileCheck2),
         feature("publishing-readiness", "Publishing Readiness", "Check whether event content is ready to publish.", ShieldCheck),
       ] },
-      { label: "Websites & publishing", icon: Globe2, items: [
+      { label: "Website Configuration", direct: true, icon: Pencil, items: [
+        feature("website-editor", "Website Configuration", "Manage event website content, sections, images, logos, SEO, theme, defaults, and publishing controls.", Pencil, "settings", ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status", "Default site title", "Default contact email", "Default publishing mode", "Default template", "Require Admin approval", "Allow employee edits after publish", "Archive behavior", "Credit title", "Credit content"]),
         feature("published-sites", "Published Sites", "Review and manage published event websites.", Globe2),
         feature("manage-websites", "Manage Event Websites", "Open event websites, templates, content status, and publish controls.", Globe2),
-        feature("website-editor", "Website Configuration", "Manage event website content, sections, images, logos, SEO, theme, defaults, and publishing controls.", Pencil, "settings", ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status", "Default site title", "Default contact email", "Default publishing mode", "Default template", "Require Admin approval", "Allow employee edits after publish", "Archive behavior", "Credit title", "Credit content"]),
         feature("publishing-rules", "Publishing Rules", "Manage the single Admin approval and publishing workflow.", Workflow, "settings", ["Require Admin approval", "Allow employee edits after publish", "Archive behavior"]),
       ] },
       { label: "Operations", icon: Activity, items: [
