@@ -1,5 +1,5 @@
 import { ArrowLeft, Check, Eye, Plus, X } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type SyntheticEvent } from "react";
 
 const defaultSections = [
   { id: "logo", name: "Logo & Branding", summary: "Logo, favicon, brand name", status: "Published" },
@@ -41,6 +41,7 @@ type Props = {
   onBack: () => void;
   onHome?: () => void;
   onSaved?: (message: string) => void;
+  onSectionSelected?: (sectionId: string) => void;
 };
 
 const sectionStorageKey = (eventId: string) => `velentra-site-sections-${eventId || "global"}`;
@@ -59,7 +60,7 @@ function writeStorage(key: string, value: unknown) {
   try { sessionStorage.setItem(key, JSON.stringify(value)); } catch { /* Preview storage can be unavailable. */ }
 }
 
-export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onSaved }: Props) {
+export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onSaved, onSectionSelected }: Props) {
   const [sections, setSections] = useState<WebsiteSection[]>(() => readStorage(sectionStorageKey(eventId), defaultSections));
   const [content, setContent] = useState<Record<string, SectionContent>>(() => readStorage(contentStorageKey(eventId), {}));
   const [selectedId, setSelectedId] = useState(sections[0]?.id ?? "logo");
@@ -102,6 +103,20 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
 
   const selectedContent = selected ? content[selected.id] ?? {} : {};
 
+  const handlePreviewLoad = (event: SyntheticEvent<HTMLIFrameElement>) => {
+    const document = event.currentTarget.contentDocument;
+    if (!document) return;
+    document.addEventListener("click", clickEvent => {
+      const target = clickEvent.target instanceof HTMLElement ? clickEvent.target : null;
+      const element = target?.closest("a,button,header,nav,footer,section,article,div") as HTMLElement | null;
+      const text = `${element?.innerText ?? ""} ${target?.getAttribute("href") ?? ""}`.toLowerCase();
+      const sectionId = text.includes("testimonial") || text.includes("review") ? (text.includes("video") || text.includes("youtube") ? "video-testimonials" : "testimonials") : text.includes("speaker") || text.includes("committee") ? "speakers" : text.includes("contact") || element?.closest("footer") ? "footer" : text.includes("gallery") || text.includes("media") ? "gallery" : text.includes("register") || text.includes("abstract") || element?.closest("header") ? "hero" : element?.closest("nav") ? "header" : target?.tagName === "IMG" ? "logo" : "pages";
+      setSelectedId(sectionId);
+      setShowSectionMenu(true);
+      onSectionSelected?.(sectionId);
+    });
+  };
+
   return <>
     {showSectionMenu ? <div className="website-config-workspace">
       <aside className="website-config-menu">
@@ -112,9 +127,9 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       <section className="website-config-preview">
         <div className="website-config-preview-heading"><div><span className="employee-eyebrow"><span /> Full website preview</span><h2>{selected?.name ?? "Website"}</h2><p>Click a section name on the left to modify its details.</p></div><span className="website-preview-badge"><Eye size={16} /> Live website</span></div>
         <div className="website-config-preview-actions"><span>Complete website content preview</span></div>
-        <div className="website-config-iframe-wrap"><iframe title={`${eventTitle} full website preview`} src={`/event-site/index.html?event=${eventId}`} /></div>
+        <div className="website-config-iframe-wrap"><iframe title={`${eventTitle} full website preview`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div>
       </section>
-    </div> : <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} /></div></section>}
+    </div> : <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div></section>}
 
     {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website section</span><h2>{editingSection.name}</h2><p>Update the real content fields for this section.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => setEditingSection(null)}><X size={18} /></button></div><div className="website-edit-modal-fields">{popupFields(editingSection).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => setEditingSection(null)}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
   </>;

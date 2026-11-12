@@ -147,6 +147,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const [editingEvent, setEditingEvent] = useState<EventRecord | null>(null);
   const [websitePreviewEvent, setWebsitePreviewEvent] = useState<EventRecord | null>(null);
   const [websiteEditEvent, setWebsiteEditEvent] = useState<EventRecord | null>(null);
+  const [websiteSelectedSection, setWebsiteSelectedSection] = useState<string | null>(null);
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [employeeRoleFilter, setEmployeeRoleFilter] = useState("All roles");
   const [employeeStatusFilter, setEmployeeStatusFilter] = useState("All statuses");
@@ -157,6 +158,18 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   useEffect(() => { try { sessionStorage.setItem("velentra-admin-events", JSON.stringify(eventRows)); } catch { /* Preview storage can be unavailable. */ } }, [eventRows]);
   const allFeatures = config.sections.flatMap(section => section.items);
   const active = allFeatures.find(item => item.id === activeId) ?? allFeatures[0];
+  const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
+    logo: { name: "Logo & Branding", fields: ["Brand name", "Logo URL", "Favicon URL", "Logo alt text"] },
+    header: { name: "Header", fields: ["Event title", "Start date", "End date", "Venue", "Navigation links"] },
+    pages: { name: "Pages", fields: ["Page title", "URL slug", "Page content", "SEO title", "SEO description"] },
+    hero: { name: "Hero Banner", fields: ["Headline", "Subtitle", "Banner image", "CTA label and URL"] },
+    about: { name: "About Conference", fields: ["Heading", "Introduction content", "Feature image"] },
+    speakers: { name: "Speakers & Committee", fields: ["Section heading", "Description", "Speaker profiles"] },
+    testimonials: { name: "Testimonials", fields: ["Quote", "Author name", "Author role", "Author photo"] },
+    "video-testimonials": { name: "Video Testimonials", fields: ["Video title", "Video URL", "Poster image", "Description"] },
+    gallery: { name: "Gallery & Media", fields: ["Gallery heading", "Image URLs", "Captions"] },
+    footer: { name: "Footer & Contact", fields: ["Address", "Email", "Phone", "Social links", "Footer content"] },
+  };
 
   const selectFeature = (id: string) => {
     const parent = config.sections.find(section => section.items.some(item => item.id === id));
@@ -280,7 +293,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const renderFeature = () => {
     if (active.id === "employee-directory") return renderEmployeeDirectory();
     if (active.id === "all-events") return renderAllEvents();
-    if (active.id === "website-editor") return <WebsiteEditor eventId={websiteEditEvent?.id ?? "global"} eventTitle={websiteEditEvent?.title ?? "Global event website"} onBack={() => selectFeature("all-events")} onHome={() => selectFeature("dashboard")} onSaved={message => setNotice(message)} />;
+    if (active.id === "website-editor") return <WebsiteEditor eventId={websiteEditEvent?.id ?? "global"} eventTitle={websiteEditEvent?.title ?? "Global event website"} onBack={() => selectFeature("all-events")} onHome={() => selectFeature("dashboard")} onSectionSelected={setWebsiteSelectedSection} onSaved={message => setNotice(message)} />;
     const isForm = active.kind === "form";
     const isSettings = active.kind === "settings";
     const activeTitle = active.id === "add-employee" && editingEmployee ? "Edit Employee" : active.id === "create-event" && editingEvent ? "Edit Event" : active.label;
@@ -298,7 +311,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
       <WorkspaceHeader role="admin" username={username} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("admin-settings")} onLogout={onBack} />
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button>
-        {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><strong>Website Configuration</strong><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button></div> : <div className="employee-sidebar-scroll">{config.sections.map(section => { const visibleItems = section.items.filter(item => !item.hidden); if (visibleItems.length === 0) return null; const featureItem = visibleItems[0]; const Icon = featureItem.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === featureItem.id ? "employee-nav-item-active" : ""}`} onClick={() => featureItem.id === "website-editor" ? openWebsiteConfigurationTab() : selectFeature(featureItem.id)}><Icon size={15} /><span>{featureItem.label}</span>{activeId === featureItem.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = visibleItems.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{visibleItems.map(nested => <button type="button" key={nested.id} className={`employee-nav-item ${activeId === nested.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nested.id)}><nested.icon size={15} /><span>{nested.label}</span>{activeId === nested.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>)}</div> : null}</div>; })}</div>}
+        {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><strong>Website Configuration</strong><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button>{websiteSelectedSection && websiteSectionDetails[websiteSelectedSection] ? <div className="website-config-selected-details"><span>Modify section</span><strong>{websiteSectionDetails[websiteSelectedSection].name}</strong><ul>{websiteSectionDetails[websiteSelectedSection].fields.map(field => <li key={field}>{field}</li>)}</ul></div> : null}</div> : <div className="employee-sidebar-scroll">{config.sections.map(section => { const visibleItems = section.items.filter(item => !item.hidden); if (visibleItems.length === 0) return null; const featureItem = visibleItems[0]; const Icon = featureItem.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === featureItem.id ? "employee-nav-item-active" : ""}`} onClick={() => featureItem.id === "website-editor" ? openWebsiteConfigurationTab() : selectFeature(featureItem.id)}><Icon size={15} /><span>{featureItem.label}</span>{activeId === featureItem.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = visibleItems.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{visibleItems.map(nested => <button type="button" key={nested.id} className={`employee-nav-item ${activeId === nested.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nested.id)}><nested.icon size={15} /><span>{nested.label}</span>{activeId === nested.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>)}</div> : null}</div>; })}</div>}
       </aside>
       {mobileNav ? <button className="employee-nav-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNav(false)} /> : null}
       <main className="employee-main">

@@ -872,3 +872,8 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-config-sidebar-mode strong { display: block; padding: 0 10px 16px; color: #1e4558; font-size: 14px; font-weight: 700; }
 .website-config-sidebar-mode button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 11px 10px; border: 0; border-top: 1px solid #e5ecee; background: transparent; color: #396b7d; font-size: 12px; text-align: left; cursor: pointer; }
 .website-config-sidebar-mode button:hover { color: #1f5268; background: #f1f8fa; }
+
+.website-config-selected-details { margin: 16px 0 0; padding: 14px 10px 4px; border-top: 1px solid #e5ecee; }
+.website-config-selected-details span { display: block; color: #8b6d58; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.website-config-selected-details strong { display: block; padding: 6px 0 8px; color: #234b5e; font-size: 13px; }
+.website-config-selected-details ul { margin: 0; padding-left: 17px; color: #63808b; font-size: 11px; line-height: 1.8; }
