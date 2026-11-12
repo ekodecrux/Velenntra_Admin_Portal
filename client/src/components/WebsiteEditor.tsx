@@ -17,12 +17,12 @@ const defaultSections = [
 type WebsiteSection = typeof defaultSections[number];
 type SectionContent = Record<string, string> & { status?: string };
 
-type PopupField = { name: string; label: string; type?: "text" | "url" | "date"; placeholder?: string; wide?: boolean };
+type PopupField = { name: string; label: string; type?: "text" | "url" | "date" | "color"; placeholder?: string; wide?: boolean };
 
 function popupFields(section: WebsiteSection): PopupField[] {
   switch (section.id) {
     case "logo": return [{ name: "brandName", label: "Brand name", placeholder: "Velentra" }, { name: "logoUrl", label: "Logo URL", type: "url", placeholder: "https://..." }, { name: "faviconUrl", label: "Favicon URL", type: "url", placeholder: "https://..." }, { name: "logoAlt", label: "Logo alt text", placeholder: "Company logo" }];
-    case "header": return [{ name: "title", label: "Event title", placeholder: "Conference title" }, { name: "startDate", label: "Start date", type: "date" }, { name: "endDate", label: "End date", type: "date" }, { name: "venue", label: "Venue", placeholder: "Event venue" }, { name: "navigation", label: "Navigation links", placeholder: "Home, About, Program, Contact", wide: true }];
+    case "header": return [{ name: "logoUrl", label: "Logo image", type: "url", placeholder: "/event-site/assets-front/images/logo.png" }, { name: "leftContent", label: "Left header content", placeholder: "Conference title and headline", wide: true }, { name: "rightContent", label: "Right header content", placeholder: "Address, phone, email", wide: true }, { name: "topText", label: "Top header text", placeholder: "Hybrid event announcement", wide: true }, { name: "topTextColor", label: "Top header text color", type: "color" }, { name: "title", label: "Event title", placeholder: "Conference title" }, { name: "startDate", label: "Start date", type: "date" }, { name: "endDate", label: "End date", type: "date" }, { name: "venue", label: "Venue", placeholder: "Event venue" }, { name: "backgroundColor", label: "Header background color", type: "color" }, { name: "bottomBarColor", label: "Bottom date bar color", type: "color" }, { name: "navigation", label: "Navigation links", placeholder: "Home, About, Program, Contact", wide: true }];
     case "pages": return [{ name: "pageTitle", label: "Page title", placeholder: "About the conference" }, { name: "slug", label: "Page URL slug", placeholder: "about-conference" }, { name: "body", label: "Page content", placeholder: "Write the page content...", wide: true }, { name: "seoTitle", label: "SEO title", placeholder: "Search result title" }, { name: "seoDescription", label: "SEO description", placeholder: "Search result description", wide: true }];
     case "hero": return [{ name: "title", label: "Hero headline", placeholder: "Join us for the conference" }, { name: "subtitle", label: "Hero subtitle", placeholder: "Supporting headline", wide: true }, { name: "imageUrl", label: "Banner image URL", type: "url", placeholder: "https://..." }, { name: "buttonLabel", label: "Button label", placeholder: "Register now" }, { name: "buttonUrl", label: "Button URL", type: "url", placeholder: "https://..." }];
     case "about": return [{ name: "title", label: "About heading", placeholder: "About the conference" }, { name: "imageUrl", label: "Feature image URL", type: "url", placeholder: "https://..." }, { name: "body", label: "About content", placeholder: "Write the conference introduction...", wide: true }];
@@ -46,6 +46,10 @@ type Props = {
 
 const sectionStorageKey = (eventId: string) => `velentra-site-sections-${eventId || "global"}`;
 const contentStorageKey = (eventId: string) => `velentra-section-content-${eventId || "global"}`;
+
+const defaultContent: Record<string, SectionContent> = {
+  header: { logoUrl: "/event-site/uploads/logo/4th-edition-of-global-conference-on-biofuels-and-bioenergy-1801.png", leftContent: "4th Edition of Global Conference on Biofuels and Bioenergy", rightContent: "Olympia Hotel, Events & Spa\nCarrer Mestre Serrano, 5, 46120 Alboraia, Valencia, Spain\nPhone: +1 (702) 988-2320\nEmail: biofuels@magnusconference.com", topText: "HYBRID EVENT: Join us in person in Valencia, Spain or attend virtually from anywhere.", topTextColor: "#9b2132", title: "Biofuels and Bioenergy", startDate: "2027-09-09", endDate: "2027-09-11", venue: "Valencia, Spain", backgroundColor: "#ae052c", bottomBarColor: "#74132c", navigation: "Home, Scientific Committee, Speakers, Program, Information, About, Contact, Register" },
+};
 
 function readStorage<T>(key: string, fallback: T): T {
   try {
@@ -75,7 +79,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       const section = sections.find(item => item.id === detail.sectionId);
       if (!section) return;
       setSelectedId(section.id);
-      setFocusedField(detail.field ?? null);
+      setFocusedField(popupFields(section).find(field => field.label === detail.field)?.name ?? null);
       setEditingSection(section);
     };
     window.addEventListener("velentra:edit-section-field", handleExternalSectionField);
@@ -115,7 +119,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     if (selectedId === section.id) setSelectedId(sections.find(item => item.id !== section.id)?.id ?? "");
   };
 
-  const selectedContent = selected ? content[selected.id] ?? {} : {};
+  const selectedContent = selected ? { ...(defaultContent[selected.id] ?? {}), ...(content[selected.id] ?? {}) } : {};
 
   const handlePreviewLoad = (event: SyntheticEvent<HTMLIFrameElement>) => {
     const document = event.currentTarget.contentDocument;
@@ -124,7 +128,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       const target = clickEvent.target instanceof HTMLElement ? clickEvent.target : null;
       const element = target?.closest("a,button,header,nav,footer,section,article,div") as HTMLElement | null;
       const text = `${element?.innerText ?? ""} ${target?.getAttribute("href") ?? ""}`.toLowerCase();
-      const sectionId = text.includes("testimonial") || text.includes("review") ? (text.includes("video") || text.includes("youtube") ? "video-testimonials" : "testimonials") : text.includes("speaker") || text.includes("committee") ? "speakers" : text.includes("contact") || element?.closest("footer") ? "footer" : text.includes("gallery") || text.includes("media") ? "gallery" : text.includes("register") || text.includes("abstract") || element?.closest("header") ? "hero" : element?.closest("nav") ? "header" : target?.tagName === "IMG" ? "logo" : "pages";
+      const sectionId = text.includes("testimonial") || text.includes("review") ? (text.includes("video") || text.includes("youtube") ? "video-testimonials" : "testimonials") : text.includes("speaker") || text.includes("committee") ? "speakers" : text.includes("contact") || element?.closest("footer") ? "footer" : text.includes("gallery") || text.includes("media") ? "gallery" : element?.closest("nav") ? "header" : target?.tagName === "IMG" ? "logo" : text.includes("register") || text.includes("abstract") || element?.closest("header") ? "header" : "pages";
       setSelectedId(sectionId);
       onSectionSelected?.(sectionId);
     });

@@ -160,7 +160,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const active = allFeatures.find(item => item.id === activeId) ?? allFeatures[0];
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
     logo: { name: "Logo & Branding", fields: ["Brand name", "Logo URL", "Favicon URL", "Logo alt text"] },
-    header: { name: "Header", fields: ["Event title", "Start date", "End date", "Venue", "Navigation links"] },
+    header: { name: "Header", fields: ["Logo image", "Left header content", "Right header content", "Top header text", "Top header text color", "Event title", "Start date", "End date", "Venue", "Header background color", "Bottom date bar color", "Navigation links"] },
     pages: { name: "Pages", fields: ["Page title", "URL slug", "Page content", "SEO title", "SEO description"] },
     hero: { name: "Hero Banner", fields: ["Headline", "Subtitle", "Banner image", "CTA label and URL"] },
     about: { name: "About Conference", fields: ["Heading", "Introduction content", "Feature image"] },
