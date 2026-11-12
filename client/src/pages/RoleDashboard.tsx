@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { WorkspaceHeader, WorkspaceFooter } from "@/components/WorkspaceChrome";
+import WebsiteEditor from "@/components/WebsiteEditor";
 
 type RoleKey = "admin";
 type ViewKind = "dashboard" | "list" | "form" | "settings";
@@ -101,8 +102,14 @@ export const roleConfigs: Record<RoleKey, { label: string; shortLabel: string; e
         feature("published-sites", "Published Sites", "Review and manage published event websites.", Globe2),
         feature("manage-websites", "Manage Event Websites", "Open event websites, templates, content status, and publish controls.", Globe2),
         feature("website-editor", "Website Editor", "Manage event website content, sections, images, logos, SEO, and publishing controls.", Pencil, "settings", ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status"]),
-        feature("site-settings", "Site Settings", "Manage platform and website defaults.", Settings2, "settings", ["Default site title", "Default contact email", "Default publishing mode", "Default template"]),
         feature("publishing-rules", "Publishing Rules", "Manage the single Admin approval and publishing workflow.", Workflow, "settings", ["Require Admin approval", "Allow employee edits after publish", "Archive behavior"]),
+      ] },
+      { label: "Site Settings", icon: Settings2, items: [
+        feature("site-settings", "Site Settings", "Manage platform and website defaults.", Settings2, "settings", ["Default site title", "Default contact email", "Default publishing mode", "Default template"]),
+        feature("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings", ["Header copy", "Event start date", "Event end date", "Venue", "Hotel", "Address", "About image", "SEO title", "SEO description"]),
+        feature("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings", ["Footer address", "Email 1", "Email 2", "Phone", "WhatsApp", "Website URL", "Facebook", "X / Twitter", "YouTube", "LinkedIn", "Instagram"]),
+        feature("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings", ["Theme color", "Accent color", "Conference logo", "Logo alt text", "Theme banner"]),
+        feature("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings", ["Credit title", "Credit content"]),
       ] },
       { label: "Operations", icon: Activity, items: [
         feature("activity", "Platform Activity", "Review recent changes across Velentra.", Activity),
@@ -275,6 +282,7 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
   const renderFeature = () => {
     if (active.id === "employee-directory") return renderEmployeeDirectory();
     if (active.id === "all-events") return renderAllEvents();
+    if (active.id === "website-editor") return <WebsiteEditor eventId={websiteEditEvent?.id ?? "global"} eventTitle={websiteEditEvent?.title ?? "Global event website"} onBack={() => selectFeature("all-events")} onSaved={message => setNotice(message)} />;
     const isForm = active.kind === "form";
     const isSettings = active.kind === "settings";
     const activeTitle = active.id === "add-employee" && editingEmployee ? "Edit Employee" : active.id === "create-event" && editingEvent ? "Edit Event" : active.label;
