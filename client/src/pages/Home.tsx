@@ -194,6 +194,18 @@ function LogoMark() {
   );
 }
 
+function SiteHeader() {
+  return (
+    <header className="site-header">
+      <img className="site-header__logo" src="https://inovinegroup.com/admin/assets/inovine-conferences-logo.png" alt="Inovine Conferences" />
+      <div className="site-header__profile" aria-label="Employee profile">
+        <UserRound size={16} fill="currentColor" strokeWidth={1.5} />
+        <ChevronDown size={12} strokeWidth={2.5} />
+      </div>
+    </header>
+  );
+}
+
 function MetricCardView({ card, onSelect }: { card: MetricCard; onSelect: (card: MetricCard) => void }) {
   const Icon = card.icon;
   return (
@@ -213,6 +225,8 @@ function MetricCardView({ card, onSelect }: { card: MetricCard; onSelect: (card:
 }
 
 function Sidebar({ active, onSelect, open, onClose }: { active: string; onSelect: (label: string) => void; open: boolean; onClose: () => void }) {
+  const [openGroups, setOpenGroups] = useState<Record<number, boolean>>({});
+
   return (
     <>
       {open && <button className="sidebar-scrim" aria-label="Close navigation" onClick={onClose} type="button" />}
@@ -227,13 +241,13 @@ function Sidebar({ active, onSelect, open, onClose }: { active: string; onSelect
           {navigationGroups.map((group, index) => (
             <div className="nav-group" key={`${group.label ?? "items"}-${index}`}>
               {group.label && (
-                <div className="nav-group__heading">
+                <button className="nav-group__heading" type="button" onClick={() => setOpenGroups((current) => ({ ...current, [index]: !current[index] }))}>
                   {group.icon && <group.icon size={12} />}
                   <span>{group.label}</span>
-                  <ChevronDown size={11} />
-                </div>
+                  <ChevronDown className={openGroups[index] ? "nav-group__chevron nav-group__chevron--open" : "nav-group__chevron"} size={11} />
+                </button>
               )}
-              {group.items.map((item) => {
+              {(!group.label || openGroups[index] || group.items.some((item) => active === item.label)) && group.items.map((item) => {
                 const ItemIcon = item.icon;
                 const selected = active === item.label;
                 return (
@@ -394,6 +408,7 @@ export default function Home() {
 
   return (
     <div className="dashboard-shell">
+      <SiteHeader />
       <Sidebar active={active} onSelect={handleNavigation} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className="dashboard-main">
         <header className="mobile-topbar">
