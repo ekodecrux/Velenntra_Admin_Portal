@@ -864,3 +864,6 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-config-full-preview { min-width: 0; border: 1px solid #d9e2e5; border-radius: 10px; background: #fff; box-shadow: 0 10px 26px rgba(31, 61, 78, .06); }
 .website-config-full-preview .website-config-iframe-wrap { height: calc(100vh - 235px); min-height: 640px; }
 @media (max-width: 720px) { .website-config-full-preview .website-config-iframe-wrap { height: calc(100vh - 280px); min-height: 480px; } }
+
+.website-config-full-preview { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.website-config-full-preview .website-config-iframe-wrap { border-radius: 0; }
