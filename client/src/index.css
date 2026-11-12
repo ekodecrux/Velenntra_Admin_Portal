@@ -867,3 +867,8 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 
 .website-config-full-preview { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
 .website-config-full-preview .website-config-iframe-wrap { border-radius: 0; }
+
+.website-config-sidebar-mode { padding: 18px 12px; }
+.website-config-sidebar-mode strong { display: block; padding: 0 10px 16px; color: #1e4558; font-size: 14px; font-weight: 700; }
+.website-config-sidebar-mode button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 11px 10px; border: 0; border-top: 1px solid #e5ecee; background: transparent; color: #396b7d; font-size: 12px; text-align: left; cursor: pointer; }
+.website-config-sidebar-mode button:hover { color: #1f5268; background: #f1f8fa; }
