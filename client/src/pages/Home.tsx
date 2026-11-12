@@ -66,7 +66,7 @@ export default function Home() {
   const [notice, setNotice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [globalEmployeeUsername] = useState(() => {
-    try { return sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
+    try { return localStorage.getItem("velentra-global-employee-username") || sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
   });
 
   const activeRole = roles.find(role => role.id === selectedRole) ?? roles[0];
@@ -100,6 +100,8 @@ export default function Home() {
       try {
         sessionStorage.setItem("velentra-demo-authenticated", "true");
         sessionStorage.setItem("velentra-signin-role", selectedRole);
+        localStorage.setItem("velentra-demo-authenticated", "true");
+        localStorage.setItem("velentra-signin-role", selectedRole);
       } catch {
         // The preview can still show the validation state if storage is blocked.
       }

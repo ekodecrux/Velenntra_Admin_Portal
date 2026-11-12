@@ -151,7 +151,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const [employeeRoleFilter, setEmployeeRoleFilter] = useState("All roles");
   const [employeeStatusFilter, setEmployeeStatusFilter] = useState("All statuses");
   const [globalEmployeeUsername, setGlobalEmployeeUsername] = useState(() => {
-    try { return sessionStorage.getItem("velentra-global-employee-username") ?? ""; } catch { return ""; }
+    try { return localStorage.getItem("velentra-global-employee-username") ?? sessionStorage.getItem("velentra-global-employee-username") ?? ""; } catch { return ""; }
   });
   useEffect(() => { try { sessionStorage.setItem("velentra-admin-employees", JSON.stringify(employeeRows)); } catch { /* Preview storage can be unavailable in restricted browsers. */ } }, [employeeRows]);
   useEffect(() => { try { sessionStorage.setItem("velentra-admin-events", JSON.stringify(eventRows)); } catch { /* Preview storage can be unavailable. */ } }, [eventRows]);
@@ -207,7 +207,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
       const domain = String(values.get("Domain") || "velentra.events").trim();
       const websiteStatus = String(values.get("Website status") || "On hold");
       const event: EventRecord = { id: editingEvent?.id ?? `event-${Date.now()}`, title, startDate, endDate, venue, eventStatus, subdomain, domain, websiteStatus };
-      try { sessionStorage.setItem("velentra-global-employee-username", subdomain); } catch { /* Preview storage can be unavailable. */ }
+      try { sessionStorage.setItem("velentra-global-employee-username", subdomain); localStorage.setItem("velentra-global-employee-username", subdomain); } catch { /* Preview storage can be unavailable. */ }
       setGlobalEmployeeUsername(subdomain);
       setEventRows(current => editingEvent ? current.map(item => item.id === editingEvent.id ? event : item) : [...current, event]);
       setEditingEvent(null);

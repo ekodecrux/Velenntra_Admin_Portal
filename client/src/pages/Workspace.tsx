@@ -19,6 +19,8 @@ export default function Workspace() {
     try {
       sessionStorage.removeItem("velentra-demo-authenticated");
       sessionStorage.removeItem("velentra-signin-role");
+      localStorage.removeItem("velentra-demo-authenticated");
+      localStorage.removeItem("velentra-signin-role");
     } catch {
       // The account API still clears its session when browser storage is restricted.
     }
@@ -35,8 +37,9 @@ export default function Workspace() {
     if (!isLegacySuperAdminRoute) return;
 
     try {
-      if (sessionStorage.getItem("velentra-signin-role") === "super-admin") {
+      if (sessionStorage.getItem("velentra-signin-role") === "super-admin" || localStorage.getItem("velentra-signin-role") === "super-admin") {
         sessionStorage.setItem("velentra-signin-role", "admin");
+        localStorage.setItem("velentra-signin-role", "admin");
       }
     } catch {
       // Continue with the canonical route if session storage is unavailable.
@@ -47,7 +50,7 @@ export default function Workspace() {
 
   const [demoSession] = useState(() => {
     try {
-      return sessionStorage.getItem("velentra-demo-authenticated") === "true";
+      return sessionStorage.getItem("velentra-demo-authenticated") === "true" || localStorage.getItem("velentra-demo-authenticated") === "true";
     } catch {
       return false;
     }
@@ -55,7 +58,7 @@ export default function Workspace() {
   const hasSession = Boolean(user) || demoSession;
   const demoUsername = useState(() => {
     if (requestedRole === "admin") return "ADMIN";
-    try { return sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
+    try { return localStorage.getItem("velentra-global-employee-username") || sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
   })[0];
 
   if (loading) {
