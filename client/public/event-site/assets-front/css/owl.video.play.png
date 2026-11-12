@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,follow">
+  <!-- Server must also send HTTP/1.1 404 -->
+  <meta http-equiv="Status" content="404 Not Found">
+
+  <title>404 Global Conference on Biofuels & Bioenergy  </title>
+
+  <style>
+    :root{
+      --primary:#1B1F23;  /* text */
+      --accent:#E63946;   /* brand colour */
+      --bg:#F8F9FA;       /* page background */
+      --radius:0.6rem;
+      --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);color:var(--primary);
+         display:flex;flex-direction:column;min-height:100vh}
+    header{padding:1rem 2rem;font-weight:600;font-size:1.25rem}
+    main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+         text-align:center;padding:2rem}
+    h1{font-size:clamp(2.5rem,6vw,4rem);margin-bottom:0.5rem}
+    p{font-size:1.125rem;margin-bottom:2rem}
+    .actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
+    .btn{padding:0.75rem 1.5rem;border:none;border-radius:var(--radius);font-size:1rem;font-weight:600;
+         cursor:pointer;transition:transform .15s ease;text-decoration:none}
+    .btn-primary{background:#a4112b;color:#fff}
+    .btn-secondary{background:#fff;border:2px solid #a4112b;color:#a4112b}
+    .btn:focus-visible{outline:3px dashed var(--accent);outline-offset:3px}
+    .btn:hover{transform:translateY(-2px)}
+    footer{padding:1rem 2rem;font-size:0.875rem;text-align:center;opacity:0.75}
+    @media (prefers-color-scheme:dark){
+      :root{--bg:#0D1117;--primary:#E6EDF3}
+      .btn-secondary{background:transparent;color:var(--accent)}
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="https://biofuels-energy.magnusconferences.com/" aria-label="Go to homepage" style="text-decoration:none;color:var(--primary)">
+       Global Conference on Biofuels & Bioenergy 
+    </a>
+  </header>
+
+  <main>
+    <h1>404</h1>
+    <p>We couldn't find that page.</p>
+
+    <div class="actions">
+      <a class="btn btn-primary"   href="https://biofuels-energy.magnusconferences.com/">Home</a>
+      <a class="btn btn-secondary" href="https://biofuels-energy.magnusconferences.com/register">Register</a>
+      <a class="btn btn-secondary" href="https://biofuels-energy.magnusconferences.com/contact">Contact Us</a>
+    </div>
+  </main>
+
+  <footer>
+    <small> Global Conference on Biofuels & Bioenergy  </small>
+  </footer>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"f8437ab7ed0a41d280ae10677946fbd1","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>

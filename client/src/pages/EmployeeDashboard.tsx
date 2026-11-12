@@ -109,7 +109,7 @@ const sections: Section[] = [
   {
     label: "Site Settings",
     icon: Settings2,
-    items: [item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
+    items: [item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("website-editor", "Website Editor", "Manage website content, sections, images, logos, SEO, and publishing controls.", Settings2, "form"), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
   },
 ];
 
@@ -200,6 +200,7 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "header-section": ["Header copy", "Event start date", "Event end date", "Venue", "Hotel", "Address", "About image", "SEO title", "SEO description", "SEO keywords"].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("description") || label.includes("keywords") ? "textarea" as const : label === "About image" ? "file" as const : "text" as const })),
   "footer-section": ["Footer address", "Email 1", "Email 2", "Email 3", "Phone", "WhatsApp", "Website URL", "Conference short name", "Theme", "Facebook", "X / Twitter", "YouTube", "LinkedIn", "Instagram", "Blog"].map(label => ({ label, type: label.startsWith("Email") ? "email" as const : label.includes("URL") || label === "Facebook" || label === "X / Twitter" || label === "YouTube" || label === "LinkedIn" || label === "Instagram" || label === "Blog" ? "url" as const : "text" as const })),
   "theme-settings": [{ label: "Theme color", type: "text" }, { label: "Accent color", type: "text" }, { label: "Conference logo", type: "file" }, { label: "Logo alt text" }, { label: "Logo title" }, { label: "Theme banner", type: "file" }],
+  "website-editor": ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status"].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("copy") || label.includes("description") || label.includes("links") ? "textarea" as const : label.includes("URL") || label.includes("color") ? "url" as const : "text" as const })),
   "conference-credits": [{ label: "Credit title" }, { label: "Credit content", type: "textarea" }],
   "add-member": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Country" }, { label: "Designation" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-representative": [{ label: "Name" }, { label: "Organization" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
@@ -214,12 +215,27 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-page": [{ label: "Page title" }, { label: "Page slug" }, { label: "Content", type: "textarea" }],
 };
 
-const formActionLabels: Record<string, string> = { "unsubscribe-emails": "Add Unsubscribe Email", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
+const formActionLabels: Record<string, string> = { "unsubscribe-emails": "Add Unsubscribe Email", "website-editor": "Save Website", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
 const emailSearchTables = ["abstracts", "clients", "contact", "downloadbrochure", "editorialboard", "email_messages", "follow_up", "forms_submission", "registration", "registration_users"];
 
 const defaultRows = (feature: Feature): Row[] => [
   { title: `${feature.label} workspace`, status: "Ready", meta: "No records yet", note: "Create the first record to begin" },
 ];
+
+function applyWebsiteConfig(frame: HTMLIFrameElement) {
+  try {
+    const stored = sessionStorage.getItem("velentra-site-config-global");
+    if (!stored || !frame.contentDocument) return;
+    const values = JSON.parse(stored) as Record<string, string>;
+    const document = frame.contentDocument;
+    if (values["Website title"]) { const heading = document.querySelector(".top-header h1"); if (heading) heading.textContent = values["Website title"]; }
+    if (values["Hero subtitle"]) { const subtitle = document.querySelector(".top-header h4"); if (subtitle) subtitle.textContent = values["Hero subtitle"]; }
+    if (values["Header logo URL"]) { const logo = document.querySelector<HTMLImageElement>(".top-logo"); if (logo) logo.src = values["Header logo URL"]; }
+    if (values["Hero banner URL"]) { const banner = document.querySelector<HTMLImageElement>(".owl-bg-img img"); if (banner) banner.src = values["Hero banner URL"]; }
+    if (values["Primary color"]) { document.querySelector<HTMLElement>(".top-header")?.style.setProperty("background-color", values["Primary color"]); document.querySelector<HTMLElement>("#header")?.style.setProperty("background-color", values["Primary color"]); }
+    if (values["Accent color"]) document.querySelector<HTMLElement>(".flash-bar")?.style.setProperty("background-color", values["Accent color"]);
+  } catch { /* Imported preview documents can be unavailable while the iframe is loading. */ }
+}
 
 function getFeature(id: string) {
   return allFeatures.find(feature => feature.id === id) ?? allFeatures[0];
@@ -306,6 +322,11 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   };
 
   const saveForm = () => {
+    if (active.id === "website-editor") {
+      try { sessionStorage.setItem("velentra-site-config-global", JSON.stringify(formValues)); } catch { /* Preview storage can be unavailable. */ }
+      setNotice("Website content, images, logos, SEO, and publishing settings saved for Employee and Admin access.");
+      return;
+    }
     if (active.id === "email-search") {
       setNotice("Email search completed in the local preview.");
       return;
@@ -360,6 +381,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   );
 
   const renderFeature = () => {
+    if (active.id === "website-preview") return <><div className="employee-page-heading employee-feature-heading"><div><h1>Website Preview</h1><p>Imported conference website template used for event subdomains.</p></div></div><div className="employee-website-standalone-preview"><iframe title="Imported event website preview" src="/event-site/index.html?event=global" onLoad={event => applyWebsiteConfig(event.currentTarget)} /></div></>;
     const isForm = active.kind === "form" || activeId.startsWith("add-");
     const isSettings = active.kind === "settings";
     const activeFields = fieldSpecs[active.id] ?? (formFields[active.id] ?? settingsFields).map(label => ({ label }));
