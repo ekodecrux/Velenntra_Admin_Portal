@@ -111,7 +111,28 @@ const sections: Section[] = [
   },
 ];
 
-const allFeatures = sections.flatMap(section => section.items);
+const supplementalFeatures: Feature[] = [
+  item("add-member", "Add Member", "Create a board member or speaker record.", UsersRound, "form"),
+  item("add-representative", "Add Representative", "Create a representative record.", UsersRound, "form"),
+  item("add-track", "Add Track", "Create a conference track.", ClipboardList, "form"),
+  item("add-subtrack", "Add Subtrack", "Create a track subcategory.", ClipboardList, "form"),
+  item("add-registration-price", "Add Registration Price", "Create a registration price record.", BarChart3, "form"),
+  item("add-banner", "Add Banner", "Upload a banner image record.", Image, "form"),
+  item("add-media-partner", "Add Media Partner", "Create a media partner record.", Image, "form"),
+  item("add-exhibitor", "Add Exhibitor", "Create an exhibitor record.", UsersRound, "form"),
+  item("add-gallery", "Add Gallery", "Create a gallery record.", Image, "form"),
+  item("add-review", "Add Post Conference Review", "Create a post-conference review.", FileText, "form"),
+  item("add-page", "Add Page", "Create a website page.", FileText, "form"),
+];
+
+const allFeatures = [...sections.flatMap(section => section.items), ...supplementalFeatures];
+
+const createTargetByFeature: Record<string, string> = {
+  boardmembers: "add-member", keynotespeakers: "add-member", renownedspeakers: "add-member", speakers: "add-member", posterpresenters: "add-member", organizingcommittee: "add-member",
+  representatives: "add-representative", tracks: "add-track", subtracks: "add-subtrack", "registration-prices": "add-registration-price", "banner-images": "add-banner", "media-partner": "add-media-partner", exhibitors: "add-exhibitor", gallery: "add-gallery", reviews: "add-review", pages: "add-page",
+};
+
+const formReturnTargets: Record<string, string> = Object.fromEntries(Object.entries(createTargetByFeature).map(([listId, formId]) => [formId, listId]));
 
 const rowsByFeature: Record<string, Row[]> = {
   abstracts: [
@@ -178,6 +199,17 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "footer-section": ["Footer address", "Email 1", "Email 2", "Email 3", "Phone", "WhatsApp", "Website URL", "Conference short name", "Theme", "Facebook", "X / Twitter", "YouTube", "LinkedIn", "Instagram", "Blog"].map(label => ({ label, type: label.startsWith("Email") ? "email" as const : label.includes("URL") || label === "Facebook" || label === "X / Twitter" || label === "YouTube" || label === "LinkedIn" || label === "Instagram" || label === "Blog" ? "url" as const : "text" as const })),
   "theme-settings": [{ label: "Theme color", type: "text" }, { label: "Accent color", type: "text" }, { label: "Conference logo", type: "file" }, { label: "Logo alt text" }, { label: "Logo title" }, { label: "Theme banner", type: "file" }],
   "conference-credits": [{ label: "Credit title" }, { label: "Credit content", type: "textarea" }],
+  "add-member": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Country" }, { label: "Designation" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
+  "add-representative": [{ label: "Name" }, { label: "Organization" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
+  "add-track": [{ label: "Track name" }, { label: "Description", type: "textarea" }],
+  "add-subtrack": [{ label: "Subtrack name" }, { label: "Parent track" }, { label: "Description", type: "textarea" }],
+  "add-registration-price": [{ label: "Price name" }, { label: "Amount" }, { label: "Currency", type: "select", options: ["USD", "EUR", "GBP"] }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-banner": [{ label: "Banner title" }, { label: "Image", type: "file" }, { label: "Alt text" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-media-partner": [{ label: "Partner name" }, { label: "Logo", type: "file" }, { label: "Website URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-exhibitor": [{ label: "Company name" }, { label: "Contact email", type: "email" }, { label: "Booth or profile URL", type: "url" }, { label: "Description", type: "textarea" }],
+  "add-gallery": [{ label: "Title" }, { label: "Image", type: "file" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-review": [{ label: "Reviewer name" }, { label: "Review copy", type: "textarea" }, { label: "Event year" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-page": [{ label: "Page title" }, { label: "Page slug" }, { label: "Content", type: "textarea" }],
 };
 
 const formActionLabels: Record<string, string> = { "unsubscribe-emails": "Add Unsubscribe Email", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
@@ -196,16 +228,20 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
   const [savedRows, setSavedRows] = useState<Record<string, Row[]>>({});
+  const [deletedRows, setDeletedRows] = useState<Record<string, string[]>>({});
+  const [editingRow, setEditingRow] = useState<Row | null>(null);
+  const [editingContext, setEditingContext] = useState<string | null>(null);
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [pageSize, setPageSize] = useState("10");
   const [openProfile, setOpenProfile] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const active = getFeature(activeId);
 
   const rows = useMemo(() => {
-    const source = savedRows[active.id] ?? rowsByFeature[active.id] ?? defaultRows(active);
+    const source = (savedRows[active.id] ?? rowsByFeature[active.id] ?? defaultRows(active)).filter(row => !(deletedRows[active.id] ?? []).includes(row.title));
     if (!search.trim()) return source;
     return source.filter(row => `${row.title} ${row.status} ${row.meta} ${row.note} ${Object.values(row.details ?? {}).join(" ")}`.toLowerCase().includes(search.toLowerCase()));
-  }, [active, savedRows, search]);
+  }, [active, savedRows, deletedRows, search]);
 
   const columns = listColumns[active.id] ?? ["Name / title", "Status", "Updated", "Notes", "Action"];
   const rowValue = (row: Row, column: string) => {
@@ -232,6 +268,23 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
     setMobileNav(false);
   };
 
+  const beginEdit = (row: Row) => {
+    const target = createTargetByFeature[active.id];
+    if (!target) {
+      setNotice(`${row.title} is ready for review.`);
+      return;
+    }
+    setEditingRow(row);
+    setEditingContext(active.id);
+    setFormValues({ ...(row.details ?? {}), Name: row.title, Title: row.title });
+    selectFeature(target);
+  };
+
+  const deleteRow = (row: Row) => {
+    setDeletedRows(current => ({ ...current, [active.id]: [...(current[active.id] ?? []), row.title] }));
+    setNotice(`${row.title} was removed from this local preview.`);
+  };
+
   const toggleSection = (label: string) => {
     setExpandedSections(current => {
       const next = new Set(current);
@@ -242,8 +295,9 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   };
 
   const addRecord = () => {
-    if (active.createTarget && active.createTarget !== "settings" && active.createTarget !== "form") {
-      selectFeature(active.createTarget);
+    const target = active.createTarget ?? createTargetByFeature[active.id];
+    if (target) {
+      selectFeature(target);
       return;
     }
     setNotice(`${active.label} is ready for a new record.`);
@@ -254,14 +308,25 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
       setNotice("Email search completed in the local preview.");
       return;
     }
+    const title = formValues.Name || formValues.Title || `${active.label} draft ${Date.now().toString().slice(-4)}`;
     const newRow: Row = {
-      title: `${active.label} draft ${Date.now().toString().slice(-4)}`,
+      title,
       status: "Draft",
       meta: "Just now",
       note: "Created in this employee workspace",
+      details: { ...formValues },
     };
-    setSavedRows(current => ({ ...current, [active.id]: [newRow, ...(current[active.id] ?? rowsByFeature[active.id] ?? [])] }));
-    setNotice(`${active.label} saved as a draft.`);
+    const returnTarget = editingContext ?? formReturnTargets[active.id] ?? active.id;
+    setSavedRows(current => {
+      const existing = current[returnTarget] ?? rowsByFeature[returnTarget] ?? [];
+      const updated = editingRow ? existing.map(row => row.title === editingRow.title ? newRow : row) : [newRow, ...existing];
+      return { ...current, [returnTarget]: updated };
+    });
+    setEditingRow(null);
+    setEditingContext(null);
+    setFormValues({});
+    setNotice(`${active.label} ${editingRow ? "updated" : "saved"} in this local preview.`);
+    selectFeature(returnTarget);
   };
 
   const renderDashboard = () => (
@@ -311,13 +376,13 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
         ) : isForm ? (
           <div className="employee-form-card">
             <div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> New record</span><h2>Build this {active.label.toLowerCase()}</h2></div><span className="employee-draft-chip">Draft</span></div>
-            <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select defaultValue={field.options?.[0]}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}</div>
+            <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select value={formValues[field.label] ?? field.options?.[0] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}</div>
             <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}>Cancel</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {formActionLabels[active.id] ?? (active.id === "email-search" ? "Search Email" : "Save draft")}</button></div>
           </div>
         ) : (
           <div className="employee-table-card">
-            <div className="employee-table-controls"><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><div className="employee-search"><Search size={16} /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search:" /></div></div>
-            <div className="employee-table-wrap"><table><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead><tbody>{rows.slice(0, Number(pageSize)).map((row, index) => <tr key={`${row.title}-${index}`}>{columns.map(column => <td key={column}>{column === "Action" ? <button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button> : column === "Status" ? <span className="employee-status-pill">{rowValue(row, column)}</span> : column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? <strong>{rowValue(row, column)}</strong> : rowValue(row, column)}</td>)}</tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, Number(pageSize))} of {rows.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
+            <div className="employee-table-controls"><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><div className="employee-search"><Search size={16} /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search:" /></div>{createTargetByFeature[active.id] ? <button className="employee-primary-button" type="button" onClick={addRecord}><Plus size={15} /> {getFeature(createTargetByFeature[active.id]).label}</button> : null}</div>
+            <div className="employee-table-wrap"><table><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead><tbody>{rows.slice(0, Number(pageSize)).map((row, index) => <tr key={`${row.title}-${index}`}>{columns.map(column => <td key={column}>{column === "Action" ? <div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => beginEdit(row)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button>{createTargetByFeature[active.id] ? <button className="employee-row-delete" type="button" onClick={() => deleteRow(row)}>Delete</button> : null}</div> : column === "Status" ? <span className="employee-status-pill">{rowValue(row, column)}</span> : column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? <strong>{rowValue(row, column)}</strong> : rowValue(row, column)}</td>)}</tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, Number(pageSize))} of {rows.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
           </div>
         )}
       </>

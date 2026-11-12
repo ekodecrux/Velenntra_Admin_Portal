@@ -39,6 +39,7 @@
 - [x] Add audited field groups for Unsubscribe Emails, accommodation prices, registration dates, currency, event/session creation, buttons/uploads, testimonials, video testimonials, Home Tabs, Header, Footer, Theme, and Conference Credits.
 - [x] Match the original Employee Dashboard card layout: four cards across the first row (Abstracts, Brochures, Testimonials, Email Search), Unsubscribe Emails wrapping to the next row, separate action footers, and compact Dashboard heading treatment.
 - [x] Verify the original Employee account `ent-2027 / 75501` and compare its authenticated dashboard/menu against Velentra without mutating external records.
+- [x] Make audited list pages open their matching Add forms; make form fields editable; save new records locally, return to the originating list, prefill Edit flows, and support local Delete actions without changing the external portal.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard
