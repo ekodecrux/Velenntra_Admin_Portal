@@ -1,5 +1,10 @@
 # Velentra Admin Portal — implementation outcomes
 
+## Authenticated branding, header, and footer
+- [x] Use the user-supplied blue-and-green Velentra logo after login in both Employee and Admin dashboards, preserving its colors and aspect ratio. Keep the existing sign-in logo unchanged.
+- [x] Display one full-width white header above the sidebar/content with the logo, mobile navigation control, and accessible account menu; keep the header visible while scrolling and prevent overlap or clipped dropdowns.
+- [x] Display a page footer in both authenticated workspaces, below content and at the bottom of short pages, without covering forms or records. Keep the header, sidebar, and footer usable on desktop and mobile.
+
 ## Unified Admin role
 - [x] Offer only Employee and Admin at sign-in. Admin handles all former Admin and Super Admin tasks: event management and creation, event details and preview, templates and status, employee directory and account management, roles and permissions, Admin and Employee assignments, review queues and approvals, publishing readiness and rules, websites, notifications, activity, audit logs, and workspace/site/system settings.
 - [x] Route Admin to one combined workspace; normalize existing `/workspace/super-admin` links to `/workspace/admin` and preserve employee records stored in the old preview session.

@@ -8,9 +8,25 @@ import RoleDashboard from "./RoleDashboard";
 export default function Workspace() {
   const [, params] = useRoute("/workspace/:role");
   const [, setLocation] = useLocation();
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const isLegacySuperAdminRoute = params?.role === "super-admin";
   const requestedRole = params?.role === "admin" ? "admin" : "employee";
+
+  const handleLogout = async () => {
+    try {
+      sessionStorage.removeItem("velentra-demo-authenticated");
+      sessionStorage.removeItem("velentra-signin-role");
+    } catch {
+      // The account API still clears its session when browser storage is restricted.
+    }
+    try {
+      await logout();
+    } catch {
+      // Return to sign-in even if the preview account endpoint is unavailable.
+    } finally {
+      setLocation("/");
+    }
+  };
 
   useEffect(() => {
     if (!isLegacySuperAdminRoute) return;
@@ -57,8 +73,8 @@ export default function Workspace() {
   }
 
   if (requestedRole === "employee") {
-    return <EmployeeDashboard onBack={() => setLocation("/")} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} />;
+    return <EmployeeDashboard onBack={handleLogout} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} />;
   }
 
-  return <RoleDashboard role="admin" onBack={() => setLocation("/")} username={user?.name || user?.email || demoUsername} />;
+  return <RoleDashboard role="admin" onBack={handleLogout} username={user?.name || user?.email || demoUsername} />;
 }

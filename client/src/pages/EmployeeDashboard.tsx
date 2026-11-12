@@ -28,6 +28,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { WorkspaceHeader, WorkspaceFooter } from "@/components/WorkspaceChrome";
 
 type FeatureKind = "dashboard" | "list" | "form" | "settings";
 type Feature = { id: string; label: string; description: string; kind: FeatureKind; icon: LucideIcon; createTarget?: string };
@@ -235,7 +236,6 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   const [editingContext, setEditingContext] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [pageSize, setPageSize] = useState("10");
-  const [openProfile, setOpenProfile] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const active = getFeature(activeId);
 
@@ -398,8 +398,8 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   };
 
   return (
-    <div className="employee-app-shell">
-      <header className="employee-topbar"><a className="employee-header-logo" href="#dashboard" onClick={event => { event.preventDefault(); selectFeature("dashboard"); }}><img src="/v-logo1.webp" alt="Velentra Group" /></a><button className="employee-mobile-menu" type="button" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={19} /></button><div className="employee-header-spacer" /><div className="employee-original-account"><button type="button" aria-label="Open account menu" onClick={() => setOpenProfile(value => !value)}><UserRound size={16} /><ChevronDown size={13} /></button>{openProfile ? <div className="employee-account-menu"><button type="button" onClick={() => setNotice(username)}><UserRound size={14} />{username}</button><button type="button" onClick={() => setNotice("Settings") }><Settings2 size={14} />Settings</button><button type="button" onClick={onBack}><LogOut size={14} />Logout</button></div> : null}</div></header>
+    <div className="employee-app-shell workspace-shell">
+      <WorkspaceHeader role="employee" username={username} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("theme-settings")} onLogout={onBack} />
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button>
         <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nestedFeature.id)}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>
@@ -407,6 +407,7 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
       {mobileNav ? <button className="employee-nav-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNav(false)} /> : null}
       <main className="employee-main">
         <div className="employee-content">{activeId === "dashboard" ? renderDashboard() : renderFeature()}</div>
+        <WorkspaceFooter role="employee" />
       </main>
     </div>
   );
