@@ -11,8 +11,7 @@ describe("unified Admin workspace", () => {
 
   it("retains the combined event, team, review, publishing and platform capabilities", () => {
     const required = [
-      "dashboard", "all-events", "create-event", "edit-event", "event-details",
-      "website-preview", "event-templates", "event-status", "employee-directory",
+      "dashboard", "all-events", "create-event", "employee-directory",
       "add-employee", "team-roles", "admin-assignments", "employee-event-assignments",
       "assignments", "employee-work", "review-queue", "content-approvals",
       "publishing-readiness", "published-sites", "manage-websites", "site-settings",

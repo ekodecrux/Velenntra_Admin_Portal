@@ -9,6 +9,7 @@ import {
   ChevronRight,
   CircleHelp,
   ClipboardCheck,
+  Eye,
   FileCheck2,
   FileText,
   Globe2,
@@ -32,7 +33,7 @@ type RoleKey = "admin";
 type ViewKind = "dashboard" | "list" | "form" | "settings";
 type RoleFeature = { id: string; label: string; description: string; kind: ViewKind; icon: LucideIcon; fields?: string[]; hidden?: boolean };
 type RoleSection = { label: string; items: RoleFeature[]; direct?: boolean; icon?: LucideIcon };
-type RoleRow = { title: string; status: string; meta: string; note: string };
+type EventRecord = { id: string; title: string; startDate: string; endDate: string; venue: string; eventStatus: string; subdomain: string; domain: string; websiteStatus: string };
 type EmployeeRecord = { id: string; employeeId: string; name: string; email: string; contactNumber: string; address: string; role: string; status: string; updated: string };
 
 export function normalizeEmployeeRole(role?: string) {
@@ -62,13 +63,8 @@ export const roleConfigs: Record<RoleKey, { label: string; shortLabel: string; e
     sections: [
       { label: "Dashboard", direct: true, items: [feature("dashboard", "Dashboard", "A live view of platform activity and event status.", LayoutDashboard, "dashboard")] },
       { label: "Events", icon: Globe2, items: [
-        feature("all-events", "All Events", "Review, modify, publish, archive, and manage every conference event.", Globe2),
+        feature("all-events", "All Events", "Review, modify, preview, and manage every conference event.", Globe2),
         feature("create-event", "Create Event", "Create an event and generate the single global Employee login from its subdomain.", Plus, "form", ["Event title", "Start date", "End date", "Venue", "Event status", "Subdomain", "Domain", "Website status"]),
-        feature("edit-event", "Modify Event", "Update event details, ownership, status, and publishing readiness.", FileText, "form", ["Event to modify", "Event title", "Event dates", "Venue", "Assigned Admin", "Publishing status"]),
-        feature("event-details", "Event Details", "Review dates, venue, status, and public content.", FileText, "form", ["Event title", "Event dates", "Venue", "Event status"]),
-        feature("website-preview", "Website Preview", "Open the current event website preview.", Globe2),
-        feature("event-templates", "Event Templates", "Manage reusable conference website templates.", FileText),
-        feature("event-status", "Event Status", "Move events between review, in progress, ready to publish, published, and archived.", Workflow, "settings", ["Event status", "Publishing status"]),
       ] },
       { label: "Team & access", icon: UsersRound, items: [
         feature("employee-directory", "Employee Directory", "Review, modify, activate, deactivate, and manage employees.", UsersRound),
@@ -124,8 +120,16 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
       return [{ id: "emp-preview", employeeId: "EMP-0001", name: "EMP", email: "employee@velentra.preview", contactNumber: "Not provided", address: "Preview account", role: "Employee", status: "Active", updated: "Preview account" }];
     }
   });
-  const [eventRows, setEventRows] = useState<RoleRow[]>([{ title: "All Events workspace", status: "Ready", meta: "Just now", note: "Preview event list" }]);
+  const [eventRows, setEventRows] = useState<EventRecord[]>(() => {
+    try {
+      const stored = sessionStorage.getItem("velentra-admin-events");
+      if (stored) return JSON.parse(stored) as EventRecord[];
+    } catch { /* Preview storage can be unavailable. */ }
+    return [{ id: "event-preview", title: "All Events workspace", startDate: "—", endDate: "—", venue: "Preview venue", eventStatus: "Draft", subdomain: "event-preview", domain: "velentra.events", websiteStatus: "On hold" }];
+  });
   const [editingEmployee, setEditingEmployee] = useState<EmployeeRecord | null>(null);
+  const [editingEvent, setEditingEvent] = useState<EventRecord | null>(null);
+  const [websitePreviewEvent, setWebsitePreviewEvent] = useState<EventRecord | null>(null);
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [employeeRoleFilter, setEmployeeRoleFilter] = useState("All roles");
   const [employeeStatusFilter, setEmployeeStatusFilter] = useState("All statuses");
@@ -133,6 +137,7 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
     try { return sessionStorage.getItem("velentra-global-employee-username") ?? ""; } catch { return ""; }
   });
   useEffect(() => { try { sessionStorage.setItem("velentra-admin-employees", JSON.stringify(employeeRows)); } catch { /* Preview storage can be unavailable in restricted browsers. */ } }, [employeeRows]);
+  useEffect(() => { try { sessionStorage.setItem("velentra-admin-events", JSON.stringify(eventRows)); } catch { /* Preview storage can be unavailable. */ } }, [eventRows]);
   const allFeatures = config.sections.flatMap(section => section.items);
   const active = allFeatures.find(item => item.id === activeId) ?? allFeatures[0];
 
@@ -171,15 +176,21 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
     }
     if (active.id === "create-event") {
       const title = String(values.get("Event title") || "New event");
+      const startDate = String(values.get("Start date") || "—");
+      const endDate = String(values.get("End date") || "—");
+      const venue = String(values.get("Venue") || "—");
+      const eventStatus = String(values.get("Event status") || "Active");
       const fallbackSubdomain = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "event";
       const subdomain = String(values.get("Subdomain") || fallbackSubdomain).toLowerCase().trim();
       const domain = String(values.get("Domain") || "velentra.events").trim();
-      const credentials = `${subdomain} / 123456`;
+      const websiteStatus = String(values.get("Website status") || "On hold");
+      const event: EventRecord = { id: editingEvent?.id ?? `event-${Date.now()}`, title, startDate, endDate, venue, eventStatus, subdomain, domain, websiteStatus };
       try { sessionStorage.setItem("velentra-global-employee-username", subdomain); } catch { /* Preview storage can be unavailable. */ }
       setGlobalEmployeeUsername(subdomain);
-      setEventRows(current => [...current, { title, status: String(values.get("Event status") || "Active"), meta: "Just now", note: `Global Employee login: ${credentials}` }]);
+      setEventRows(current => editingEvent ? current.map(item => item.id === editingEvent.id ? event : item) : [...current, event]);
+      setEditingEvent(null);
       setActiveId("all-events");
-      setNotice(`${title} created on ${domain}. Global Employee login: ${credentials}`);
+      setNotice(`${editingEvent ? title + " updated" : title + " created"} on ${domain}. Global Employee login: ${subdomain} / 123456`);
       return;
     }
     setNotice(`${active.label} ${active.kind === "settings" ? "settings saved" : "saved as a draft"}.`);
@@ -191,12 +202,23 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
     if (!editingEmployee) return undefined;
     return ({ "Employee ID": editingEmployee.employeeId, "Employee name": editingEmployee.name, "Work email": editingEmployee.email, "Contact number": editingEmployee.contactNumber, Address: editingEmployee.address, Role: editingEmployee.role, "Account status": editingEmployee.status } as Record<string, string>)[field];
   };
+  const editEvent = (event: EventRecord) => { setEditingEvent(event); selectFeature("create-event"); };
+  const deleteEvent = (event: EventRecord) => {
+    if (event.eventStatus.toLowerCase() === "published") { setNotice("Published events cannot be deleted."); return; }
+    if (!window.confirm(`Delete ${event.title}? This event has not been published.`)) return;
+    setEventRows(current => current.filter(item => item.id !== event.id));
+    setNotice(`${event.title} deleted.`);
+  };
+  const eventFieldValue = (field: string) => {
+    if (!editingEvent) return undefined;
+    return ({ "Event title": editingEvent.title, "Start date": editingEvent.startDate, "End date": editingEvent.endDate, Venue: editingEvent.venue, "Event status": editingEvent.eventStatus, Subdomain: editingEvent.subdomain, Domain: editingEvent.domain, "Website status": editingEvent.websiteStatus } as Record<string, string>)[field];
+  };
 
   const renderDashboard = () => (
     <>
       <div className="employee-page-heading"><div><span className="employee-eyebrow"><span /> {config.eyebrow}</span><h1>{config.title}</h1><p>{config.description}</p></div><button className="employee-secondary-button" type="button" onClick={() => setNotice("Workspace data refreshed just now.")}><Activity size={16} /> Refresh data</button></div>
       <div className="employee-stats-grid">{config.stats.map(stat => <button type="button" key={stat.label} className={`employee-stat-card employee-stat-card-${stat.tone}`} onClick={() => setNotice(`${stat.label} opened for review.`)}><div className="employee-stat-icon"><stat.icon size={19} /></div><div><strong>{stat.value}</strong><span>{stat.label}</span></div><ArrowUpRight size={16} className="employee-stat-arrow" /></button>)}</div>
-      <section className="employee-dashboard-section"><div className="employee-section-heading"><div><span className="employee-eyebrow"><span /> Admin workflow</span><h2>Control people, events, access, and publishing</h2></div></div><div className="employee-mini-grid">{["Create Event", "Add Employee", "Roles & Permissions", "Employee Event Assignments", "Review Queue", "Employee Assignments", "Publishing Readiness", "Website Preview"].map(label => { const target = allFeatures.find(item => item.label === label); return <button key={label} type="button" className="employee-mini-card" onClick={() => target && selectFeature(target.id)}><Workflow size={17} /><span><strong>Open</strong><small>{label}</small></span><ChevronRight size={15} /></button>; })}</div></section>
+      <section className="employee-dashboard-section"><div className="employee-section-heading"><div><span className="employee-eyebrow"><span /> Admin workflow</span><h2>Control people, events, access, and publishing</h2></div></div><div className="employee-mini-grid">{["All Events", "Create Event", "Add Employee", "Roles & Permissions", "Employee Event Assignments", "Review Queue", "Employee Assignments", "Publishing Readiness"].map(label => { const target = allFeatures.find(item => item.label === label); return <button key={label} type="button" className="employee-mini-card" onClick={() => target && selectFeature(target.id)}><Workflow size={17} /><span><strong>Open</strong><small>{label}</small></span><ChevronRight size={15} /></button>; })}</div></section>
     </>
   );
 
@@ -212,17 +234,25 @@ export default function RoleDashboard({ role, onBack, username }: { role: RoleKe
     </>;
   };
 
+  const renderAllEvents = () => <>
+    <div className="employee-page-heading"><div><span className="employee-eyebrow"><span /> Admin workspace</span><h1>All Events</h1><p>View every event, its website details, and its current publishing status.</p></div><button className="employee-primary-button" type="button" onClick={() => { setEditingEvent(null); selectFeature("create-event"); }}><Plus size={16} /> Create Event</button></div>
+    {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
+    {websitePreviewEvent ? <div className="employee-website-preview-card"><div><span className="employee-eyebrow"><span /> Website preview</span><h2>{websitePreviewEvent.title}</h2><p>{websitePreviewEvent.subdomain}.{websitePreviewEvent.domain}</p><small>Website display is on hold until the website content is provided.</small></div><button className="employee-secondary-button" type="button" onClick={() => setWebsitePreviewEvent(null)}>Close</button></div> : null}
+    <div className="employee-table-card"><div className="employee-table-wrap employee-events-table-wrap"><table className="employee-events-table"><thead><tr><th>Event title</th><th>Start date</th><th>End date</th><th>Venue</th><th>Event status</th><th>Subdomain</th><th>Domain</th><th>Website status</th><th>Website</th><th>Actions</th></tr></thead><tbody>{eventRows.map(event => <tr key={event.id}><td><strong>{event.title}</strong></td><td>{event.startDate}</td><td>{event.endDate}</td><td>{event.venue}</td><td><span className="employee-status-pill">{event.eventStatus}</span></td><td>{event.subdomain}</td><td>{event.domain}</td><td>{event.websiteStatus}</td><td><button className="employee-icon-action" type="button" aria-label={`View website for ${event.title}`} title="View website" onClick={() => setWebsitePreviewEvent(event)}><Eye size={16} /></button></td><td><div className="employee-row-actions"><button className="employee-icon-action" type="button" aria-label={`Edit ${event.title}`} title="Edit" onClick={() => editEvent(event)}><Pencil size={16} /></button><button className="employee-icon-action employee-icon-action-danger" type="button" aria-label={`Delete ${event.title}`} title="Delete" onClick={() => deleteEvent(event)}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table></div></div>
+  </>;
+
   const renderFeature = () => {
     if (active.id === "employee-directory") return renderEmployeeDirectory();
+    if (active.id === "all-events") return renderAllEvents();
     const isForm = active.kind === "form";
     const isSettings = active.kind === "settings";
-    const activeTitle = active.id === "add-employee" && editingEmployee ? "Edit Employee" : active.label;
+    const activeTitle = active.id === "add-employee" && editingEmployee ? "Edit Employee" : active.id === "create-event" && editingEvent ? "Edit Event" : active.label;
     const fields = active.fields ?? (isSettings ? ["Section title", "Supporting copy", "Display status"] : ["Search records", "Status filter"]);
     return <>
       <div className="employee-page-heading"><div><span className="employee-eyebrow"><span /> {isSettings ? "Settings" : config.label}</span><h1>{activeTitle}</h1><p>{editingEmployee && active.id === "add-employee" ? "Update this employee's account, role, and status." : active.description}</p></div><button className="employee-secondary-button" type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={16} /> Dashboard</button></div>
       {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
       {active.id === "all-events" && globalEmployeeUsername ? <div className="employee-credential-card"><div><span className="employee-eyebrow"><span /> Global Employee login</span><strong>{globalEmployeeUsername}</strong><small>Username is the event subdomain · Password: <b>123456</b></small></div><ShieldCheck size={22} /></div> : null}
-      {isForm || isSettings ? <form className="employee-form-card" onSubmit={saveForm}><div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> {isSettings ? "Workspace controls" : editingEmployee ? "Edit employee record" : "New workflow record"}</span><h2>{isSettings ? `Configure ${active.label.toLowerCase()}` : `${editingEmployee ? "Edit" : "Build"} ${active.label.toLowerCase()}`}</h2></div><span className="employee-draft-chip">{isSettings ? "Protected" : editingEmployee ? "Edit" : "Draft"}</span></div><div className="employee-form-grid">{fields.map(field => <label key={field}><span>{field}</span><FieldControl activeId={active.id} field={field} initialValue={employeeFieldValue(field)} /></label>)}</div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingEmployee(null); selectFeature(active.id === "add-employee" ? "employee-directory" : active.id.includes("event") ? "all-events" : "dashboard"); }}>Cancel</button><button className="employee-primary-button" type="submit"><Check size={16} /> {isSettings ? "Save settings" : editingEmployee ? "Update Employee" : active.id === "add-employee" ? "Save Employee" : active.id === "create-event" ? "Create Event" : "Save changes"}</button></div></form> : <div className="employee-table-card"><div className="employee-toolbar"><div className="employee-search"><Activity size={16} /><input placeholder={`Search ${active.label.toLowerCase()}`} /></div><div className="employee-toolbar-actions"><button className="employee-secondary-button" type="button" onClick={() => setNotice(`${active.label} refreshed.`)}><Activity size={15} /> Refresh</button>{active.id === "all-events" ? <button className="employee-primary-button" type="button" onClick={() => selectFeature("create-event")}><Plus size={16} /> Create new Event</button> : <button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} is ready for review.`)}><Plus size={16} /> Manage</button>}</div></div><div className="employee-table-wrap"><table><thead><tr><th>Name / title</th><th>Status</th><th>Updated</th><th>Notes</th><th>Action</th></tr></thead><tbody>{(active.id === "all-events" ? eventRows : [{ title: `${active.label} workspace`, status: "Ready", meta: "Just now", note: "Preview workspace" }]).map((row, index) => <tr key={`${row.title}-${index}`}><td><strong>{row.title}</strong></td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.meta}</td><td>{row.note}</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>View <ArrowUpRight size={14} /></button></td></tr>)}</tbody></table></div></div>}
+      {isForm || isSettings ? <form className="employee-form-card" onSubmit={saveForm}><div className="employee-form-card-heading"><div><span className="employee-eyebrow"><span /> {isSettings ? "Workspace controls" : editingEmployee || editingEvent ? "Edit record" : "New workflow record"}</span><h2>{isSettings ? `Configure ${active.label.toLowerCase()}` : `${editingEmployee || editingEvent ? "Edit" : "Build"} ${active.label.toLowerCase()}`}</h2></div><span className="employee-draft-chip">{isSettings ? "Protected" : editingEmployee || editingEvent ? "Edit" : "Draft"}</span></div><div className="employee-form-grid">{fields.map(field => <label key={field}><span>{field}</span><FieldControl activeId={active.id} field={field} initialValue={active.id === "create-event" ? eventFieldValue(field) : employeeFieldValue(field)} /></label>)}</div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingEmployee(null); setEditingEvent(null); selectFeature(active.id === "add-employee" ? "employee-directory" : active.id === "create-event" ? "all-events" : "dashboard"); }}>Cancel</button><button className="employee-primary-button" type="submit"><Check size={16} /> {isSettings ? "Save settings" : editingEmployee ? "Update Employee" : active.id === "add-employee" ? "Save Employee" : active.id === "create-event" ? (editingEvent ? "Update Event" : "Create Event") : "Save changes"}</button></div></form> : <div className="employee-table-card"><div className="employee-toolbar"><div className="employee-search"><Activity size={16} /><input placeholder={`Search ${active.label.toLowerCase()}`} /></div><div className="employee-toolbar-actions"><button className="employee-secondary-button" type="button" onClick={() => setNotice(`${active.label} refreshed.`)}><Activity size={15} /> Refresh</button><button className="employee-primary-button" type="button" onClick={() => setNotice(`${active.label} is ready for review.`)}><Plus size={16} /> Manage</button></div></div><div className="employee-table-wrap"><table><thead><tr><th>Name / title</th><th>Status</th><th>Updated</th><th>Notes</th><th>Action</th></tr></thead><tbody>{[{ title: `${active.label} workspace`, status: "Ready", meta: "Just now", note: "Preview workspace" }].map((row, index) => <tr key={`${row.title}-${index}`}><td><strong>{row.title}</strong></td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.meta}</td><td>{row.note}</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${row.title} selected for review.`)}>View <ArrowUpRight size={14} /></button></td></tr>)}</tbody></table></div></div>}
     </>;
   };
 
