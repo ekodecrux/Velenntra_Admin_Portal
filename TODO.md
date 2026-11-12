@@ -56,6 +56,7 @@
 - [x] Preload the clicked element’s existing text, image source, input value, or link value into the popup before editing, instead of opening with blank or generic dummy content.
 - [x] Use element-specific popup scopes: clicking the logo opens only logo URL/upload, existing-logo preview, and alt-text controls; clicking an individual header text element opens only that text with its existing value plus font, color, weight, background, and spacing controls.
 - [x] Exclude inline edit icons from captured content, preload the clicked element’s computed font/color/background/spacing values, and render color/background controls as visible color boxes matching the website style.
+- [x] Do not show edit frames for navigation menus, social-media buttons, quick links, newsletter inputs, forms, or other action controls; keep frames for editable website content only.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.

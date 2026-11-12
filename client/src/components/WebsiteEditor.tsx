@@ -221,16 +221,15 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     mark(".top-header h1", "header", "Left header content");
     mark(".top-header .top-add-text-1, .top-header .top-add-text-2", "header", "Right header content");
     mark(".top-header h4, .top-header .c-date", "header", "Venue");
-    mark("#mainMenu", "header", "Navigation links");
     mark("#about, [id*='about'], [class*='about']", "about", "About content");
     mark("[id*='speaker'], [class*='speaker']", "speakers", "Speaker profiles");
     mark("[id*='testimonial'], [class*='testimonial']", "testimonials", "Testimonials");
     mark("[id*='gallery'], [class*='gallery']", "gallery", "Gallery images");
     mark("footer", "footer", "Footer content");
-    const genericTargets = document.querySelectorAll<HTMLElement>("h1,h2,h3,h4,h5,h6,p,li,a,button,span,img,input,textarea,select");
+    const genericTargets = document.querySelectorAll<HTMLElement>("h1,h2,h3,h4,h5,h6,p,li,span,img");
     genericTargets.forEach(targetElement => {
       if (!targetElement.textContent?.trim() && !["IMG", "INPUT", "TEXTAREA", "SELECT"].includes(targetElement.tagName)) return;
-      if (targetElement.closest(".manus-inline-edit") || targetElement.classList.contains("sr-only")) return;
+      if (targetElement.closest(".manus-inline-edit, a, button, input, textarea, select, nav, form, #mainMenu, [class*='social'], [id*='social'], [class*='quick'], [id*='quick'], [class*='newsletter'], [id*='newsletter']") || targetElement.classList.contains("sr-only")) return;
       const area = targetElement.closest(".top-header,.hybrid-text,#mainMenu,footer,[id*='about'],[class*='about'],[id*='speaker'],[class*='speaker'],[id*='testimonial'],[class*='testimonial'],[id*='gallery'],[class*='gallery']");
       const areaText = `${area?.className ?? ""} ${area?.id ?? ""}`.toLowerCase();
       const sectionId = area?.closest("footer") ? "footer" : areaText.includes("testimonial") ? "testimonials" : areaText.includes("speaker") ? "speakers" : areaText.includes("gallery") ? "gallery" : areaText.includes("about") ? "about" : areaText.includes("top-header") || areaText.includes("hybrid") || areaText.includes("mainmenu") ? "header" : "pages";
