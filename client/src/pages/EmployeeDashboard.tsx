@@ -266,22 +266,21 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
 
   const renderDashboard = () => (
     <>
-      <div className="employee-page-heading">
-        <div><span className="employee-eyebrow"><span /> Overview</span><h1>Good morning, {username}.</h1><p>Here’s the current pulse of your conference workspace.</p></div>
-        <button className="employee-secondary-button" type="button" onClick={() => setNotice("Dashboard data refreshed just now.")}><Activity size={16} /> Refresh data</button>
+      <div className="employee-page-heading employee-dashboard-heading">
+        <div><span className="employee-eyebrow"><span /> Velentra Group · Employee portal</span><h1>Dashboard</h1></div>
       </div>
       <div className="employee-stats-grid">
-        <StatCard label="Abstracts" value="0" icon={FileText} tone="blue" action={() => selectFeature("abstracts")} />
-        <StatCard label="Brochures" value="7" icon={BookOpenText} tone="blue" action={() => selectFeature("brochures")} />
-        <StatCard label="Testimonials" value="0" icon={FileText} tone="blue" action={() => selectFeature("testimonials-list")} />
-        <StatCard label="Email Search" value="400" icon={Search} tone="blue" action={() => selectFeature("email-search")} />
-        <StatCard label="Unsubscribe emails" value="400" icon={Mail} tone="blue" action={() => selectFeature("unsubscribe-emails")} />
+        <StatCard label="Abstracts" value="0" actionLabel="View Details" icon={FileText} tone="blue" action={() => selectFeature("abstracts")} />
+        <StatCard label="Brochures" value="7" actionLabel="View Details" icon={BookOpenText} tone="blue" action={() => selectFeature("brochures")} />
+        <StatCard label="Testimonials" value="0" actionLabel="View Details" icon={FileText} tone="blue" action={() => selectFeature("testimonials-list")} />
+        <StatCard label="Email Search" value="" actionLabel="Search Records" icon={Search} tone="blue" action={() => selectFeature("email-search")} />
+        <StatCard label="Unsubscribe Emails" value="400" actionLabel="View Records" icon={Mail} tone="blue" action={() => selectFeature("unsubscribe-emails")} />
       </div>
       <section className="employee-dashboard-section">
         <div className="employee-section-heading"><div><span className="employee-eyebrow"><span /> Registrations</span><h2>Registration pipeline</h2></div><button className="employee-link-button" type="button" onClick={() => selectFeature("registrations")}>View all <ArrowUpRight size={15} /></button></div>
         <div className="employee-registration-grid">
-          <StatCard label="Success registrations" value="0" icon={Check} tone="green" action={() => selectFeature("registrations")} />
-          <StatCard label="Pending registrations" value="0" icon={ClipboardList} tone="red" action={() => selectFeature("registrations")} />
+          <StatCard label="Success registrations" value="0" actionLabel="View Details" icon={Check} tone="green" action={() => selectFeature("registrations")} />
+          <StatCard label="Pending registrations" value="0" actionLabel="View Details" icon={ClipboardList} tone="red" action={() => selectFeature("registrations")} />
         </div>
       </section>
       <section className="employee-dashboard-section">
@@ -341,6 +340,6 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
   );
 }
 
-function StatCard({ label, value, icon: Icon, tone, action }: { label: string; value: string; icon: LucideIcon; tone: "blue" | "green" | "red"; action: () => void }) {
-  return <button type="button" className={`employee-stat-card employee-stat-card-${tone}`} onClick={action}><div className="employee-stat-icon"><Icon size={19} /></div><div><strong>{value}</strong><span>{label}</span></div><ArrowUpRight size={16} className="employee-stat-arrow" /></button>;
+function StatCard({ label, value, actionLabel, icon: Icon, tone, action }: { label: string; value: string; actionLabel: string; icon: LucideIcon; tone: "blue" | "green" | "red"; action: () => void }) {
+  return <button type="button" className={`employee-stat-card employee-stat-card-${tone}`} onClick={action}><div className="employee-stat-card-top"><div className="employee-stat-icon"><Icon size={19} /></div><div><strong>{value}</strong><span>{label}</span></div></div><div className="employee-stat-card-footer"><span>{actionLabel}</span><ArrowUpRight size={15} /></div></button>;
 }
