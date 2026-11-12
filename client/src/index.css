@@ -856,3 +856,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-edit-modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 15px; border-top: 1px solid #e7edef; }
 @media (max-width: 1100px) { .website-config-workspace { grid-template-columns: 1fr; } .website-config-preview { order: -1; } .website-config-iframe-wrap, .website-config-iframe-wrap iframe { min-height: 650px; height: 650px; } }
 @media (max-width: 620px) { .website-config-preview-actions { align-items: flex-start; flex-direction: column; } .website-edit-modal-fields { grid-template-columns: 1fr; } .website-edit-modal-wide { grid-column: auto; } .website-config-iframe-wrap, .website-config-iframe-wrap iframe { min-height: 480px; height: 480px; } }
+
+.website-config-section-row { width: 100%; padding: 0; text-align: left; cursor: pointer; background: transparent; font: inherit; }
+.website-config-section-row:hover { border-color: #c3dfe6; background: #f5fbfc; }
+.website-config-section-row .website-config-section-select { width: 100%; }

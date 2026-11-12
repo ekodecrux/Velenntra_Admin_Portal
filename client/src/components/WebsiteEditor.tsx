@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Edit3, Eye, ImagePlus, Plus, Trash2, Video, X } from "lucide-react";
+import { ArrowLeft, Check, Eye, Plus, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 const defaultSections = [
@@ -15,7 +15,25 @@ const defaultSections = [
 ];
 
 type WebsiteSection = typeof defaultSections[number];
-type SectionContent = { title?: string; body?: string; imageUrl?: string; videoUrl?: string; buttonLabel?: string; buttonUrl?: string; status?: string };
+type SectionContent = Record<string, string> & { status?: string };
+
+type PopupField = { name: string; label: string; type?: "text" | "url" | "date"; placeholder?: string; wide?: boolean };
+
+function popupFields(section: WebsiteSection): PopupField[] {
+  switch (section.id) {
+    case "logo": return [{ name: "brandName", label: "Brand name", placeholder: "Velentra" }, { name: "logoUrl", label: "Logo URL", type: "url", placeholder: "https://..." }, { name: "faviconUrl", label: "Favicon URL", type: "url", placeholder: "https://..." }, { name: "logoAlt", label: "Logo alt text", placeholder: "Company logo" }];
+    case "header": return [{ name: "title", label: "Event title", placeholder: "Conference title" }, { name: "startDate", label: "Start date", type: "date" }, { name: "endDate", label: "End date", type: "date" }, { name: "venue", label: "Venue", placeholder: "Event venue" }, { name: "navigation", label: "Navigation links", placeholder: "Home, About, Program, Contact", wide: true }];
+    case "pages": return [{ name: "pageTitle", label: "Page title", placeholder: "About the conference" }, { name: "slug", label: "Page URL slug", placeholder: "about-conference" }, { name: "body", label: "Page content", placeholder: "Write the page content...", wide: true }, { name: "seoTitle", label: "SEO title", placeholder: "Search result title" }, { name: "seoDescription", label: "SEO description", placeholder: "Search result description", wide: true }];
+    case "hero": return [{ name: "title", label: "Hero headline", placeholder: "Join us for the conference" }, { name: "subtitle", label: "Hero subtitle", placeholder: "Supporting headline", wide: true }, { name: "imageUrl", label: "Banner image URL", type: "url", placeholder: "https://..." }, { name: "buttonLabel", label: "Button label", placeholder: "Register now" }, { name: "buttonUrl", label: "Button URL", type: "url", placeholder: "https://..." }];
+    case "about": return [{ name: "title", label: "About heading", placeholder: "About the conference" }, { name: "imageUrl", label: "Feature image URL", type: "url", placeholder: "https://..." }, { name: "body", label: "About content", placeholder: "Write the conference introduction...", wide: true }];
+    case "speakers": return [{ name: "title", label: "Section heading", placeholder: "Meet our speakers" }, { name: "body", label: "Section description", placeholder: "Introduce the speaker and committee area", wide: true }, { name: "imageUrl", label: "Speaker image URL", type: "url", placeholder: "https://..." }];
+    case "testimonials": return [{ name: "title", label: "Testimonial heading", placeholder: "What attendees say" }, { name: "quote", label: "Testimonial quote", placeholder: "Write the testimonial quote...", wide: true }, { name: "author", label: "Author name", placeholder: "Author name" }, { name: "authorRole", label: "Author role", placeholder: "Delegate / Speaker" }, { name: "imageUrl", label: "Author photo URL", type: "url", placeholder: "https://..." }];
+    case "video-testimonials": return [{ name: "title", label: "Video title", placeholder: "Why attendees return" }, { name: "videoUrl", label: "Video URL", type: "url", placeholder: "https://youtube.com/...", wide: true }, { name: "imageUrl", label: "Poster image URL", type: "url", placeholder: "https://..." }, { name: "body", label: "Video description", placeholder: "Describe this video testimonial", wide: true }];
+    case "gallery": return [{ name: "title", label: "Gallery heading", placeholder: "Conference moments" }, { name: "imageUrls", label: "Image URLs", type: "url", placeholder: "https://...", wide: true }, { name: "captions", label: "Image captions", placeholder: "Caption for each image", wide: true }];
+    case "footer": return [{ name: "address", label: "Address", placeholder: "Conference address", wide: true }, { name: "email", label: "Contact email", placeholder: "hello@example.com" }, { name: "phone", label: "Phone number", placeholder: "+1 000 000 0000" }, { name: "socialLinks", label: "Social links", placeholder: "Facebook, LinkedIn, Instagram", wide: true }, { name: "body", label: "Footer content", placeholder: "Footer credits and supporting text", wide: true }];
+    default: return [{ name: "title", label: "Section title", placeholder: "Section title" }, { name: "body", label: "Section content", placeholder: "Write section content...", wide: true }];
+  }
+}
 
 type Props = {
   eventId: string;
@@ -58,15 +76,8 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     event.preventDefault();
     if (!editingSection) return;
     const values = new FormData(event.currentTarget);
-    const nextContent: SectionContent = {
-      title: String(values.get("title") || ""),
-      body: String(values.get("body") || ""),
-      imageUrl: String(values.get("imageUrl") || ""),
-      videoUrl: String(values.get("videoUrl") || ""),
-      buttonLabel: String(values.get("buttonLabel") || ""),
-      buttonUrl: String(values.get("buttonUrl") || ""),
-      status: String(values.get("status") || "Draft"),
-    };
+    const nextContent: SectionContent = { status: String(values.get("status") || "Draft") };
+    popupFields(editingSection).forEach(field => { nextContent[field.name] = String(values.get(field.name) || ""); });
     setContent(current => ({ ...current, [editingSection.id]: nextContent }));
     setSections(current => current.map(section => section.id === editingSection.id ? { ...section, status: nextContent.status || section.status } : section));
     setEditingSection(null);
@@ -92,24 +103,24 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
 
   return <>
     <div className="employee-page-heading employee-editor-heading">
-      <div><span className="employee-eyebrow"><span /> Website Configuration</span><h1>{eventTitle}</h1><p>Edit website sections from the menu and preview the complete website on the right.</p></div>
+      <div><span className="employee-eyebrow"><span /> Website Configuration</span><h1>{eventTitle}</h1><p>Choose a website section on the left to edit its content while viewing the complete website on the right.</p></div>
       <div className="website-editor-heading-actions">{onHome ? <button className="employee-secondary-button" type="button" onClick={onHome}><ArrowLeft size={16} /> Go to Home</button> : null}<button className="employee-secondary-button" type="button" onClick={onBack}><X size={16} /> Back</button></div>
     </div>
 
     <div className="website-config-workspace">
       <aside className="website-config-menu">
-        <div className="website-config-menu-heading"><span className="employee-eyebrow"><span /> Website sections</span><strong>Content menu</strong><small>Select a section to edit its details.</small></div>
-        <div className="website-config-section-list">{sections.map(section => <div className={`website-config-section-row ${selectedId === section.id ? "website-config-section-row-active" : ""}`} key={section.id}><button type="button" className="website-config-section-select" onClick={() => setSelectedId(section.id)}><span><strong>{section.name}</strong><small>{section.summary}</small></span><em>{section.status}</em></button><button className="website-config-edit-button" type="button" title={`Edit ${section.name}`} aria-label={`Edit ${section.name}`} onClick={() => openEditor(section)}><Edit3 size={15} /></button><button className="website-config-delete-button" type="button" title={`Delete ${section.name}`} aria-label={`Delete ${section.name}`} onClick={() => deleteSection(section)}><Trash2 size={14} /></button></div>)}</div>
-        <div className="website-config-add"><strong>Add website section</strong><select value={newSectionType} onChange={event => setNewSectionType(event.target.value)}><option>Video Testimonials</option><option>Testimonials</option><option>New Page</option><option>Image Gallery</option><option>Speaker Section</option><option>Custom Content</option></select><button className="employee-primary-button" type="button" onClick={addSection}><Plus size={15} /> Add section</button></div>
+        <div className="website-config-menu-heading"><span className="employee-eyebrow"><span /> Website sections</span><strong>Content menu</strong><small>Click any section name to open its editor.</small></div>
+        <div className="website-config-section-list">{sections.map(section => <button type="button" className={`website-config-section-row ${selectedId === section.id ? "website-config-section-row-active" : ""}`} key={section.id} onClick={() => openEditor(section)}><span className="website-config-section-select"><strong>{section.name}</strong><small>{section.summary}</small></span><em>{section.status}</em></button>)}</div>
+        <div className="website-config-add"><strong>Add a website section</strong><select value={newSectionType} onChange={event => setNewSectionType(event.target.value)}><option>Video Testimonials</option><option>Testimonials</option><option>New Page</option><option>Image Gallery</option><option>Speaker Section</option><option>Custom Content</option></select><button className="employee-primary-button" type="button" onClick={addSection}><Plus size={15} /> Add section</button></div>
       </aside>
 
       <section className="website-config-preview">
-        <div className="website-config-preview-heading"><div><span className="employee-eyebrow"><span /> Full website preview</span><h2>{selected?.name ?? "Website"}</h2><p>Click a section on the left, then use Edit to update its content.</p></div><span className="website-preview-badge"><Eye size={14} /> Live website</span></div>
-        <div className="website-config-preview-actions"><span>Previewing the complete website</span><button className="employee-secondary-button" type="button" onClick={() => selected && openEditor(selected)}><Edit3 size={15} /> Edit {selected?.name ?? "section"}</button></div>
+        <div className="website-config-preview-heading"><div><span className="employee-eyebrow"><span /> Full website preview</span><h2>{selected?.name ?? "Website"}</h2><p>Click a section name on the left to modify its details.</p></div><span className="website-preview-badge"><Eye size={16} /> Live website</span></div>
+        <div className="website-config-preview-actions"><span>Complete website content preview</span></div>
         <div className="website-config-iframe-wrap"><iframe title={`${eventTitle} full website preview`} src={`/event-site/index.html?event=${eventId}`} /></div>
       </section>
     </div>
 
-    {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website section</span><h2>{editingSection.name}</h2><p>Update the details shown in this website section.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => setEditingSection(null)}><X size={18} /></button></div><div className="website-edit-modal-fields"><label><span>Section title</span><input name="title" defaultValue={selectedContent.title ?? editingSection.name} placeholder="Add section title" autoFocus /></label><label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label><label className="website-edit-modal-wide"><span>Content and description</span><textarea name="body" rows={6} defaultValue={selectedContent.body ?? ""} placeholder="Write the content for this section" /></label><label><span>Image or logo URL</span><input name="imageUrl" type="url" defaultValue={selectedContent.imageUrl ?? ""} placeholder="https://..." /></label>{editingSection.id === "video-testimonials" || editingSection.name.toLowerCase().includes("video") ? <label><span>Video URL</span><input name="videoUrl" type="url" defaultValue={selectedContent.videoUrl ?? ""} placeholder="https://youtube.com/..." /></label> : null}<label><span>Button label</span><input name="buttonLabel" defaultValue={selectedContent.buttonLabel ?? ""} placeholder="Register now" /></label><label><span>Button URL</span><input name="buttonUrl" type="url" defaultValue={selectedContent.buttonUrl ?? ""} placeholder="https://..." /></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => setEditingSection(null)}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
+    {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website section</span><h2>{editingSection.name}</h2><p>Update the real content fields for this section.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => setEditingSection(null)}><X size={18} /></button></div><div className="website-edit-modal-fields">{popupFields(editingSection).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => setEditingSection(null)}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
   </>;
 }
