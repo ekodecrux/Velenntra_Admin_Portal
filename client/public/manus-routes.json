@@ -1,1 +1,1 @@
-{"routes":[{"path":"/","title":"Velentra Admin Portal Login"},{"path":"/workspace/:role","title":"Velentra Workspace"},{"path":"/404","title":"Not Found"}]} 
+{"routes":[{"path":"/","title":"Velentra Admin Portal Login"},{"path":"/workspace/:role","title":"Velentra Workspace"},{"path":"/workspace/:role/website-configuration","title":"Website Configuration"},{"path":"/404","title":"Not Found"}]}

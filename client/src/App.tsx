@@ -11,6 +11,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/workspace/:role/website-configuration" component={Workspace} />
       <Route path="/workspace/:role" component={Workspace} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

@@ -7,10 +7,13 @@ import RoleDashboard from "./RoleDashboard";
 
 export default function Workspace() {
   const [, params] = useRoute("/workspace/:role");
+  const [, websiteParams] = useRoute("/workspace/:role/website-configuration");
   const [, setLocation] = useLocation();
   const { user, loading, logout } = useAuth();
-  const isLegacySuperAdminRoute = params?.role === "super-admin";
-  const requestedRole = params?.role === "admin" ? "admin" : "employee";
+  const routeRole = websiteParams?.role ?? params?.role;
+  const isWebsiteConfigurationTab = websiteParams?.role === "admin";
+  const isLegacySuperAdminRoute = routeRole === "super-admin";
+  const requestedRole = routeRole === "admin" ? "admin" : "employee";
 
   const handleLogout = async () => {
     try {
@@ -76,8 +79,8 @@ export default function Workspace() {
   }
 
   if (requestedRole === "employee") {
-    return <EmployeeDashboard onBack={handleLogout} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} />;
+    return <EmployeeDashboard onBack={handleLogout} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} initialFeature={websiteParams?.role === "employee" ? "website-editor" : "dashboard"} />;
   }
 
-  return <RoleDashboard role="admin" onBack={handleLogout} username={user?.name || user?.email || demoUsername} />;
+  return <RoleDashboard role="admin" onBack={handleLogout} username={user?.name || user?.email || demoUsername} initialFeature={isWebsiteConfigurationTab ? "website-editor" : "dashboard"} />;
 }
