@@ -1,4 +1,4 @@
-import { Check, X } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 import { useEffect, useState, type FormEvent, type SyntheticEvent } from "react";
 
 const defaultSections = [
@@ -124,10 +124,18 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   const [editingSection, setEditingSection] = useState<WebsiteSection | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [showSectionEditor, setShowSectionEditor] = useState(false);
   const [newSectionType, setNewSectionType] = useState("Video Testimonials");
   const selected = sections.find(section => section.id === selectedId) ?? sections[0];
 
   useEffect(() => {
+    const handleExternalSectionSelect = (event: Event) => {
+      const sectionId = (event as CustomEvent<{ sectionId: string }>).detail.sectionId;
+      const section = sections.find(item => item.id === sectionId);
+      if (!section) return;
+      setSelectedId(section.id);
+      setShowSectionEditor(true);
+    };
     const handleExternalSectionField = (event: Event) => {
       const detail = (event as CustomEvent<{ sectionId: string; field?: string; existingText?: string; styleValues?: { fontFamily: string; fontSize: string; fontColor: string; fontWeight: string; sectionBackgroundColor: string; spacing: string } }>).detail;
       const section = sections.find(item => item.id === detail.sectionId);
@@ -140,8 +148,9 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       if (fieldName || detail.styleValues) setContent(current => { const next: SectionContent = { ...(current[section.id] ?? {}) }; if (fieldName && detail.existingText) next[fieldName] = detail.existingText; if (detail.styleValues) { next.fontFamily = detail.styleValues.fontFamily; next.fontSize = detail.styleValues.fontSize; next.fontColor = colorInputValue(detail.styleValues.fontColor); next.fontWeight = detail.styleValues.fontWeight; next.sectionBackgroundColor = colorInputValue(detail.styleValues.sectionBackgroundColor); next.spacing = detail.styleValues.spacing; } return { ...current, [section.id]: next }; });
       setEditingSection(section);
     };
+    window.addEventListener("velentra:select-section", handleExternalSectionSelect);
     window.addEventListener("velentra:edit-section-field", handleExternalSectionField);
-    return () => window.removeEventListener("velentra:edit-section-field", handleExternalSectionField);
+    return () => { window.removeEventListener("velentra:select-section", handleExternalSectionSelect); window.removeEventListener("velentra:edit-section-field", handleExternalSectionField); };
   }, [sections]);
 
   const openEditor = (section: WebsiteSection) => {
@@ -150,18 +159,20 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     setEditingSection(section);
   };
 
-  const saveSection = (event: FormEvent<HTMLFormElement>) => {
+  const saveSection = (event: FormEvent<HTMLFormElement>, targetSection: WebsiteSection | null = editingSection, targetField: string | null = editingField) => {
     event.preventDefault();
-    if (!editingSection) return;
+    if (!targetSection) return;
     const values = new FormData(event.currentTarget);
     const nextContent: SectionContent = { status: String(values.get("status") || "Draft") };
-    scopedPopupFields(editingSection, editingField).forEach(field => { if (field.type !== "file") nextContent[field.name] = String(values.get(field.name) || ""); });
-    setContent(current => ({ ...current, [editingSection.id]: nextContent }));
-    setSections(current => current.map(section => section.id === editingSection.id ? { ...section, status: nextContent.status || section.status } : section));
+    popupFields(targetSection).forEach(field => { if (field.type !== "file") nextContent[field.name] = String(values.get(field.name) || ""); });
+    if (targetField) scopedPopupFields(targetSection, targetField).forEach(field => { if (field.type !== "file") nextContent[field.name] = String(values.get(field.name) || ""); });
+    setContent(current => ({ ...current, [targetSection.id]: { ...(current[targetSection.id] ?? {}), ...nextContent } }));
+    setSections(current => current.map(section => section.id === targetSection.id ? { ...section, status: nextContent.status || section.status } : section));
     setEditingSection(null);
     setEditingField(null);
     setFocusedField(null);
-    onSaved?.(`${editingSection.name} updated for ${eventTitle}.`);
+    setShowSectionEditor(false);
+    onSaved?.(`${targetSection.name} updated for ${eventTitle}.`);
   };
 
   const addSection = () => {
@@ -249,7 +260,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   };
 
   return <>
-    <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div></section>
+    {showSectionEditor && selected ? <section className="website-config-section-editor"><div className="website-config-settings-header"><div><span className="employee-eyebrow"><span /> Website Configuration</span><h1>{selected.name}</h1><p>Update all settings for this website section.</p></div><button type="button" className="employee-secondary-button" onClick={() => setShowSectionEditor(false)}><ArrowLeft size={16} /> Back to website preview</button></div><form className="website-config-settings-form" onSubmit={event => saveSection(event, selected, null)}><div className="website-edit-modal-fields">{popupFields(selected).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.wide || ["body", "quote", "navigation", "imageUrls", "captions", "socialLinks", "seoDescription"].includes(field.name) ? <textarea name={field.name} rows={5} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={field.type === "file" ? undefined : (selectedContent[field.name] ?? "")} placeholder={field.placeholder} accept={field.type === "file" ? "image/*" : undefined} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? selected.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-config-settings-actions"><button type="button" className="employee-secondary-button" onClick={() => setShowSectionEditor(false)}><ArrowLeft size={16} /> Back to website preview</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save {selected.name}</button></div></form></section> : <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div></section>}
 
     {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website element</span><h2>{editingField ?? editingSection.name}</h2><p>Update this selected element using its existing content and design controls.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => { setEditingSection(null); setEditingField(null); setFocusedField(null); }}><X size={18} /></button></div>{editingSection.id === "header" && editingField === "Logo image" && selectedContent.logoUrl ? <div className="website-logo-edit-preview"><span>Existing logo</span><img src={selectedContent.logoUrl} alt="Existing website logo" /></div> : null}<div className="website-edit-modal-fields">{scopedPopupFields(editingSection, editingField).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={field.type === "file" ? undefined : (selectedContent[field.name] ?? "")} placeholder={field.placeholder} autoFocus={focusedField === field.name} accept={field.type === "file" ? "image/*" : undefined} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => { setEditingSection(null); setEditingField(null); setFocusedField(null); }}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
   </>;

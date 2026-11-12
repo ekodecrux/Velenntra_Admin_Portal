@@ -894,3 +894,13 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-config-menu-item { justify-content: flex-start !important; padding: 9px 10px !important; border-top: 0 !important; border-radius: 6px; color: #496f7c !important; font-size: 12px !important; font-weight: 600; }
 .website-config-menu-item:hover, .website-config-menu-item-active { background: #eaf5f8 !important; color: #1b5c72 !important; }
 .website-config-menu-item-active { box-shadow: inset 3px 0 0 #2f87a3; }
+
+.website-config-sidebar-mode { max-height: calc(100vh - 84px); overflow-y: auto; scrollbar-width: thin; }
+.website-config-section-editor { min-height: calc(100vh - 150px); padding: 26px 30px 36px; background: #f4f7f8; }
+.website-config-settings-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+.website-config-settings-header h1 { margin: 6px 0 4px; color: #173d4e; font-size: clamp(24px, 3vw, 36px); }
+.website-config-settings-header p { margin: 0; color: #6d848c; font-size: 13px; }
+.website-config-settings-form { max-width: 1100px; padding: 22px; border: 1px solid #dce7ea; border-radius: 14px; background: #fff; box-shadow: 0 14px 34px rgba(31, 77, 91, .07); }
+.website-config-settings-form .website-edit-modal-fields { display: grid; }
+.website-config-settings-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 18px; border-top: 1px solid #e5ecee; }
+@media (max-width: 720px) { .website-config-settings-header { flex-direction: column; } .website-config-section-editor { padding: 18px 16px 28px; } .website-config-settings-form { padding: 16px; } }
