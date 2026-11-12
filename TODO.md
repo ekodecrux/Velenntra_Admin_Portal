@@ -24,8 +24,9 @@
 - [x] Persist newly saved Employee records in the in-session Employee Directory and newly saved Event records in All Events, including role, status, Admin, and Employee assignment notes.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
-- [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; display those details in Employee Directory and include them in directory search.
-- [x] Use icon-only View, Edit, and Delete controls in each Employee Directory row with accessible labels and tooltips.
+- [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.
+- [x] Keep only icon-only Edit and Delete controls in each Employee Directory row with accessible labels and tooltips; remove the separate Username column and View action.
+- [x] Tighten Employee ID and Name column widths so the directory does not leave excessive space between the identifier and employee name.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard

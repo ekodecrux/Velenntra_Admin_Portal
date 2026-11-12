@@ -448,3 +448,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-icon-action-danger { color: #a34c3e; }
 .employee-icon-action-danger:hover { border-color: #a34c3e; background: #f8ece9; color: #7d2f24; }
 .employee-table-wrap td { vertical-align: middle; }
+
+.employee-directory-table { table-layout: auto; min-width: 0; }
+.employee-directory-table th, .employee-directory-table td { padding-right: 10px; padding-left: 10px; }
+.employee-directory-table th:first-child, .employee-directory-table td:first-child { min-width: 112px; width: 112px; }
+.employee-directory-table th:nth-child(2), .employee-directory-table td:nth-child(2) { min-width: 125px; width: 125px; }
+.employee-directory-table th:last-child, .employee-directory-table td:last-child { min-width: 76px; width: 76px; }
