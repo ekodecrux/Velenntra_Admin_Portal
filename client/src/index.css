@@ -811,3 +811,6 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-section-inspector .employee-form-grid { margin-top: 12px; }
 .website-add-section select { min-width: 125px; height: 34px; padding: 0 8px; border: 1px solid #d7e1e4; border-radius: 6px; background: #fff; color: #395968; font-size: 11px; }
 @media (max-width: 620px) { .website-block-toolbar button { flex: 1 1 45%; } .website-section-actions { flex-wrap: wrap; justify-content: flex-end; max-width: 78px; } .website-add-section { flex-wrap: wrap; } .website-add-section input, .website-add-section select { flex: 1 1 100%; } }
+
+.website-editor-heading-actions { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 720px) { .website-editor-heading-actions { width: 100%; justify-content: flex-start; } }

@@ -389,7 +389,7 @@ export default function EmployeeDashboard({ onBack, username, initialFeature = "
 
   const renderFeature = () => {
     if (active.id === "website-preview") return <><div className="employee-page-heading employee-feature-heading"><div><h1>Website Preview</h1><p>Imported conference website template used for event subdomains.</p></div></div><div className="employee-website-standalone-preview"><iframe title="Imported event website preview" src="/event-site/index.html?event=global" onLoad={event => applyWebsiteConfig(event.currentTarget)} /></div></>;
-    if (active.id === "website-editor") return <WebsiteEditor eventId="global" eventTitle={username || "Global event website"} onBack={() => selectFeature("website-preview")} onSaved={message => setNotice(message)} />;
+    if (active.id === "website-editor") return <WebsiteEditor eventId="global" eventTitle={username || "Global event website"} onBack={() => selectFeature("website-preview")} onHome={() => selectFeature("dashboard")} onSaved={message => setNotice(message)} />;
     const isForm = active.kind === "form" || activeId.startsWith("add-");
     const isSettings = active.kind === "settings";
     const activeFields = fieldSpecs[active.id] ?? (formFields[active.id] ?? settingsFields).map(label => ({ label }));

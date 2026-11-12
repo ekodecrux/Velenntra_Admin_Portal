@@ -280,7 +280,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const renderFeature = () => {
     if (active.id === "employee-directory") return renderEmployeeDirectory();
     if (active.id === "all-events") return renderAllEvents();
-    if (active.id === "website-editor") return <WebsiteEditor eventId={websiteEditEvent?.id ?? "global"} eventTitle={websiteEditEvent?.title ?? "Global event website"} onBack={() => selectFeature("all-events")} onSaved={message => setNotice(message)} />;
+    if (active.id === "website-editor") return <WebsiteEditor eventId={websiteEditEvent?.id ?? "global"} eventTitle={websiteEditEvent?.title ?? "Global event website"} onBack={() => selectFeature("all-events")} onHome={() => selectFeature("dashboard")} onSaved={message => setNotice(message)} />;
     const isForm = active.kind === "form";
     const isSettings = active.kind === "settings";
     const activeTitle = active.id === "add-employee" && editingEmployee ? "Edit Employee" : active.id === "create-event" && editingEvent ? "Edit Event" : active.label;

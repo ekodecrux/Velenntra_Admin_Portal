@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Check, Code2, Copy, Eye, EyeOff, ImagePlus, Pencil, Plus, Trash2, Type, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, Check, Code2, Copy, Eye, EyeOff, ImagePlus, Pencil, Plus, Trash2, Type, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 const editorFields = [
@@ -25,6 +25,7 @@ type Props = {
   eventId: string;
   eventTitle: string;
   onBack: () => void;
+  onHome?: () => void;
   onSaved?: (message: string) => void;
 };
 
@@ -72,7 +73,7 @@ function fieldType(field: string) {
   return "text";
 }
 
-export default function WebsiteEditor({ eventId, eventTitle, onBack, onSaved }: Props) {
+export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onSaved }: Props) {
   const [values, setValues] = useState<Record<string, string>>(() => initialValues(eventId));
   const [sections, setSections] = useState<WebsiteSection[]>(() => initialSections(eventId));
   const [sectionContent, setSectionContent] = useState<Record<string, SectionContent>>(() => initialSectionContent(eventId));
@@ -143,7 +144,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onSaved }: 
   };
 
   return <>
-    <div className="employee-page-heading employee-editor-heading"><div><span className="employee-eyebrow"><span /> Website Configuration</span><h1>{eventTitle}</h1><p>Configure the event website section by section. Changes are available to both Admin and Employee preview access.</p></div><button className="employee-secondary-button" type="button" onClick={onBack}><X size={16} /> Close configuration</button></div>
+    <div className="employee-page-heading employee-editor-heading"><div><span className="employee-eyebrow"><span /> Website Configuration</span><h1>{eventTitle}</h1><p>Configure the event website section by section. Changes are available to both Admin and Employee preview access.</p></div><div className="website-editor-heading-actions">{onHome ? <button className="employee-secondary-button" type="button" onClick={onHome}><ArrowLeft size={16} /> Go to Home</button> : null}<button className="employee-secondary-button" type="button" onClick={onBack}><X size={16} /> Close configuration</button></div></div>
     <form className="website-editor-split" onSubmit={save}>
       <section className="website-editor-controls">
         <div className="website-editor-panel-heading"><div><span className="employee-eyebrow"><span /> WordPress-style content controls</span><h2>Website sections</h2></div><span className="employee-draft-chip">{sections.length} sections</span></div>
