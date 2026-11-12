@@ -128,7 +128,9 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       const target = clickEvent.target instanceof HTMLElement ? clickEvent.target : null;
       const element = target?.closest("a,button,header,nav,footer,section,article,div") as HTMLElement | null;
       const text = `${element?.innerText ?? ""} ${target?.getAttribute("href") ?? ""}`.toLowerCase();
-      const sectionId = text.includes("testimonial") || text.includes("review") ? (text.includes("video") || text.includes("youtube") ? "video-testimonials" : "testimonials") : text.includes("speaker") || text.includes("committee") ? "speakers" : text.includes("contact") || element?.closest("footer") ? "footer" : text.includes("gallery") || text.includes("media") ? "gallery" : element?.closest("nav") ? "header" : target?.tagName === "IMG" ? "logo" : text.includes("register") || text.includes("abstract") || element?.closest("header") ? "header" : "pages";
+      const headerArea = element?.closest(".top-header, .hybrid-text, #mainMenu");
+      const navigationArea = element?.closest("nav, #mainMenu");
+      const sectionId = text.includes("testimonial") || text.includes("review") ? (text.includes("video") || text.includes("youtube") ? "video-testimonials" : "testimonials") : text.includes("speaker") || text.includes("committee") ? "speakers" : text.includes("contact") || element?.closest("footer") ? "footer" : text.includes("gallery") || text.includes("media") ? "gallery" : navigationArea || headerArea ? "header" : target?.tagName === "IMG" ? "logo" : text.includes("register") || text.includes("abstract") ? "hero" : "pages";
       setSelectedId(sectionId);
       onSectionSelected?.(sectionId);
     });
