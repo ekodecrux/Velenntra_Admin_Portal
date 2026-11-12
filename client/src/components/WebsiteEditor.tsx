@@ -1,5 +1,5 @@
 import { Check, X } from "lucide-react";
-import { useState, type FormEvent, type SyntheticEvent } from "react";
+import { useEffect, useState, type FormEvent, type SyntheticEvent } from "react";
 
 const defaultSections = [
   { id: "logo", name: "Logo & Branding", summary: "Logo, favicon, brand name", status: "Published" },
@@ -65,8 +65,22 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   const [content, setContent] = useState<Record<string, SectionContent>>(() => readStorage(contentStorageKey(eventId), {}));
   const [selectedId, setSelectedId] = useState(sections[0]?.id ?? "logo");
   const [editingSection, setEditingSection] = useState<WebsiteSection | null>(null);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const [newSectionType, setNewSectionType] = useState("Video Testimonials");
   const selected = sections.find(section => section.id === selectedId) ?? sections[0];
+
+  useEffect(() => {
+    const handleExternalSectionField = (event: Event) => {
+      const detail = (event as CustomEvent<{ sectionId: string; field?: string }>).detail;
+      const section = sections.find(item => item.id === detail.sectionId);
+      if (!section) return;
+      setSelectedId(section.id);
+      setFocusedField(detail.field ?? null);
+      setEditingSection(section);
+    };
+    window.addEventListener("velentra:edit-section-field", handleExternalSectionField);
+    return () => window.removeEventListener("velentra:edit-section-field", handleExternalSectionField);
+  }, [sections]);
 
   const openEditor = (section: WebsiteSection) => {
     setSelectedId(section.id);
@@ -82,6 +96,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     setContent(current => ({ ...current, [editingSection.id]: nextContent }));
     setSections(current => current.map(section => section.id === editingSection.id ? { ...section, status: nextContent.status || section.status } : section));
     setEditingSection(null);
+    setFocusedField(null);
     onSaved?.(`${editingSection.name} updated for ${eventTitle}.`);
   };
 
@@ -118,6 +133,6 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   return <>
     <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div></section>
 
-    {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website section</span><h2>{editingSection.name}</h2><p>Update the real content fields for this section.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => setEditingSection(null)}><X size={18} /></button></div><div className="website-edit-modal-fields">{popupFields(editingSection).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => setEditingSection(null)}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
+    {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website section</span><h2>{editingSection.name}</h2><p>Update the real content fields for this section.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => { setEditingSection(null); setFocusedField(null); }}><X size={18} /></button></div><div className="website-edit-modal-fields">{popupFields(editingSection).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} autoFocus={focusedField === field.name} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => { setEditingSection(null); setFocusedField(null); }}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
   </>;
 }

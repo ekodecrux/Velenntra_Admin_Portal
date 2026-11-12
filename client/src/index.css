@@ -877,3 +877,6 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .website-config-selected-details span { display: block; color: #8b6d58; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .website-config-selected-details strong { display: block; padding: 6px 0 8px; color: #234b5e; font-size: 13px; }
 .website-config-selected-details ul { margin: 0; padding-left: 17px; color: #63808b; font-size: 11px; line-height: 1.8; }
+
+.website-config-selected-details li button { padding: 0; border: 0; background: transparent; color: #63808b; font: inherit; text-align: left; cursor: pointer; }
+.website-config-selected-details li button:hover { color: #1f6077; text-decoration: underline; }
