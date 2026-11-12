@@ -43,6 +43,7 @@
 - [x] Recreate Coordinator Email Search as a dedicated page with the blue search panel, Email Address field, Search Email action, scope text, and Search Tables pills: abstracts, clients, contact, downloadbrochure, editorialboard, email_messages, follow_up, forms_submission, registration, and registration_users.
 - [x] Keep the Employee-only portal layout faithful to the original by removing Velentra-specific explanatory copy, breadcrumbs, extra Dashboard buttons, generic New record/Draft labels, and non-original dashboard section wording while preserving the original header.
 - [x] Preserve the original Employee header: sidebar logo area plus right-side account dropdown with username, Settings, and Logout options; do not hide the header.
+- [x] Rebuild the Employee shell from the original DOM geometry: 80px full-width header, 250px sidebar below the header, main content beginning at the sidebar edge, original active-row treatment, and original dashboard card proportions.
 - [x] Preserve the Employee visual language while changing dashboard metrics, menu groups, workflow cards, and forms to match each role's responsibilities.
 
 ## Employee coordinator dashboard

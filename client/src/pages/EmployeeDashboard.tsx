@@ -344,14 +344,14 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
         <StatCard label="Unsubscribe Emails" value="400" actionLabel="View Records" icon={Mail} tone="blue" action={() => selectFeature("unsubscribe-emails")} />
       </div>
       <section className="employee-dashboard-section">
-        <div className="employee-section-heading"><div><h2>Registrations</h2></div><button className="employee-link-button" type="button" onClick={() => selectFeature("registrations")}>Open registrations <ArrowUpRight size={15} /></button></div>
+        <div className="employee-section-heading"><div><h2>Registrations</h2></div></div>
         <div className="employee-registration-grid">
           <StatCard label="Success registrations" value="0" actionLabel="View Details" icon={Check} tone="green" action={() => selectFeature("registrations")} />
           <StatCard label="Pending registrations" value="0" actionLabel="View Details" icon={ClipboardList} tone="red" action={() => selectFeature("registrations")} />
         </div>
       </section>
       <section className="employee-dashboard-section">
-        <div className="employee-section-heading"><div><h2>Editorial Board</h2></div><button className="employee-link-button" type="button" onClick={() => selectFeature("boardmembers")}>View all members <ArrowUpRight size={15} /></button></div>
+        <div className="employee-section-heading"><div><h2>Editorial Board</h2></div></div>
         <div className="employee-mini-grid">
           {["Organizing Committee", "Keynote Speakers", "Renowned Speakers", "Poster Presenters", "Invited Speakers", "Representatives"].map(label => <button key={label} type="button" className="employee-mini-card" onClick={() => selectFeature(allFeatures.find(feature => feature.label === label)?.id ?? "boardmembers")}><UsersRound size={17} /><span><strong>0</strong><small>{label}</small></span><ChevronRight size={15} /></button>)}
         </div>
@@ -399,13 +399,13 @@ export default function EmployeeDashboard({ onBack, username }: { onBack: () => 
 
   return (
     <div className="employee-app-shell">
+      <header className="employee-topbar"><a className="employee-header-logo" href="#dashboard" onClick={event => { event.preventDefault(); selectFeature("dashboard"); }}><img src="/v-logo1.webp" alt="Velentra Group" /></a><button className="employee-mobile-menu" type="button" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={19} /></button><div className="employee-header-spacer" /><div className="employee-original-account"><button type="button" aria-label="Open account menu" onClick={() => setOpenProfile(value => !value)}><UserRound size={16} /><ChevronDown size={13} /></button>{openProfile ? <div className="employee-account-menu"><button type="button" onClick={() => setNotice(username)}><UserRound size={14} />{username}</button><button type="button" onClick={() => setNotice("Settings") }><Settings2 size={14} />Settings</button><button type="button" onClick={onBack}><LogOut size={14} />Logout</button></div> : null}</div></header>
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
-        <div className="employee-sidebar-brand"><img className="employee-sidebar-logo" src="/v-logo1.webp" alt="Velentra Group" /><button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button></div>
+        <button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button>
         <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nestedFeature.id)}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>
       </aside>
       {mobileNav ? <button className="employee-nav-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNav(false)} /> : null}
       <main className="employee-main">
-        <header className="employee-topbar"><button className="employee-mobile-menu" type="button" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu size={19} /></button><div className="employee-header-spacer" /><div className="employee-original-account"><button type="button" aria-label="Open account menu" onClick={() => setOpenProfile(value => !value)}><UserRound size={16} /><ChevronDown size={13} /></button>{openProfile ? <div className="employee-account-menu"><button type="button" onClick={() => setNotice(username)}><UserRound size={14} />{username}</button><button type="button" onClick={() => setNotice("Settings") }><Settings2 size={14} />Settings</button><button type="button" onClick={onBack}><LogOut size={14} />Logout</button></div> : null}</div></header>
         <div className="employee-content">{activeId === "dashboard" ? renderDashboard() : renderFeature()}</div>
       </main>
     </div>
