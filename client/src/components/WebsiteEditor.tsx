@@ -17,7 +17,7 @@ const defaultSections = [
 type WebsiteSection = typeof defaultSections[number];
 type SectionContent = Record<string, string> & { status?: string };
 
-type PopupField = { name: string; label: string; type?: "text" | "url" | "date" | "color"; placeholder?: string; wide?: boolean };
+type PopupField = { name: string; label: string; type?: "text" | "url" | "date" | "color" | "file"; placeholder?: string; wide?: boolean };
 
 function basePopupFields(section: WebsiteSection): PopupField[] {
   switch (section.id) {
@@ -44,6 +44,42 @@ function popupFields(section: WebsiteSection): PopupField[] {
     { name: "sectionBackgroundColor", label: "Background color", type: "color" },
     { name: "spacing", label: "Spacing and padding", placeholder: "16px 24px" },
   ];
+}
+
+function scopedPopupFields(section: WebsiteSection, targetField: string | null): PopupField[] {
+  if (section.id === "header" && targetField === "Logo image") return [
+    { name: "logoUrl", label: "Logo image URL", type: "url", placeholder: "/event-site/uploads/logo/current-logo.png" },
+    { name: "logoUpload", label: "Upload replacement logo", type: "file" },
+    { name: "logoAlt", label: "Logo alt text", placeholder: "Conference logo" },
+  ];
+  if (section.id === "header" && targetField === "Left header content") return [
+    { name: "leftContent", label: "Selected text", placeholder: "Existing header text", wide: true },
+    { name: "fontFamily", label: "Font family", placeholder: "Open Sans, Arial, sans-serif" },
+    { name: "fontSize", label: "Font size", placeholder: "16px" },
+    { name: "fontColor", label: "Text color", type: "color" },
+    { name: "fontWeight", label: "Font weight", placeholder: "400 / 600 / 700" },
+    { name: "sectionBackgroundColor", label: "Background color", type: "color" },
+    { name: "spacing", label: "Spacing and padding", placeholder: "16px 24px" },
+  ];
+  if (section.id === "header" && targetField === "Right header content") return [
+    { name: "rightContent", label: "Selected text", placeholder: "Existing contact content", wide: true },
+    { name: "fontFamily", label: "Font family", placeholder: "Open Sans, Arial, sans-serif" },
+    { name: "fontSize", label: "Font size", placeholder: "16px" },
+    { name: "fontColor", label: "Text color", type: "color" },
+    { name: "fontWeight", label: "Font weight", placeholder: "400 / 600 / 700" },
+    { name: "sectionBackgroundColor", label: "Background color", type: "color" },
+    { name: "spacing", label: "Spacing and padding", placeholder: "16px 24px" },
+  ];
+  if (section.id === "header" && targetField === "Top header text") return [
+    { name: "topText", label: "Selected text", placeholder: "Existing announcement", wide: true },
+    { name: "fontFamily", label: "Font family", placeholder: "Open Sans, Arial, sans-serif" },
+    { name: "fontSize", label: "Font size", placeholder: "16px" },
+    { name: "fontColor", label: "Text color", type: "color" },
+    { name: "fontWeight", label: "Font weight", placeholder: "400 / 600 / 700" },
+    { name: "sectionBackgroundColor", label: "Background color", type: "color" },
+    { name: "spacing", label: "Spacing and padding", placeholder: "16px 24px" },
+  ];
+  return popupFields(section);
 }
 
 type Props = {
@@ -80,6 +116,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   const [content, setContent] = useState<Record<string, SectionContent>>(() => readStorage(contentStorageKey(eventId), {}));
   const [selectedId, setSelectedId] = useState(sections[0]?.id ?? "logo");
   const [editingSection, setEditingSection] = useState<WebsiteSection | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [newSectionType, setNewSectionType] = useState("Video Testimonials");
   const selected = sections.find(section => section.id === selectedId) ?? sections[0];
@@ -90,7 +127,9 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
       const section = sections.find(item => item.id === detail.sectionId);
       if (!section) return;
       setSelectedId(section.id);
-      const fieldName = popupFields(section).find(field => field.label === detail.field)?.name ?? null;
+      const fieldAliases: Record<string, string> = { "Logo image": "logoUrl", "Left header content": "leftContent", "Right header content": "rightContent", "Top header text": "topText" };
+      const fieldName = fieldAliases[detail.field ?? ""] ?? scopedPopupFields(section, detail.field ?? null).find(field => field.label === detail.field)?.name ?? null;
+      setEditingField(detail.field ?? null);
       setFocusedField(fieldName);
       if (fieldName && detail.existingText) setContent(current => { const next: SectionContent = { ...(current[section.id] ?? {}), [fieldName]: detail.existingText as string }; return { ...current, [section.id]: next }; });
       setEditingSection(section);
@@ -101,6 +140,7 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
 
   const openEditor = (section: WebsiteSection) => {
     setSelectedId(section.id);
+    setEditingField(null);
     setEditingSection(section);
   };
 
@@ -109,10 +149,11 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
     if (!editingSection) return;
     const values = new FormData(event.currentTarget);
     const nextContent: SectionContent = { status: String(values.get("status") || "Draft") };
-    popupFields(editingSection).forEach(field => { nextContent[field.name] = String(values.get(field.name) || ""); });
+    scopedPopupFields(editingSection, editingField).forEach(field => { if (field.type !== "file") nextContent[field.name] = String(values.get(field.name) || ""); });
     setContent(current => ({ ...current, [editingSection.id]: nextContent }));
     setSections(current => current.map(section => section.id === editingSection.id ? { ...section, status: nextContent.status || section.status } : section));
     setEditingSection(null);
+    setEditingField(null);
     setFocusedField(null);
     onSaved?.(`${editingSection.name} updated for ${eventTitle}.`);
   };
@@ -198,6 +239,6 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   return <>
     <section className="website-config-full-preview"><div className="website-config-iframe-wrap"><iframe title={`${eventTitle} complete website`} src={`/event-site/index.html?event=${eventId}`} onLoad={handlePreviewLoad} /></div></section>
 
-    {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website section</span><h2>{editingSection.name}</h2><p>Update the real content fields for this section.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => { setEditingSection(null); setFocusedField(null); }}><X size={18} /></button></div><div className="website-edit-modal-fields">{popupFields(editingSection).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} autoFocus={focusedField === field.name} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => { setEditingSection(null); setFocusedField(null); }}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
+    {editingSection ? <div className="website-edit-modal-backdrop" role="presentation"><form className="website-edit-modal" onSubmit={saveSection}><div className="website-edit-modal-header"><div><span className="employee-eyebrow"><span /> Edit website element</span><h2>{editingField ?? editingSection.name}</h2><p>Update this selected element using its existing content and design controls.</p></div><button type="button" className="employee-icon-action" aria-label="Close editor" onClick={() => { setEditingSection(null); setEditingField(null); setFocusedField(null); }}><X size={18} /></button></div>{editingSection.id === "header" && editingField === "Logo image" && selectedContent.logoUrl ? <div className="website-logo-edit-preview"><span>Existing logo</span><img src={selectedContent.logoUrl} alt="Existing website logo" /></div> : null}<div className="website-edit-modal-fields">{scopedPopupFields(editingSection, editingField).map(field => <label className={field.wide ? "website-edit-modal-wide" : ""} key={field.name}><span>{field.label}</span>{field.name === "body" || field.name === "quote" || field.name === "navigation" || field.name === "imageUrls" || field.name === "captions" || field.name === "socialLinks" || field.name === "seoDescription" ? <textarea name={field.name} rows={4} defaultValue={selectedContent[field.name] ?? ""} placeholder={field.placeholder} /> : <input name={field.name} type={field.type ?? "text"} defaultValue={field.type === "file" ? undefined : (selectedContent[field.name] ?? "")} placeholder={field.placeholder} autoFocus={focusedField === field.name} accept={field.type === "file" ? "image/*" : undefined} />}</label>)}<label><span>Section status</span><select name="status" defaultValue={selectedContent.status ?? editingSection.status}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="website-edit-modal-actions"><button type="button" className="employee-secondary-button" onClick={() => { setEditingSection(null); setEditingField(null); setFocusedField(null); }}>Cancel</button><button type="submit" className="employee-primary-button"><Check size={16} /> Save section</button></div></form></div> : null}
   </>;
 }

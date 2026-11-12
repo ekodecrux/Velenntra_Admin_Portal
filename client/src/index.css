@@ -880,3 +880,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 
 .website-config-selected-details li button { padding: 0; border: 0; background: transparent; color: #63808b; font: inherit; text-align: left; cursor: pointer; }
 .website-config-selected-details li button:hover { color: #1f6077; text-decoration: underline; }
+
+.website-logo-edit-preview { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; padding: 12px; border: 1px solid #dce7ea; border-radius: 10px; background: #f7fbfc; }
+.website-logo-edit-preview span { color: #58717b; font-size: 12px; font-weight: 700; }
+.website-logo-edit-preview img { display: block; max-width: 220px; max-height: 74px; object-fit: contain; background: #fff; border: 1px solid #e2eaec; border-radius: 6px; padding: 5px; }
