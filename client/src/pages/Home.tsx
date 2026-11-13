@@ -68,7 +68,7 @@ function readEmployeeUsernames() {
 
 function BrandMark() {
   return (
-    <img className="brand-logo-image" src="/login-card-logo.png" alt="Velentra Group" />
+    <img className="brand-logo-image" src="/velentra-logo-transparent.png" alt="Velentra Group" />
   );
 }
 

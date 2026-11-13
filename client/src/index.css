@@ -1461,3 +1461,44 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .auth-content { left: 61.2vw; top: 18.8vh; width: 34.7vw; height: 59vh; }
   .auth-footer { left: 61.2vw; top: 72.2vh; width: 34.7vw; }
 }
+
+/* Final visual refinement: cleaner split background, transparent logos, larger readable fields. */
+.velentra-shell { background: linear-gradient(110deg, #edf7ff 0%, #f9fcff 48%, #e5f1ff 100%); }
+.velentra-shell::before { left: -12%; top: -20%; width: 57%; height: 118%; border-radius: 0 48% 48% 0; background: linear-gradient(145deg, #063b8c 0%, #075bb8 58%, #0b91d1 100%); opacity: 1; transform: rotate(-2deg); box-shadow: 18px 0 55px rgba(13,86,165,.16); }
+.velentra-shell::after { right: -13%; bottom: -36%; width: 66%; height: 38%; border-radius: 58% 0 0 0; background: linear-gradient(160deg, transparent 0 31%, #11a55d 31.5% 35%, #fff 35.5% 42%, #0a68c7 42.5% 64%, #063e92 64.5%); transform: rotate(-3deg); }
+.conference-top-brand { left: 4%; right: 50%; top: 2%; height: 10%; padding: 0; background: transparent; box-shadow: none; }
+.conference-top-brand img { width: clamp(190px, 20vw, 280px); height: 100%; object-fit: contain; object-position: left center; mix-blend-mode: normal; }
+.conference-top-brand span { position: absolute; left: 112%; top: 22%; padding: 0; color: #0a559e; font-size: clamp(9px, 1vw, 15px); }
+.conference-hero-copy { left: 6%; top: 23%; width: 41%; padding: 2.8% 3%; border: 1px solid rgba(255,255,255,.24); border-radius: 24px; background: rgba(255,255,255,.11); box-shadow: 0 22px 55px rgba(4,43,102,.18); backdrop-filter: blur(5px); color: #fff; }
+.conference-overline { color: #dff2ff; font-size: clamp(15px, 1.6vw, 26px); }
+.conference-hero-copy h1 { font-size: clamp(38px, 4.15vw, 70px); color: #fff; }
+.conference-motto { font-size: clamp(15px, 1.8vw, 29px); color: #fff; }
+.conference-motto i { background: #39d483; }
+.conference-hero-copy > p:last-child { font-size: clamp(12px, 1.3vw, 21px); color: #e7f5ff; }
+.conference-feature-copy { left: 4%; right: 52%; bottom: 8%; min-height: 7%; border-radius: 14px; background: rgba(255,255,255,.96); }
+.auth-content { left: 60.5vw; top: 16.5vh; width: 36.5vw; height: 61.5vh; padding: 2.2% 2.4%; border-radius: 26px; }
+.login-card-brand { height: 19%; }
+.login-card-brand .brand-logo-image { width: 70%; height: 100%; }
+.login-card-title { height: 14%; margin-top: 2.5%; font-size: clamp(14px, 1.4vw, 23px); }
+.auth-form { margin-top: 4%; }
+.auth-form .field-group { margin-top: 4%; }
+.auth-form .input-shell { min-height: 13%; height: 13%; border-radius: 10px; }
+.auth-form .input-shell input { font-size: clamp(11px, 1.1vw, 17px); }
+.auth-form .remember-me, .auth-form .login-forgot-link { font-size: clamp(10px, .95vw, 15px); }
+.auth-form .signin-button { margin-top: 5%; padding: 3.2% 0; border-radius: 10px; font-size: clamp(15px, 1.4vw, 23px); }
+.auth-footer { left: 60.5vw; top: 74.5vh; width: 36.5vw; font-size: clamp(8px, .8vw, 13px); }
+@media (max-width: 700px) {
+  .conference-top-brand { left: 3%; right: 50%; }
+  .conference-top-brand span { left: 110%; font-size: 6px; }
+  .conference-hero-copy { left: 4%; top: 21%; width: 42%; padding: 3%; }
+  .conference-hero-copy h1 { font-size: 25px; }
+  .conference-motto { font-size: 9px; }
+  .conference-overline { font-size: 9px; }
+  .conference-hero-copy > p:last-child { font-size: 7px; }
+  .conference-feature-copy { left: 3%; right: 48%; }
+  .auth-content { left: 60.5vw; top: 16.5vh; width: 36.5vw; height: 61.5vh; }
+  .auth-footer { left: 60.5vw; top: 74.5vh; width: 36.5vw; }
+}
+
+.conference-top-brand { right: 52%; padding: 0 .8%; background: rgba(255,255,255,.94); border-radius: 0 0 16px 16px; }
+.conference-top-brand img { width: clamp(190px, 20vw, 280px); mix-blend-mode: normal; }
