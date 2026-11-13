@@ -1180,3 +1180,44 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .input-shell { min-height: 50px; }
   .signin-button { min-height: 50px; font-size: 19px; }
 }
+
+/* Device compatibility: scale by both viewport width and height so the whole sign-in form stays visible. */
+.velentra-shell { min-height: 100dvh; height: 100dvh; overflow: hidden; }
+@media (max-width: 900px) {
+  .auth-panel { padding-left: 14px; padding-right: 14px; }
+  .auth-content { width: min(100%, 620px); }
+}
+@media (max-width: 560px) {
+  .auth-panel { padding: 12px 10px 58px; }
+  .auth-content { width: 100%; border-radius: 20px; padding-left: clamp(14px, 5vw, 26px); padding-right: clamp(14px, 5vw, 26px); }
+  .login-card-brand .brand-logo-image { width: min(100%, 360px); }
+  .field-label-row .text-link { font-size: 13px; }
+}
+@media (max-height: 700px) {
+  .auth-panel { padding-top: 6px; padding-bottom: 34px; }
+  .auth-content { padding-top: 8px; padding-bottom: 10px; }
+  .login-card-brand { padding-bottom: 5px; }
+  .login-card-brand .brand-logo-image { height: 46px; }
+  .auth-heading { padding: 4px 0 4px; }
+  .auth-heading h2 { font-size: clamp(28px, 5vw, 36px); }
+  .auth-heading p { margin-top: 2px; font-size: 12px; }
+  .field-group { margin-top: 6px; }
+  .field-group label { margin-bottom: 4px; font-size: 13px; }
+  .input-shell { min-height: 42px; }
+  .input-shell > svg { width: 19px; height: 19px; margin-left: 10px; }
+  .input-shell input { font-size: 14px; }
+  .field-label-row .text-link { font-size: 12px; }
+  .login-options-row { margin-top: 5px; }
+  .remember-me { gap: 6px; font-size: 12px; }
+  .remember-me input { width: 16px; height: 16px; }
+  .signin-button { min-height: 42px; margin-top: 7px; font-size: 17px; }
+  .signin-button svg { width: 20px; height: 20px; }
+  .auth-footer { bottom: 8px; font-size: 11px; }
+}
+@media (max-width: 380px) {
+  .auth-panel { padding-left: 6px; padding-right: 6px; }
+  .auth-content { padding-left: 12px; padding-right: 12px; }
+  .auth-heading h2 { font-size: 27px; }
+  .auth-heading p { font-size: 11px; }
+  .field-label-row .text-link { font-size: 11px; }
+}
