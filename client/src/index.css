@@ -1355,3 +1355,11 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .auth-content { left: 57.6vw; top: 17.6vh; width: 32.75vw; height: 55.6vh; }
   .auth-footer { left: 57.6vw; top: 68.8vh; width: 32.75vw; }
 }
+
+/* Match the artwork's actual white card bounds, including its rounded outer body. */
+.auth-content { left: 61.2vw; top: 17.6vh; width: 34.7vw; height: 55.6vh; }
+.auth-footer { left: 61.2vw; top: 68.8vh; width: 34.7vw; }
+@media (max-width: 700px) {
+  .auth-content { left: 61.2vw; top: 17.6vh; width: 34.7vw; height: 55.6vh; }
+  .auth-footer { left: 61.2vw; top: 68.8vh; width: 34.7vw; }
+}
