@@ -245,9 +245,9 @@ const defaultRows = (feature: Feature): Row[] => [
   { title: `${feature.label} workspace`, status: "Ready", meta: "No records yet", note: "Create the first record to begin" },
 ];
 
-function applyWebsiteConfig(frame: HTMLIFrameElement) {
+function applyWebsiteConfig(eventId: string, frame: HTMLIFrameElement) {
   try {
-    const stored = sessionStorage.getItem("velentra-site-config-global");
+    const stored = sessionStorage.getItem(`velentra-site-config-${eventId}`) ?? localStorage.getItem(`velentra-site-config-${eventId}`) ?? sessionStorage.getItem("velentra-site-config-global") ?? localStorage.getItem("velentra-site-config-global");
     if (!stored || !frame.contentDocument) return;
     const values = JSON.parse(stored) as Record<string, string>;
     const document = frame.contentDocument;
@@ -264,7 +264,7 @@ function getFeature(id: string) {
   return allFeatures.find(feature => feature.id === id) ?? allFeatures[0];
 }
 
-export default function EmployeeDashboard({ onBack, username, initialFeature = "dashboard" }: { onBack: () => void; username: string; initialFeature?: string }) {
+export default function EmployeeDashboard({ onBack, username, eventId = "global", eventTitle, initialFeature = "dashboard" }: { onBack: () => void; username: string; eventId?: string; eventTitle?: string; initialFeature?: string }) {
   const [activeId, setActiveId] = useState(initialFeature);
   const [mobileNav, setMobileNav] = useState(false);
   const [search, setSearch] = useState("");
@@ -356,7 +356,7 @@ export default function EmployeeDashboard({ onBack, username, initialFeature = "
 
   const saveForm = () => {
     if (active.id === "website-editor") {
-      try { sessionStorage.setItem("velentra-site-config-global", JSON.stringify(formValues)); } catch { /* Preview storage can be unavailable. */ }
+      try { const serialized = JSON.stringify(formValues); sessionStorage.setItem(`velentra-site-config-${eventId}`, serialized); localStorage.setItem(`velentra-site-config-${eventId}`, serialized); } catch { /* Preview storage can be unavailable. */ }
       setNotice("Website content, images, logos, and publishing settings saved for Employee and Admin access.");
       return;
     }
@@ -414,8 +414,8 @@ export default function EmployeeDashboard({ onBack, username, initialFeature = "
   );
 
   const renderFeature = () => {
-    if (active.id === "website-preview") return <><div className="employee-page-heading employee-feature-heading"><div><h1>Website Preview</h1><p>Imported conference website template used for event subdomains.</p></div></div><div className="employee-website-standalone-preview"><iframe title="Imported event website preview" src="/event-site/index.html?event=global" onLoad={event => applyWebsiteConfig(event.currentTarget)} /></div></>;
-    if (active.id === "website-editor") return <WebsiteEditor eventId="global" eventTitle={username || "Global event website"} onBack={() => selectFeature("website-preview")} onHome={() => selectFeature("dashboard")} onSectionSelected={setWebsiteSelectedSection} onSaved={message => setNotice(message)} />;
+    if (active.id === "website-preview") return <><div className="employee-page-heading employee-feature-heading"><div><h1>Website Preview</h1><p>{eventTitle || "Imported conference website template used for event subdomains."}</p></div></div><div className="employee-website-standalone-preview"><iframe title="Imported event website preview" src={`/event-site/index.html?event=${eventId}`} onLoad={event => applyWebsiteConfig(eventId, event.currentTarget)} /></div></>;
+    if (active.id === "website-editor") return <WebsiteEditor eventId={eventId} eventTitle={eventTitle || username || "Global event website"} onBack={() => selectFeature("website-preview")} onHome={() => selectFeature("dashboard")} onSectionSelected={setWebsiteSelectedSection} onSaved={message => setNotice(message)} />;
     const isForm = active.kind === "form" || activeId.startsWith("add-");
     const isSettings = active.kind === "settings";
     const activeFields = fieldSpecs[active.id] ?? (formFields[active.id] ?? settingsFields).map(label => ({ label }));

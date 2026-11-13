@@ -139,7 +139,7 @@ const defaultContent: Record<string, SectionContent> = {
 
 function readStorage<T>(key: string, fallback: T): T {
   try {
-    const stored = sessionStorage.getItem(key);
+    const stored = sessionStorage.getItem(key) ?? localStorage.getItem(key);
     return stored ? JSON.parse(stored) as T : fallback;
   } catch {
     return fallback;
@@ -147,7 +147,7 @@ function readStorage<T>(key: string, fallback: T): T {
 }
 
 function writeStorage(key: string, value: unknown) {
-  try { sessionStorage.setItem(key, JSON.stringify(value)); } catch { /* Preview storage can be unavailable. */ }
+  try { const serialized = JSON.stringify(value); sessionStorage.setItem(key, serialized); localStorage.setItem(key, serialized); } catch { /* Preview storage can be unavailable. */ }
 }
 
 function colorInputValue(value: string) {
@@ -175,6 +175,8 @@ export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onS
   const [showSectionEditor, setShowSectionEditor] = useState(false);
   const [newSectionType, setNewSectionType] = useState("Video Testimonials");
   const selected = sections.find(section => section.id === selectedId) ?? sections[0];
+  useEffect(() => { writeStorage(sectionStorageKey(eventId), sections); }, [eventId, sections]);
+  useEffect(() => { writeStorage(contentStorageKey(eventId), content); }, [eventId, content]);
 
   useEffect(() => {
     const handleExternalSectionSelect = (event: Event) => {

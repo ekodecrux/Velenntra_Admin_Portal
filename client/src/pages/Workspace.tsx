@@ -62,6 +62,16 @@ export default function Workspace() {
     if (requestedRole === "admin") return "ADMIN";
     try { return localStorage.getItem("velentra-signed-in-employee") || sessionStorage.getItem("velentra-signed-in-employee") || localStorage.getItem("velentra-global-employee-username") || sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
   })[0];
+  const employeeEvent = useState(() => {
+    if (requestedRole !== "employee") return { id: "global", title: "Global event website" };
+    try {
+      const username = demoUsername;
+      const raw = localStorage.getItem("velentra-admin-events") || sessionStorage.getItem("velentra-admin-events");
+      const events = raw ? JSON.parse(raw) as Array<{ id?: string; title?: string; subdomain?: string }> : [];
+      const match = events.find(event => event.subdomain?.toLowerCase() === username.toLowerCase());
+      return { id: match?.id ?? "global", title: match?.title ?? `${username} event website` };
+    } catch { return { id: "global", title: "Global event website" }; }
+  })[0];
 
   if (loading) {
     return <div className="workspace-state"><div className="button-spinner" /><span>Checking your Velentra session…</span></div>;
@@ -84,7 +94,7 @@ export default function Workspace() {
   }
 
   if (requestedRole === "employee") {
-    return <EmployeeDashboard onBack={handleLogout} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} initialFeature={websiteParams?.role === "employee" ? "website-editor" : "dashboard"} />;
+    return <EmployeeDashboard onBack={handleLogout} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} eventId={employeeEvent.id} eventTitle={employeeEvent.title} initialFeature={websiteParams?.role === "employee" ? "website-editor" : "dashboard"} />;
   }
 
   return <RoleDashboard role="admin" onBack={handleLogout} username={user?.name || user?.email || demoUsername} initialFeature={isWebsiteConfigurationTab ? "website-editor" : "dashboard"} />;

@@ -68,6 +68,7 @@
 - [x] Open Website Configuration in the same authenticated Admin/Employee workspace instead of a new pop-up tab, so the Admin login can always reach the event website editor and its related menu.
 - [x] Make the global Employee login accept every saved event subdomain from the Admin event list—including `expertaid`—with password `123456`, and preserve the exact signed-in subdomain in the Employee header/session.
 - [x] Persist Admin-created events to local and session storage, and accept a valid event-subdomain username such as `expertaid` even when the login page is opened in a different browser tab.
+- [x] Resolve the signed-in Employee to its matching event by subdomain, use that event ID for Website Configuration, persist section edits across tabs, and apply those edits to the matching event website preview.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.
