@@ -6,6 +6,7 @@ export type WorkspaceRole = "employee" | "admin";
 export type WorkspaceHeaderProps = {
   role: WorkspaceRole;
   username: string;
+  headerTitle?: string;
   onHome: () => void;
   onOpenNavigation: () => void;
   onSettings: () => void;
@@ -23,6 +24,7 @@ function formatRole(role: WorkspaceRole) {
 export function WorkspaceHeader({
   role,
   username,
+  headerTitle,
   onHome,
   onOpenNavigation,
   onSettings,
@@ -31,6 +33,7 @@ export function WorkspaceHeader({
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
   const roleLabel = formatRole(role);
+  const headerLabel = headerTitle ?? roleLabel;
 
   useEffect(() => {
     if (!isAccountOpen) {
@@ -85,7 +88,7 @@ export function WorkspaceHeader({
         />
       </button>
 
-      <span className="workspace-header-role">{roleLabel}</span>
+      <span className={`workspace-header-role ${headerTitle ? "workspace-header-role-config" : ""}`}>{headerLabel}</span>
       <div className="workspace-topbar-spacer" aria-hidden="true" />
 
       <div className="workspace-account" ref={accountRef}>

@@ -591,8 +591,9 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   flex: 0 0 194px;
   align-items: center;
   height: 100%;
-  padding: 0;
+  padding: 0 20px 0 0;
   border: 0;
+  border-right: 1px solid #dfe5e8;
   background: #fff;
 }
 .workspace-logo-button img {
@@ -604,6 +605,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   filter: none;
 }
 .workspace-header-role { color: #687a84; font-size: 12px; font-weight: 600; }
+.workspace-header-role-config { color: #1c3d52; font-size: 15px; letter-spacing: .01em; }
 .workspace-topbar-spacer { flex: 1; min-width: 0; }
 .workspace-menu-toggle {
   display: none;
@@ -699,7 +701,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   }
   .workspace-topbar { gap: 12px; padding: 4px 15px; }
   .workspace-menu-toggle { display: inline-flex; flex: 0 0 auto; }
-  .workspace-logo-button { flex-basis: 112px; }
+  .workspace-logo-button { flex-basis: 112px; padding-right: 12px; }
   .workspace-logo-button img { width: 108px; height: 62px; }
   .workspace-header-role, .workspace-account-name { display: none; }
   .workspace-account-toggle { gap: 7px; padding: 8px 4px; }
