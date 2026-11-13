@@ -44,6 +44,7 @@
     if (!carousel || !stage || carousel.dataset.staticControls === 'true') return;
     carousel.dataset.staticControls = 'true';
     let start = 0;
+    let autoplayTimer;
     const show = () => {
       const items = [...stage.children].filter(item => !item.classList.contains('cloned'));
       const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3;
@@ -52,8 +53,14 @@
       stage.querySelectorAll('.owl-item').forEach(item => item.classList.remove('static-visible'));
       items.slice(start, start + count).forEach(item => item.classList.add('static-visible'));
     };
-    carousel.querySelector('.owl-next')?.addEventListener('click', () => { const items = [...stage.children].filter(item => !item.classList.contains('cloned')); const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3; start = items.length > count ? (start + 1) % (items.length - count + 1) : 0; show(); });
-    carousel.querySelector('.owl-prev')?.addEventListener('click', () => { const items = [...stage.children].filter(item => !item.classList.contains('cloned')); const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3; start = items.length > count ? (start - 1 + items.length - count + 1) % (items.length - count + 1) : 0; show(); });
+    const next = () => { const items = [...stage.children].filter(item => !item.classList.contains('cloned')); const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3; start = items.length > count ? (start + 1) % (items.length - count + 1) : 0; show(); };
+    const previous = () => { const items = [...stage.children].filter(item => !item.classList.contains('cloned')); const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3; start = items.length > count ? (start - 1 + items.length - count + 1) % (items.length - count + 1) : 0; show(); };
+    carousel.querySelector('.owl-next')?.addEventListener('click', next);
+    carousel.querySelector('.owl-prev')?.addEventListener('click', previous);
+    const startAutoplay = () => { window.clearInterval(autoplayTimer); autoplayTimer = window.setInterval(next, 3500); };
+    carousel.addEventListener('mouseenter', () => window.clearInterval(autoplayTimer));
+    carousel.addEventListener('mouseleave', startAutoplay);
+    startAutoplay();
     window.addEventListener('resize', show);
     window.velentraShowTestimonials = show;
     show();
