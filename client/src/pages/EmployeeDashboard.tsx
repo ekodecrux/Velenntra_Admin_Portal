@@ -42,7 +42,17 @@ type Row = { title: string; status: string; meta: string; note: string; details?
 type TestimonialRecord = { id: string; name: string; comment: string; image: string; designation: string; status: string; position: string };
 type BrochureRecord = { id: string; serial: number; date: string; name: string; email: string; country: string; phone: string; address: string; href: string; isDownload?: boolean };
 type AbstractRecord = { id: string; name: string; abstractTitle: string; email: string; country: string; phone: string; category: string; trackName: string; address: string; interested: string; organization: string; date: string };
+type SessionRecord = { id: string; serial: number; day: string; date: string; time: string; title: string; venue: string; speaker: string; status: string };
 const readEventRows = <T,>(name: string, eventId: string): T[] => { try { return JSON.parse(localStorage.getItem(`velentra-${name}-${eventId || "global"}`) || sessionStorage.getItem(`velentra-${name}-${eventId || "global"}`) || "[]") as T[]; } catch { return []; } };
+const defaultSessions: SessionRecord[] = [
+  { id: "session-1", serial: 1, day: "Day 1", date: "September 09, 2027", time: "08:00–09:00", title: "Registration", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
+  { id: "session-2", serial: 2, day: "Day 1", date: "September 09, 2027", time: "09:00–09:30", title: "Opening Ceremony and Introduction", venue: "Main Hall", speaker: "Organizing Committee", status: "Published" },
+  { id: "session-3", serial: 3, day: "Day 1", date: "September 09, 2027", time: "09:30–10:30", title: "Keynote Session I", venue: "Main Hall", speaker: "Keynote Speaker", status: "Published" },
+  { id: "session-4", serial: 4, day: "Day 1", date: "September 09, 2027", time: "13:30–15:00", title: "Break Out Session I", venue: "Room A", speaker: "Session Speakers", status: "Published" },
+  { id: "session-5", serial: 5, day: "Day 2", date: "September 10, 2027", time: "09:00–10:30", title: "Keynote Session III", venue: "Main Hall", speaker: "Keynote Speaker", status: "Published" },
+  { id: "session-6", serial: 6, day: "Day 2", date: "September 10, 2027", time: "13:30–15:00", title: "Poster Presentations", venue: "Exhibition Hall", speaker: "Poster Presenters", status: "Published" },
+  { id: "session-7", serial: 7, day: "Day 3", date: "September 11, 2027", time: "09:00–10:30", title: "Closing Keynote and Future Directions", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
+];
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
   { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
@@ -306,6 +316,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   });
   const [abstractSearch, setAbstractSearch] = useState("");
   const [abstractSubmissionUrl, setAbstractSubmissionUrl] = useState("");
+  const [sessionRows, setSessionRows] = useState<SessionRecord[]>(() => { const stored = readEventRows<SessionRecord>("conference-sessions", eventId); return stored.length ? stored : defaultSessions; });
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
@@ -345,9 +357,12 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   useEffect(() => {
     try { const serialized = JSON.stringify(abstractRows); localStorage.setItem(abstractStorageKey(eventId), serialized); sessionStorage.setItem(abstractStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ }
   }, [eventId, abstractRows]);
+  useEffect(() => { try { const serialized = JSON.stringify(sessionRows); localStorage.setItem(`velentra-conference-sessions-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-conference-sessions-${eventId || "global"}`, serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, sessionRows]);
   useEffect(() => {
     const syncEventRecords = () => {
       setAbstractRows(readEventRows<AbstractRecord>("abstracts", eventId));
+      const storedSessions = readEventRows<SessionRecord>("conference-sessions", eventId);
+      if (storedSessions.length) setSessionRows(storedSessions);
       const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
       setBrochureRows(current => [...downloads, ...current.filter(row => !row.isDownload)]);
     };
@@ -442,6 +457,13 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
   const saveForm = () => {
+    if (active.id === "add-session") {
+      const record: SessionRecord = { id: editingSessionId ?? `session-${Date.now()}`, serial: editingSessionId ? (sessionRows.find(item => item.id === editingSessionId)?.serial ?? sessionRows.length + 1) : sessionRows.length + 1, day: formValues.Day ?? "Day 1", date: formValues.Date ?? "", time: formValues.Time ?? "", title: formValues.Title ?? "", venue: formValues.Venue ?? "", speaker: formValues.Speaker ?? "", status: formValues.Status ?? "Draft" };
+      setSessionRows(current => editingSessionId ? current.map(item => item.id === editingSessionId ? record : item) : [...current, record]);
+      setNotice(`Session ${editingSessionId ? "updated" : "added"} for ${eventTitle || "this event"}.`);
+      setEditingSessionId(null); setFormValues({}); selectFeature("conference-sessions");
+      return;
+    }
     if (active.id === "add-testimonial") {
       const record: TestimonialRecord = { id: editingTestimonialId ?? `testimonial-${Date.now()}`, name: formValues.Name ?? "", comment: formValues.Comment ?? "", image: formValues.Image ?? "", designation: formValues.Designation ?? "", status: formValues.Status ?? "Active", position: formValues.Position ?? String(testimonialRows.length + 1) };
       setTestimonialRows(current => editingTestimonialId ? current.map(item => item.id === editingTestimonialId ? record : item) : [record, ...current]);
@@ -552,6 +574,13 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         <div className="employee-page-heading employee-feature-heading"><div><h1>{editingTestimonialId ? "Edit Testimonial" : "Add Testimonial"}</h1></div></div>
         <section className="employee-form-card employee-testimonial-form"><div className="employee-form-card-heading"><div><h2>Testimonial</h2></div></div><div className="employee-form-grid"><label><span>Name</span><input value={formValues.Name ?? ""} onChange={event => setValue("Name", event.target.value)} /></label><label><span>Image</span><input type="file" accept="image/*" onChange={event => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => setValue("Image", String(reader.result ?? "")); reader.readAsDataURL(file); }} />{formValues.Image ? <img className="employee-testimonial-form-preview" src={formValues.Image} alt="Current testimonial" /> : null}</label><label><span>Designation</span><input value={formValues.Designation ?? ""} onChange={event => setValue("Designation", event.target.value)} /></label><label className="employee-form-wide"><span>Comment</span><textarea rows={7} value={formValues.Comment ?? ""} onChange={event => setValue("Comment", event.target.value)} /></label><label><span>Status</span><select value={formValues.Status ?? "Active"} onChange={event => setValue("Status", event.target.value)}><option>Active</option><option>Inactive</option></select></label><label><span>Display order / position</span><select value={formValues.Position ?? String(testimonialRows.length + 1)} onChange={event => setValue("Position", event.target.value)}>{testimonialPositionOptions.map(option => <option key={option} value={option}>{/^\d+$/.test(option) ? `Position ${option}` : option}</option>)}</select></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingTestimonialId(null); setFormValues({}); selectFeature("testimonials-list"); }}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {editingTestimonialId ? "Update" : "Add"}</button></div></section>
       </>;
+    }
+    if (active.id === "conference-sessions") {
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>Conference Sessions</h1><p>{eventTitle || "Selected event website schedule"}</p></div></div>{notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}</div> : null}<section className="employee-table-card employee-sessions-card"><div className="employee-table-controls"><strong>Sessions List</strong><span>{sessionRows.length} sessions on the event website</span><button className="employee-primary-button" type="button" onClick={() => { setEditingSessionId(null); setFormValues({ Day: "Day 1", Status: "Draft" }); selectFeature("add-session"); }}><Plus size={15} /> Add Session</button></div><div className="employee-table-wrap"><table><thead><tr><th>S.No</th><th>Day / Date</th><th>Time</th><th>Session Title</th><th>Venue</th><th>Speaker</th><th>Status</th><th>Action</th></tr></thead><tbody>{sessionRows.map(row => <tr key={row.id}><td>{row.serial}</td><td>{row.day}<br /><small>{row.date}</small></td><td>{row.time}</td><td><strong>{row.title}</strong></td><td>{row.venue}</td><td>{row.speaker}</td><td><span className="employee-status-pill">{row.status}</span></td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingSessionId(row.id); setFormValues({ Day: row.day, Date: row.date, Time: row.time, Title: row.title, Venue: row.venue, Speaker: row.speaker, Status: row.status }); selectFeature("add-session"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete ${row.title}`} onClick={() => { if (window.confirm(`Delete session ${row.title}?`)) { setSessionRows(current => current.filter(item => item.id !== row.id)); setNotice("Session deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table></div></section></>;
+    }
+    if (active.id === "add-session") {
+      const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>{editingSessionId ? "Edit Conference Session" : "Add Conference Session"}</h1><p>Changes synchronize to the selected event website schedule.</p></div></div><section className="employee-form-card"><div className="employee-form-grid"><label><span>Day</span><select value={formValues.Day ?? "Day 1"} onChange={event => setValue("Day", event.target.value)}><option>Day 1</option><option>Day 2</option><option>Day 3</option></select></label><label><span>Date</span><input value={formValues.Date ?? ""} onChange={event => setValue("Date", event.target.value)} placeholder="September 09, 2027" /></label><label><span>Time</span><input value={formValues.Time ?? ""} onChange={event => setValue("Time", event.target.value)} placeholder="09:00–10:30" /></label><label><span>Session title</span><input value={formValues.Title ?? ""} onChange={event => setValue("Title", event.target.value)} /></label><label><span>Venue / room</span><input value={formValues.Venue ?? ""} onChange={event => setValue("Venue", event.target.value)} /></label><label><span>Speaker</span><input value={formValues.Speaker ?? ""} onChange={event => setValue("Speaker", event.target.value)} /></label><label><span>Status</span><select value={formValues.Status ?? "Draft"} onChange={event => setValue("Status", event.target.value)}><option>Draft</option><option>Published</option><option>Hidden</option></select></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingSessionId(null); selectFeature("conference-sessions"); }}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {editingSessionId ? "Update Session" : "Add Session"}</button></div></section></>;
     }
     if (active.id === "website-preview") return <><div className="employee-page-heading employee-feature-heading"><div><h1>Website Preview</h1><p>{eventTitle || "Imported conference website template used for event subdomains."}</p></div></div><div className="employee-website-standalone-preview"><iframe title="Imported event website preview" src={`/event-site/index.html?event=${eventId}`} onLoad={event => applyWebsiteConfig(eventId, event.currentTarget)} /></div></>;
     if (active.id === "website-editor") return <WebsiteEditor eventId={eventId} eventTitle={eventTitle || username || "Global event website"} onBack={() => selectFeature("website-preview")} onHome={() => selectFeature("dashboard")} onSectionSelected={setWebsiteSelectedSection} onSaved={message => setNotice(message)} />;

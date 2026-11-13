@@ -38,6 +38,16 @@
       if (values.accentColor && flashBar) flashBar.style.backgroundColor = values.accentColor;
       const footerAddress = document.querySelector('.footer-address, footer address, footer .address');
       if (values.footerAddress && footerAddress) footerAddress.innerHTML = values.footerAddress;
+      const sessionsRaw = sessionStorage.getItem(`velentra-conference-sessions-${eventId}`) || localStorage.getItem(`velentra-conference-sessions-${eventId}`);
+      const sessions = sessionsRaw ? JSON.parse(sessionsRaw).filter(item => item.status !== 'Hidden') : [];
+      const schedule = document.querySelector('#schedule');
+      const scheduleTabs = schedule?.querySelector('.tabs-content');
+      if (schedule && scheduleTabs && sessions.length) {
+        const groups = [...new Set(sessions.map(item => `${item.day || 'Day 1'}|${item.date || ''}`))];
+        const navigation = schedule.querySelector('.tabs-navigation');
+        if (navigation) { navigation.innerHTML = groups.map((group, index) => { const [day, date] = group.split('|'); return `<li class="${index === 0 ? 'active' : ''}"><a href="#velentra-event-${index + 1}">${day}<br><span>${date}</span></a></li>`; }).join(''); }
+        scheduleTabs.innerHTML = groups.map((group, index) => { const [day] = group.split('|'); const rows = sessions.filter(item => `${item.day || 'Day 1'}|${item.date || ''}` === group); return `<div class="tab-pane ${index === 0 ? 'active' : ''}" id="velentra-event-${index + 1}">${rows.map(item => `<div class="row schedule-item"><div class="col-md-3 col-sm-6 col-xs-12"><div>${item.time || ''}</div></div><div class="col-md-9 col-sm-6 col-xs-12"><h4>${item.title || ''}</h4><small>${item.venue || ''}${item.speaker ? ` · ${item.speaker}` : ''}</small></div></div>`).join('')}</div>`; }).join('');
+      }
       const testimonialsRaw = sessionStorage.getItem(`velentra-testimonials-${eventId}`) || localStorage.getItem(`velentra-testimonials-${eventId}`);
       const testimonials = testimonialsRaw ? JSON.parse(testimonialsRaw).filter(item => item.status === 'Active' && item.position !== 'Hidden').sort((a, b) => { const rank = value => value === 'First' ? -1 : value === 'Middle' ? 500 : value === 'Last' ? 999 : Number(value) || 0; return rank(a.position) - rank(b.position); }) : [];
       const testimonialStage = document.querySelector('.testimonial .owl-stage');
@@ -60,5 +70,5 @@
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
-  window.addEventListener('storage', event => { if (event.key && event.key.includes('velentra-testimonials-')) apply(); });
+  window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-'))) apply(); });
 })();
