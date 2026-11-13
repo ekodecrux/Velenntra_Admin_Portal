@@ -1301,3 +1301,57 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .auth-form .input-shell input { font-size: clamp(7px, 2.4vw, 12px); }
   .auth-form .remember-me, .auth-form .remember-me input { width: 15px; height: 15px; }
 }
+
+/* Genuine readable card over the exact supplied conference background. */
+.velentra-shell { background: #edf6ff url('/login-exact-reference.png') center / 100% 100% no-repeat; }
+.auth-panel { position: absolute; inset: 0; display: block; padding: 0; background: transparent; }
+.auth-content { position: absolute; inset: auto; left: 57.6%; top: 17.6%; width: 32.75%; height: 55.6%; min-width: 0; min-height: 0; max-width: none; max-height: none; overflow: hidden; padding: 2% 2%; border: 1px solid #82b7ef; border-radius: 18px; background: #fff; box-shadow: 0 14px 28px rgba(15, 75, 151, .18); }
+.login-card-brand, .session-banner { display: flex; }
+.login-card-brand { height: 20%; padding: 0 0 2%; border-bottom: 1px solid #d4dce8; }
+.login-card-brand .brand-logo-image { width: min(100%, 255px); height: 100%; object-position: center; }
+.login-card-title { display: flex; align-items: center; justify-content: center; gap: 12px; height: 13%; margin-top: 2%; border-radius: 9px; color: #fff; background: #074ea6; font-size: clamp(15px, 1.6vw, 29px); font-weight: 750; }
+.login-card-title svg { flex: 0 0 auto; }
+.auth-heading, .auth-trust-row { display: none; }
+.auth-form { position: static; width: 100%; height: auto; margin: 3% 0 0; transform: none; }
+.auth-form .section-heading-form { display: none; }
+.auth-form .field-group { position: static; width: 100%; margin-top: 3%; }
+.auth-form .field-group > label, .auth-form .field-label-row { display: none; }
+.auth-form .input-shell { min-height: 11%; height: 11%; border: 1px solid #b9c8de; border-radius: 9px; background: #fff; box-shadow: none; }
+.auth-form .input-shell > svg { display: block; width: 5%; height: auto; margin-left: 4%; color: #1263c2; }
+.auth-form .input-shell input { height: 100%; padding: 0 3%; color: #4e6381; font-size: clamp(9px, 1.2vw, 19px); }
+.auth-form .input-shell input::placeholder { color: #687b98; opacity: 1; }
+.auth-form .input-action { width: 9%; color: #526785; background: transparent; }
+.auth-form .input-action svg { opacity: 1; width: 75%; height: auto; }
+.auth-form .login-options-row { position: static; display: flex; align-items: center; justify-content: space-between; margin-top: 3%; }
+.auth-form .remember-me { display: inline-flex; align-items: center; width: auto; height: auto; gap: 7px; color: #152e58; font-size: clamp(9px, 1vw, 17px); }
+.auth-form .remember-me input { position: static; width: clamp(14px, 1.7vw, 26px); height: clamp(14px, 1.7vw, 26px); margin: 0; opacity: 1; accent-color: #1268cb; }
+.auth-form .remember-me span { display: inline; }
+.auth-form .login-forgot-link { display: block; color: #075bc1; font-size: clamp(9px, 1vw, 17px); }
+.auth-form .signin-button { position: static; width: 100%; height: auto; min-height: 12%; margin-top: 4%; padding: 3% 0; border-radius: 9px; color: #fff; background: linear-gradient(90deg, #1268cb, #0753b5); box-shadow: none; font-size: clamp(13px, 1.5vw, 25px); }
+.auth-form .signin-button svg, .auth-form .signin-button .button-spinner { opacity: 1; }
+.auth-form .signin-button svg { width: 1.4em; height: 1.4em; }
+.auth-form .form-message { position: static; width: 100%; font-size: 10px; }
+.auth-footer { position: absolute; display: block; left: 57.6%; top: 68.8%; bottom: auto; width: 32.75%; padding: 0; border: 0; color: #2d4773; font-size: clamp(8px, 1vw, 16px); text-align: center; }
+@media (max-width: 700px) {
+  .auth-content { left: 57.6%; top: 17.6%; width: 32.75%; height: 55.6%; padding: 2% 2%; border-radius: 8px; }
+  .login-card-title { gap: 4px; border-radius: 4px; font-size: 8px; }
+  .login-card-title svg { width: 13px; height: 13px; }
+  .auth-form .input-shell { border-radius: 4px; }
+  .auth-form .input-shell input { font-size: 7px; }
+  .auth-form .remember-me, .auth-form .login-forgot-link { font-size: 6px; }
+  .auth-form .remember-me { gap: 3px; }
+  .auth-form .signin-button { border-radius: 4px; font-size: 9px; }
+}
+
+/* Final card alignment and reference logo correction. */
+.auth-content { margin: 0; }
+.login-card-brand .brand-logo-image { object-fit: contain; }
+
+/* Use viewport coordinates so the opaque card exactly covers the card printed in the reference artwork. */
+.auth-content { left: 57.6vw; top: 17.6vh; width: 32.75vw; height: 55.6vh; }
+.auth-footer { left: 57.6vw; top: 68.8vh; width: 32.75vw; }
+.login-card-brand .brand-logo-image { width: 85%; }
+@media (max-width: 700px) {
+  .auth-content { left: 57.6vw; top: 17.6vh; width: 32.75vw; height: 55.6vh; }
+  .auth-footer { left: 57.6vw; top: 68.8vh; width: 32.75vw; }
+}

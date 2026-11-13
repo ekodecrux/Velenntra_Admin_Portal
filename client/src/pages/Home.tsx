@@ -68,7 +68,7 @@ function readEmployeeUsernames() {
 
 function BrandMark() {
   return (
-    <img className="brand-logo-image" src="/v-logo1.webp" alt="Velentra Group" />
+    <img className="brand-logo-image" src="/login-card-logo.png" alt="Velentra Group" />
   );
 }
 
@@ -207,6 +207,7 @@ export default function Home() {
 
         <div className="auth-content">
           <div className="login-card-brand"><BrandMark /></div>
+          <div className="login-card-title"><UsersRound size={28} /><span>Conference Login</span></div>
           {user && !sessionLoading ? (
             <div className="session-banner" role="status">
               <div className="session-banner-icon"><Check size={16} /></div>
@@ -291,6 +292,7 @@ export default function Home() {
 
             <div className="login-options-row">
               <label className="remember-me"><input type="checkbox" checked={rememberMe} onChange={event => setRememberMe(event.target.checked)} /> <span>Remember Me</span></label>
+              <button className="text-link login-forgot-link" type="button" onClick={handleRecovery}>Forgot Password?</button>
             </div>
 
             <button className="signin-button" type="submit" disabled={isSubmitting}>
