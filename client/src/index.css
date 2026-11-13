@@ -1147,3 +1147,8 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .input-shell { min-height: 52px; }
   .signin-button { min-height: 52px; font-size: 20px; margin-top: 14px; }
 }
+
+/* Remove the full reference screenshot backdrop: it contains a second static card. */
+.velentra-shell { background-color: #edf6ff; background-image: radial-gradient(circle at 92% 10%, rgba(196,224,252,.7) 0 2px, transparent 3px), linear-gradient(145deg, #0753af 0 8%, transparent 8.2%), linear-gradient(25deg, transparent 0 78%, #0aa35b 78.2% 79.2%, transparent 79.4%), linear-gradient(160deg, transparent 0 84%, #0864c2 84.2% 88%, transparent 88.2%), linear-gradient(145deg, #dcecff 0 22%, #f8fbff 22.2% 76%, #dcecff 76.2%); }
+.velentra-shell::before, .velentra-shell::after { display: block; }
+.auth-content { background: #fff; }
