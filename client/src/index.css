@@ -1519,3 +1519,14 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .auth-form .input-shell { min-height: 28px; height: 28px; }
   .auth-form .input-shell input { font-size: 7px; }
 }
+
+/* Keep the taller fields inside the card without clipping the action or footer. */
+.auth-content { top: 15.5vh; height: 67vh; padding-top: 2.4%; padding-bottom: 2.2%; }
+.auth-form { margin-top: 2.8%; }
+.auth-form .field-group { margin-top: 3%; }
+.auth-form .signin-button { margin-top: 3%; padding: 2.6% 0; }
+.auth-footer { top: 79.5vh; }
+@media (max-width: 700px) {
+  .auth-content { top: 15.5vh; height: 67vh; }
+  .auth-footer { top: 79.5vh; }
+}
