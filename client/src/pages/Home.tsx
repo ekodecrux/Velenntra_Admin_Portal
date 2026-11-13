@@ -49,6 +49,23 @@ const roleUsernames: Record<RoleId, string> = {
   admin: "ADMIN",
 };
 
+function readEmployeeUsernames() {
+  const usernames = new Set(["EMP001", "EMP"]);
+  try {
+    const globalUsername = localStorage.getItem("velentra-global-employee-username") || sessionStorage.getItem("velentra-global-employee-username");
+    if (globalUsername) usernames.add(globalUsername.trim().toUpperCase());
+    for (const storage of [sessionStorage, localStorage]) {
+      const storedEvents = storage.getItem("velentra-admin-events");
+      if (!storedEvents) continue;
+      const events = JSON.parse(storedEvents) as Array<{ subdomain?: string }>;
+      events.forEach(event => { if (event.subdomain) usernames.add(event.subdomain.trim().toUpperCase()); });
+    }
+  } catch {
+    // Continue with the built-in preview account when browser storage is unavailable.
+  }
+  return usernames;
+}
+
 function BrandMark() {
   return (
     <img className="brand-logo-image" src="/v-logo1.webp" alt="Velentra Group" />
@@ -87,7 +104,7 @@ export default function Home() {
       setIsSubmitting(true);
       const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
       const isValidPreviewLogin = (selectedRole === "employee"
-        ? normalizedIdentifier === activeUsername.toUpperCase() || normalizedIdentifier === "EMP001" || normalizedIdentifier === "EMP"
+        ? readEmployeeUsernames().has(normalizedIdentifier)
         : normalizedIdentifier === roleUsernames[selectedRole])
         && password === "123456";
 
@@ -100,8 +117,10 @@ export default function Home() {
       try {
         sessionStorage.setItem("velentra-demo-authenticated", "true");
         sessionStorage.setItem("velentra-signin-role", selectedRole);
+        if (selectedRole === "employee") sessionStorage.setItem("velentra-signed-in-employee", normalizedIdentifier);
         localStorage.setItem("velentra-demo-authenticated", "true");
         localStorage.setItem("velentra-signin-role", selectedRole);
+        if (selectedRole === "employee") localStorage.setItem("velentra-signed-in-employee", normalizedIdentifier);
       } catch {
         // The preview can still show the validation state if storage is blocked.
       }
