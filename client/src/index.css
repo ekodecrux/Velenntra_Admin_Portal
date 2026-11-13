@@ -1020,3 +1020,43 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-main-gallery-item span { display: inline-flex; align-items: center; gap: 4px; color: #167da8; font-size: 12px; white-space: nowrap; }
 @media (max-width: 900px) { .employee-main-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .employee-main-gallery-grid { grid-template-columns: 1fr; } .employee-main-gallery-item img { height: 170px; } }
+
+/* Reference-matched Velentra sign-in screen */
+.velentra-shell { display: block; min-height: 100svh; background: #edf5ff url('/login-reference-background.png') center / cover no-repeat; }
+.brand-panel { display: none; }
+.auth-panel { min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 42px 24px; background: transparent; }
+.auth-topline { display: none; }
+.auth-content { width: min(100%, 740px); padding: 28px 42px 30px; border: 1px solid #80b8f3; border-radius: 30px; background: rgba(255,255,255,.96); box-shadow: 0 22px 52px rgba(21, 91, 176, .22); }
+.login-card-brand { display: flex; justify-content: center; padding: 0 0 20px; border-bottom: 1px solid #cbd5e1; }
+.login-card-brand .brand-logo-image { width: min(100%, 480px); height: 116px; object-position: center; }
+.auth-heading { text-align: center; padding: 14px 0 16px; }
+.auth-heading .eyebrow, .auth-trust-row, .section-heading-form .secure-note { display: none; }
+.auth-heading h2 { margin: 0; color: #09295e; font-size: clamp(38px, 5vw, 54px); line-height: 1.06; font-weight: 800; }
+.auth-heading p { margin: 10px 0 0; color: #586985; font-size: 19px; }
+.auth-form { margin-top: 4px; }
+.section-heading-form { display: none; }
+.field-group { margin-top: 20px; }
+.field-group label { color: #142c58; font-size: 16px; font-weight: 700; }
+.input-shell { min-height: 72px; border: 2px solid #b5c5dd; border-radius: 13px; background: #fff; box-shadow: none; }
+.input-shell:focus-within { border-color: #1562c3; box-shadow: 0 0 0 3px rgba(21, 98, 195, .12); }
+.input-shell input { color: #182d55; font-size: 20px; }
+.input-shell input::placeholder { color: #7a8aa5; opacity: 1; }
+.input-shell > svg { color: #445b80; width: 25px; height: 25px; }
+.field-label-row .text-link { color: #075bc1; font-size: 15px; }
+.signin-button { min-height: 72px; margin-top: 28px; justify-content: center; gap: 18px; border-radius: 13px; background: linear-gradient(90deg, #1268cb, #0753b5); font-size: 26px; box-shadow: 0 10px 20px rgba(20, 91, 184, .2); }
+.signin-button svg { width: 28px; height: 28px; }
+.auth-footer { position: absolute; bottom: 22px; color: #2d4773; font-size: 17px; font-weight: 600; border: 0; }
+.form-message { margin-top: 14px; }
+@media (max-width: 700px) {
+  .auth-panel { padding: 20px 12px 74px; }
+  .auth-content { padding: 22px 20px 26px; border-radius: 22px; }
+  .login-card-brand .brand-logo-image { height: 78px; }
+  .auth-heading h2 { font-size: 40px; }
+  .auth-heading p { font-size: 16px; }
+  .input-shell { min-height: 60px; }
+  .signin-button { min-height: 60px; font-size: 21px; }
+  .auth-footer { bottom: 12px; font-size: 14px; }
+}
+.login-options-row { display: flex; align-items: center; justify-content: flex-start; margin-top: 18px; }
+.remember-me { display: inline-flex; align-items: center; gap: 10px; color: #142c58; font-size: 16px; font-weight: 600; cursor: pointer; }
+.remember-me input { width: 22px; height: 22px; accent-color: #1268cb; }

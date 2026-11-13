@@ -75,9 +75,9 @@ function BrandMark() {
 export default function Home() {
   const [, setLocation] = useLocation();
   const { user, loading: sessionLoading } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<RoleId>("employee");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState("");
   const [notice, setNotice] = useState("");
@@ -85,10 +85,6 @@ export default function Home() {
   const [globalEmployeeUsername] = useState(() => {
     try { return localStorage.getItem("velentra-global-employee-username") || sessionStorage.getItem("velentra-global-employee-username") || "EMP001"; } catch { return "EMP001"; }
   });
-
-  const activeRole = roles.find(role => role.id === selectedRole) ?? roles[0];
-  const ActiveRoleIcon = activeRole.icon;
-  const activeUsername = selectedRole === "employee" ? globalEmployeeUsername : roleUsernames[selectedRole];
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -103,32 +99,34 @@ export default function Home() {
     try {
       setIsSubmitting(true);
       const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
-      const isEventSubdomain = selectedRole === "employee"
+      const isAdminLogin = ["ADMIN", "ADMIN001", "ADMIN@VELENTRA", "ADMIN@VELENTRAGROUP"].includes(normalizedIdentifier);
+      const resolvedRole: RoleId = isAdminLogin ? "admin" : "employee";
+      const isEventSubdomain = !isAdminLogin
         && /^[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?$/.test(normalizedIdentifier)
         && normalizedIdentifier !== "EMP001"
         && normalizedIdentifier !== "EMP";
-      const isValidPreviewLogin = (selectedRole === "employee"
+      const isValidPreviewLogin = (resolvedRole === "employee"
         ? readEmployeeUsernames().has(normalizedIdentifier) || isEventSubdomain
-        : normalizedIdentifier === roleUsernames[selectedRole])
+        : isAdminLogin)
         && password === "123456";
 
       if (!isValidPreviewLogin) {
         setIsSubmitting(false);
-        setFormError(selectedRole === "employee" ? "We couldn’t sign you in. Use the event subdomain as your username and 123456 as the shared password." : `We couldn’t sign you in. Use ${activeUsername} with the shared preview password.`);
+        setFormError("We couldn’t sign you in. Check your UID and password and try again.");
         return;
       }
 
       try {
         sessionStorage.setItem("velentra-demo-authenticated", "true");
-        sessionStorage.setItem("velentra-signin-role", selectedRole);
-        if (selectedRole === "employee") sessionStorage.setItem("velentra-signed-in-employee", normalizedIdentifier);
+        sessionStorage.setItem("velentra-signin-role", resolvedRole);
+        if (resolvedRole === "employee") sessionStorage.setItem("velentra-signed-in-employee", normalizedIdentifier);
         localStorage.setItem("velentra-demo-authenticated", "true");
-        localStorage.setItem("velentra-signin-role", selectedRole);
-        if (selectedRole === "employee") localStorage.setItem("velentra-signed-in-employee", normalizedIdentifier);
+        localStorage.setItem("velentra-signin-role", resolvedRole);
+        if (resolvedRole === "employee") localStorage.setItem("velentra-signed-in-employee", normalizedIdentifier);
       } catch {
         // The preview can still show the validation state if storage is blocked.
       }
-      setLocation(`/workspace/${selectedRole}`);
+      setLocation(`/workspace/${resolvedRole}`);
     } catch {
       setIsSubmitting(false);
       setFormError("Sign-in is not available right now. Please try again.");
@@ -208,6 +206,7 @@ export default function Home() {
         </div>
 
         <div className="auth-content">
+          <div className="login-card-brand"><BrandMark /></div>
           {user && !sessionLoading ? (
             <div className="session-banner" role="status">
               <div className="session-banner-icon"><Check size={16} /></div>
@@ -227,57 +226,18 @@ export default function Home() {
 
           <div className="auth-heading">
             <div className="eyebrow"><span className="eyebrow-dot" /> Welcome back</div>
-            <h2>Sign in to your workspace.</h2>
-            <p>Employee and Admin access are enabled for this preview. Each role opens a workspace shaped around its responsibilities.</p>
+            <h2>Sign In</h2>
+            <p>Welcome back! Please login to continue.</p>
           </div>
-
-          <div className="role-section">
-            <div className="section-heading">
-              <span className="section-label">01 / Your access point</span>
-              <span className="section-helper">Both demo roles enabled</span>
-            </div>
-            <div className="role-picker" role="group" aria-label="Choose your access point">
-              {roles.map(role => {
-                const RoleIcon = role.icon;
-                const isActive = role.id === selectedRole;
-                return (
-                  <button
-                    className={`role-option ${isActive ? "role-option-active" : ""}`}
-                    type="button"
-                    key={role.id}
-                    aria-pressed={isActive}
-                    onClick={() => {
-                      setSelectedRole(role.id);
-                      setFormError("");
-                      setNotice("");
-                    }}
-                  >
-                    <span className="role-option-icon"><RoleIcon size={17} /></span>
-                    <span className="role-option-copy">
-                      <strong>{role.label}</strong>
-                      <small>{role.summary}</small>
-                    </span>
-                    <ChevronRight size={16} className="role-option-arrow" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="selected-role-note">
-            <span className="selected-role-icon"><ActiveRoleIcon size={17} /></span>
-            <span><strong>{activeRole.label} access</strong> — {activeRole.detail}</span>
-          </div>
-          <div className="demo-credential-note"><span>{activeRole.label} preview credentials</span><code>{activeUsername}</code><span>/</span><code>123456</code></div>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <div className="section-heading section-heading-form">
-              <span className="section-label">02 / {activeRole.label} credentials</span>
+              <span className="section-label">Enter your credentials</span>
               <span className="secure-note"><LockKeyhole size={13} /> Preview access</span>
             </div>
 
             <div className="field-group">
-              <label htmlFor="identifier">Username</label>
+              <label htmlFor="identifier">UID</label>
               <div className="input-shell">
                 <KeyRound size={17} aria-hidden="true" />
                 <input
@@ -286,7 +246,7 @@ export default function Home() {
                   type="text"
                   value={identifier}
                   onChange={event => setIdentifier(event.target.value)}
-                  placeholder={activeUsername}
+                  placeholder="Enter UID"
                   autoComplete="username"
                   aria-invalid={Boolean(formError) && !identifier.trim()}
                   disabled={isSubmitting}
@@ -296,7 +256,7 @@ export default function Home() {
 
             <div className="field-group">
               <div className="field-label-row">
-                <label htmlFor="password">Password</label>
+                  <label htmlFor="password">Password</label>
                 <button className="text-link" type="button" onClick={handleRecovery}>
                   Forgot password?
                 </button>
@@ -329,8 +289,12 @@ export default function Home() {
             {formError ? <div className="form-message form-message-error" role="alert">{formError}</div> : null}
             {notice ? <div className="form-message form-message-notice" role="status"><CircleHelp size={16} /> {notice}</div> : null}
 
+            <div className="login-options-row">
+              <label className="remember-me"><input type="checkbox" checked={rememberMe} onChange={event => setRememberMe(event.target.checked)} /> <span>Remember Me</span></label>
+            </div>
+
             <button className="signin-button" type="submit" disabled={isSubmitting}>
-              <span>{isSubmitting ? "Opening secure sign-in…" : "Continue to sign in"}</span>
+              <span>{isSubmitting ? "Signing in…" : "Sign In"}</span>
               {isSubmitting ? <span className="button-spinner" aria-hidden="true" /> : <ArrowUpRight size={18} />}
             </button>
           </form>
@@ -342,7 +306,7 @@ export default function Home() {
         </div>
 
         <footer className="auth-footer">
-          <span>© 2026 Velentra Group · Internal operations portal</span>
+          <span>Powered by Velentra Group</span>
         </footer>
       </main>
     </div>
