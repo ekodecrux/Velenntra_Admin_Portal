@@ -285,7 +285,7 @@ export default function EmployeeDashboard({ onBack, username, initialFeature = "
     "conference-schedule": { name: "Conference schedule", fields: ["Schedule heading", "Day 1 label and date", "Day 2 label and date", "Day 3 label and date", "Schedule rows"] },
     "video-testimonials": { name: "Past conference videos", fields: ["Video title", "Video URL", "Poster image URL", "Video description"] },
     gallery: { name: "Photo gallery", fields: ["Gallery heading", "Image URLs", "Captions"] },
-    testimonials: { name: "Testimonials", fields: ["Testimonial heading", "Testimonial quote", "Author name", "Author role", "Author photo URL"] },
+    testimonials: { name: "Testimonials", fields: ["Name", "Image", "Designation", "Comment", "Status"] },
     footer: { name: "Footer", fields: ["Address", "Contact email", "Phone number", "Footer content"] },
     "social-media": { name: "Social media links", fields: ["Facebook URL", "X / Twitter URL", "YouTube URL", "Blog URL", "Link labels"] },
   };
