@@ -14,6 +14,7 @@
     .carousel[data-items="3"]:not([data-margin]) .owl-item.static-visible { flex-basis: calc(100% / 3) !important; margin-right: 0 !important; }
     .carousel .owl-item.static-visible:last-child { margin-right: 0 !important; }
     .testimonial .owl-item .testimonial-item { min-height: 292px !important; height: 292px !important; box-sizing: border-box !important; }
+    .testimonial .testimonial-item > img { display: block !important; width: 72px !important; height: 72px !important; max-width: 72px !important; max-height: 72px !important; margin: 18px auto 12px !important; object-fit: contain !important; object-position: center !important; border-radius: 50% !important; }
     .carousel .owl-bg-img img { display: block !important; width: 100% !important; height: auto !important; opacity: 1 !important; visibility: visible !important; }
     #header, #header-wrap { height: 45px !important; min-height: 45px !important; }
     @media (max-width: 980px) and (min-width: 601px) {
