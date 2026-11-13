@@ -55,12 +55,13 @@ const defaultSessions: SessionRecord[] = [
   { id: "session-7", serial: 7, day: "Day 3", date: "September 11, 2027", time: "09:00–10:30", title: "Closing Keynote and Future Directions", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
 ];
 const defaultGallery: GalleryRecord[] = [
-  { id: "gallery-1", serial: 1, title: "Biofuels 2025 | Valencia, Spain", image: "/event-site/uploads/gallery/biofuels-2025-valencia-spain.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2025-valencia-spain", status: "Published" },
-  { id: "gallery-2", serial: 2, title: "Oil and Gas Conference 2024 | Rome, Italy", image: "/event-site/uploads/gallery/oil-and-gas-conference-2024-rome-italy1.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/oil-and-gas-conference-2024-rome-italy", status: "Published" },
-  { id: "gallery-3", serial: 3, title: "Catalysis Conference 2017 | Las Vegas, USA", image: "/event-site/uploads/gallery/catalysis-conference-2017-las-vegas-usa.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2017-las-vegas-usa", status: "Published" },
-  { id: "gallery-4", serial: 4, title: "Catalysis Conference 2018 | Rome, Italy", image: "/event-site/uploads/gallery/catalysis-conference-2018-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2018-rome-italy", status: "Published" },
-  { id: "gallery-5", serial: 5, title: "Catalysis Conference 2019 | London, UK", image: "/event-site/uploads/gallery/catalysis-conference-2019-london-uk.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-london-uk", status: "Published" },
-  { id: "gallery-6", serial: 6, title: "Catalysis Conference 2019 | Singapore", image: "/event-site/uploads/gallery/catalysis-conference-2019-singapore.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-singapore", status: "Published" },
+  { id: "gallery-0", serial: 1, title: "Biofuels 2026 | Rome, Italy", image: "/event-site/uploads/gallery/biofuels-2026-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2026-rome-italy", status: "Published" },
+  { id: "gallery-1", serial: 2, title: "Biofuels 2025 | Valencia, Spain", image: "/event-site/uploads/gallery/biofuels-2025-valencia-spain.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2025-valencia-spain", status: "Published" },
+  { id: "gallery-2", serial: 3, title: "Oil and Gas Conference 2024 | Rome, Italy", image: "/event-site/uploads/gallery/oil-and-gas-conference-2024-rome-italy1.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/oil-and-gas-conference-2024-rome-italy", status: "Published" },
+  { id: "gallery-3", serial: 4, title: "Catalysis Conference 2017 | Las Vegas, USA", image: "/event-site/uploads/gallery/catalysis-conference-2017-las-vegas-usa.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2017-las-vegas-usa", status: "Published" },
+  { id: "gallery-4", serial: 5, title: "Catalysis Conference 2018 | Rome, Italy", image: "/event-site/uploads/gallery/catalysis-conference-2018-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2018-rome-italy", status: "Published" },
+  { id: "gallery-5", serial: 6, title: "Catalysis Conference 2019 | London, UK", image: "/event-site/uploads/gallery/catalysis-conference-2019-london-uk.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-london-uk", status: "Published" },
+  { id: "gallery-6", serial: 7, title: "Catalysis Conference 2019 | Singapore", image: "/event-site/uploads/gallery/catalysis-conference-2019-singapore.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-singapore", status: "Published" },
 ];
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
@@ -327,7 +328,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [abstractSubmissionUrl, setAbstractSubmissionUrl] = useState("");
   const [sessionRows, setSessionRows] = useState<SessionRecord[]>(() => { const stored = readEventRows<SessionRecord>("conference-sessions", eventId); return stored.length ? stored : defaultSessions; });
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
-  const [galleryRows, setGalleryRows] = useState<GalleryRecord[]>(() => { const stored = readEventRows<GalleryRecord>("gallery", eventId); return stored.length ? stored : defaultGallery; });
+  const [galleryRows, setGalleryRows] = useState<GalleryRecord[]>(() => { const stored = readEventRows<GalleryRecord>("gallery", eventId); if (!stored.length) return defaultGallery; const known = new Set(stored.map(item => item.url)); const missing = defaultGallery.filter(item => !known.has(item.url)); return [...stored, ...missing.map((item, index) => ({ ...item, serial: stored.length + index + 1 }))]; });
   const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
