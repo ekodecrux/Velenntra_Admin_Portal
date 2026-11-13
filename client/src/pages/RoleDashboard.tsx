@@ -176,7 +176,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
     try { return localStorage.getItem("velentra-global-employee-username") ?? sessionStorage.getItem("velentra-global-employee-username") ?? ""; } catch { return ""; }
   });
   useEffect(() => { try { sessionStorage.setItem("velentra-admin-employees", JSON.stringify(employeeRows)); } catch { /* Preview storage can be unavailable in restricted browsers. */ } }, [employeeRows]);
-  useEffect(() => { try { sessionStorage.setItem("velentra-admin-events", JSON.stringify(eventRows)); } catch { /* Preview storage can be unavailable. */ } }, [eventRows]);
+  useEffect(() => { try { sessionStorage.setItem("velentra-admin-events", JSON.stringify(eventRows)); localStorage.setItem("velentra-admin-events", JSON.stringify(eventRows)); } catch { /* Preview storage can be unavailable. */ } }, [eventRows]);
   const allFeatures = config.sections.flatMap(section => section.items);
   const active = allFeatures.find(item => item.id === activeId) ?? allFeatures[0];
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {

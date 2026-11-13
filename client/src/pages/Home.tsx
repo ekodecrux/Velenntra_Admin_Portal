@@ -103,14 +103,18 @@ export default function Home() {
     try {
       setIsSubmitting(true);
       const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
+      const isEventSubdomain = selectedRole === "employee"
+        && /^[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?$/.test(normalizedIdentifier)
+        && normalizedIdentifier !== "EMP001"
+        && normalizedIdentifier !== "EMP";
       const isValidPreviewLogin = (selectedRole === "employee"
-        ? readEmployeeUsernames().has(normalizedIdentifier)
+        ? readEmployeeUsernames().has(normalizedIdentifier) || isEventSubdomain
         : normalizedIdentifier === roleUsernames[selectedRole])
         && password === "123456";
 
       if (!isValidPreviewLogin) {
         setIsSubmitting(false);
-        setFormError(`We couldn’t sign you in. Use ${activeUsername} with the shared preview password.`);
+        setFormError(selectedRole === "employee" ? "We couldn’t sign you in. Use the event subdomain as your username and 123456 as the shared password." : `We couldn’t sign you in. Use ${activeUsername} with the shared preview password.`);
         return;
       }
 
