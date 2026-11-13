@@ -40,8 +40,9 @@ type FieldSpec = { label: string; type?: "text" | "email" | "url" | "date" | "se
 
 type Row = { title: string; status: string; meta: string; note: string; details?: Record<string, string> };
 type TestimonialRecord = { id: string; name: string; comment: string; image: string; designation: string; status: string; position: string };
-type BrochureRecord = { id: string; serial: number; date: string; name: string; email: string; country: string; phone: string; address: string; href: string };
+type BrochureRecord = { id: string; serial: number; date: string; name: string; email: string; country: string; phone: string; address: string; href: string; isDownload?: boolean };
 type AbstractRecord = { id: string; name: string; abstractTitle: string; email: string; country: string; phone: string; category: string; trackName: string; address: string; interested: string; organization: string; date: string };
+const readEventRows = <T,>(name: string, eventId: string): T[] => { try { return JSON.parse(localStorage.getItem(`velentra-${name}-${eventId || "global"}`) || sessionStorage.getItem(`velentra-${name}-${eventId || "global"}`) || "[]") as T[]; } catch { return []; } };
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
   { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
@@ -335,7 +336,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
             return true;
           })
           .map((item, index) => ({ id: `brochure-${index + 1}`, serial: index + 1, date: "—", name: item.label, email: "—", country: "—", phone: "—", address: "—", href: item.href }));
-        setBrochureRows(resources);
+        const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
+        setBrochureRows([...downloads, ...resources]);
       })
       .catch(() => setBrochureRows([]));
     return () => { cancelled = true; };
@@ -343,6 +345,16 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   useEffect(() => {
     try { const serialized = JSON.stringify(abstractRows); localStorage.setItem(abstractStorageKey(eventId), serialized); sessionStorage.setItem(abstractStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ }
   }, [eventId, abstractRows]);
+  useEffect(() => {
+    const syncEventRecords = () => {
+      setAbstractRows(readEventRows<AbstractRecord>("abstracts", eventId));
+      const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
+      setBrochureRows(current => [...downloads, ...current.filter(row => !row.isDownload)]);
+    };
+    window.addEventListener("storage", syncEventRecords);
+    window.addEventListener("focus", syncEventRecords);
+    return () => { window.removeEventListener("storage", syncEventRecords); window.removeEventListener("focus", syncEventRecords); };
+  }, [eventId]);
   useEffect(() => {
     fetch(`/event-site/index.html?event=${encodeURIComponent(eventId)}`).then(response => response.text()).then(html => {
       const document = new DOMParser().parseFromString(html, "text/html");
