@@ -43,6 +43,7 @@ type TestimonialRecord = { id: string; name: string; comment: string; image: str
 type BrochureRecord = { id: string; serial: number; date: string; name: string; email: string; country: string; phone: string; address: string; href: string; isDownload?: boolean };
 type AbstractRecord = { id: string; name: string; abstractTitle: string; email: string; country: string; phone: string; category: string; trackName: string; address: string; interested: string; organization: string; date: string };
 type SessionRecord = { id: string; serial: number; day: string; date: string; time: string; title: string; venue: string; speaker: string; status: string };
+type GalleryRecord = { id: string; serial: number; title: string; image: string; url: string; status: string };
 const readEventRows = <T,>(name: string, eventId: string): T[] => { try { return JSON.parse(localStorage.getItem(`velentra-${name}-${eventId || "global"}`) || sessionStorage.getItem(`velentra-${name}-${eventId || "global"}`) || "[]") as T[]; } catch { return []; } };
 const defaultSessions: SessionRecord[] = [
   { id: "session-1", serial: 1, day: "Day 1", date: "September 09, 2027", time: "08:00–09:00", title: "Registration", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
@@ -52,6 +53,14 @@ const defaultSessions: SessionRecord[] = [
   { id: "session-5", serial: 5, day: "Day 2", date: "September 10, 2027", time: "09:00–10:30", title: "Keynote Session III", venue: "Main Hall", speaker: "Keynote Speaker", status: "Published" },
   { id: "session-6", serial: 6, day: "Day 2", date: "September 10, 2027", time: "13:30–15:00", title: "Poster Presentations", venue: "Exhibition Hall", speaker: "Poster Presenters", status: "Published" },
   { id: "session-7", serial: 7, day: "Day 3", date: "September 11, 2027", time: "09:00–10:30", title: "Closing Keynote and Future Directions", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
+];
+const defaultGallery: GalleryRecord[] = [
+  { id: "gallery-1", serial: 1, title: "Biofuels 2025 | Valencia, Spain", image: "/event-site/uploads/gallery/biofuels-2025-valencia-spain.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2025-valencia-spain", status: "Published" },
+  { id: "gallery-2", serial: 2, title: "Oil and Gas Conference 2024 | Rome, Italy", image: "/event-site/uploads/gallery/oil-and-gas-conference-2024-rome-italy1.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/oil-and-gas-conference-2024-rome-italy", status: "Published" },
+  { id: "gallery-3", serial: 3, title: "Catalysis Conference 2017 | Las Vegas, USA", image: "/event-site/uploads/gallery/catalysis-conference-2017-las-vegas-usa.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2017-las-vegas-usa", status: "Published" },
+  { id: "gallery-4", serial: 4, title: "Catalysis Conference 2018 | Rome, Italy", image: "/event-site/uploads/gallery/catalysis-conference-2018-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2018-rome-italy", status: "Published" },
+  { id: "gallery-5", serial: 5, title: "Catalysis Conference 2019 | London, UK", image: "/event-site/uploads/gallery/catalysis-conference-2019-london-uk.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-london-uk", status: "Published" },
+  { id: "gallery-6", serial: 6, title: "Catalysis Conference 2019 | Singapore", image: "/event-site/uploads/gallery/catalysis-conference-2019-singapore.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-singapore", status: "Published" },
 ];
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
@@ -318,6 +327,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [abstractSubmissionUrl, setAbstractSubmissionUrl] = useState("");
   const [sessionRows, setSessionRows] = useState<SessionRecord[]>(() => { const stored = readEventRows<SessionRecord>("conference-sessions", eventId); return stored.length ? stored : defaultSessions; });
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [galleryRows, setGalleryRows] = useState<GalleryRecord[]>(() => { const stored = readEventRows<GalleryRecord>("gallery", eventId); return stored.length ? stored : defaultGallery; });
+  const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
@@ -331,6 +342,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [testimonialView, setTestimonialView] = useState("Default");
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
   useEffect(() => { try { const serialized = JSON.stringify(testimonialRows); localStorage.setItem(testimonialStorageKey(eventId), serialized); sessionStorage.setItem(testimonialStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, testimonialRows]);
+  useEffect(() => { try { const serialized = JSON.stringify(galleryRows); localStorage.setItem(`velentra-gallery-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-gallery-${eventId || "global"}`, serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, galleryRows]);
   useEffect(() => {
     let cancelled = false;
     fetch(`/event-site/index.html?event=${encodeURIComponent(eventId)}`)
@@ -363,6 +375,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       setAbstractRows(readEventRows<AbstractRecord>("abstracts", eventId));
       const storedSessions = readEventRows<SessionRecord>("conference-sessions", eventId);
       if (storedSessions.length) setSessionRows(storedSessions);
+      const storedGallery = readEventRows<GalleryRecord>("gallery", eventId);
+      if (storedGallery.length) setGalleryRows(storedGallery);
       const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
       setBrochureRows(current => [...downloads, ...current.filter(row => !row.isDownload)]);
     };
@@ -457,6 +471,13 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
   const saveForm = () => {
+    if (active.id === "add-gallery") {
+      const record: GalleryRecord = { id: editingGalleryId ?? `gallery-${Date.now()}`, serial: editingGalleryId ? (galleryRows.find(item => item.id === editingGalleryId)?.serial ?? galleryRows.length + 1) : galleryRows.length + 1, title: formValues.Title ?? "", image: formValues.Image ?? "", url: formValues.URL ?? "", status: formValues.Status ?? "Published" };
+      setGalleryRows(current => editingGalleryId ? current.map(item => item.id === editingGalleryId ? record : item) : [...current, record]);
+      setNotice(`Gallery item ${editingGalleryId ? "updated" : "added"} for ${eventTitle || "this event"}.`);
+      setEditingGalleryId(null); setFormValues({}); selectFeature("gallery");
+      return;
+    }
     if (active.id === "add-session") {
       const record: SessionRecord = { id: editingSessionId ?? `session-${Date.now()}`, serial: editingSessionId ? (sessionRows.find(item => item.id === editingSessionId)?.serial ?? sessionRows.length + 1) : sessionRows.length + 1, day: formValues.Day ?? "Day 1", date: formValues.Date ?? "", time: formValues.Time ?? "", title: formValues.Title ?? "", venue: formValues.Venue ?? "", speaker: formValues.Speaker ?? "", status: formValues.Status ?? "Draft" };
       setSessionRows(current => editingSessionId ? current.map(item => item.id === editingSessionId ? record : item) : [...current, record]);
@@ -567,6 +588,13 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
           <div className="employee-table-wrap"><table className="employee-testimonials-table"><thead><tr><th>ID</th><th>Name</th><th>Comment</th><th>Image</th><th>Designation</th><th>Status</th><th>Display position</th><th>Action</th></tr></thead><tbody>{visibleTestimonials.length ? visibleTestimonials.map((row, index) => <tr key={row.id}><td>{index + 1}</td><td><strong>{row.name}</strong></td><td>{row.comment}</td><td>{row.image ? <img className="employee-testimonial-thumb" src={row.image} alt="" /> : "—"}</td><td>{row.designation}</td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.position}</td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingTestimonialId(row.id); setFormValues({ Name: row.name, Comment: row.comment, Image: row.image, Designation: row.designation, Status: row.status, Position: row.position }); selectFeature("add-testimonial"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete testimonial by ${row.name}`} title="Delete testimonial" onClick={() => { if (window.confirm(`Delete testimonial by ${row.name}?`)) { setTestimonialRows(current => current.filter(item => item.id !== row.id)); setNotice("Testimonial deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>) : <tr><td colSpan={8}>No Testimonial found.</td></tr>}</tbody></table></div>
         </section>
       </>;
+    }
+    if (active.id === "gallery") {
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>Past Conference Gallery</h1><p>Photo Gallery (Our Past Events) — synchronized from the event website.</p></div></div>{notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}</div> : null}<section className="employee-table-card employee-gallery-card"><div className="employee-table-controls"><strong>Gallery List</strong><span>{galleryRows.length} past event galleries</span><button className="employee-primary-button" type="button" onClick={() => { setEditingGalleryId(null); setFormValues({ Status: "Published" }); selectFeature("add-gallery"); }}><Plus size={15} /> Add Gallery</button></div><div className="employee-table-wrap"><table><thead><tr><th>S.No</th><th>Image</th><th>Past conference / event</th><th>Gallery link</th><th>Status</th><th>Action</th></tr></thead><tbody>{galleryRows.map(row => <tr key={row.id}><td>{row.serial}</td><td>{row.image ? <img className="employee-gallery-thumb" src={row.image} alt={row.title} /> : "—"}</td><td><strong>{row.title}</strong></td><td><a href={row.url} target="_blank" rel="noreferrer">View gallery</a></td><td><span className="employee-status-pill">{row.status}</span></td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingGalleryId(row.id); setFormValues({ Title: row.title, Image: row.image, URL: row.url, Status: row.status }); selectFeature("add-gallery"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete ${row.title}`} onClick={() => { if (window.confirm(`Delete gallery ${row.title}?`)) { setGalleryRows(current => current.filter(item => item.id !== row.id)); setNotice("Gallery item deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table></div></section></>;
+    }
+    if (active.id === "add-gallery") {
+      const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>{editingGalleryId ? "Edit Past Conference Gallery" : "Add Past Conference Gallery"}</h1><p>Manage the gallery card shown in Photo Gallery (Our Past Events).</p></div></div><section className="employee-form-card"><div className="employee-form-grid"><label className="employee-form-wide"><span>Past conference / event title</span><input value={formValues.Title ?? ""} onChange={event => setValue("Title", event.target.value)} /></label><label className="employee-form-wide"><span>Gallery image</span><input type="file" accept="image/*" onChange={event => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => setValue("Image", String(reader.result ?? "")); reader.readAsDataURL(file); }} />{formValues.Image ? <img className="employee-gallery-form-preview" src={formValues.Image} alt="Current gallery" /> : null}</label><label className="employee-form-wide"><span>Gallery page URL</span><input type="url" value={formValues.URL ?? ""} onChange={event => setValue("URL", event.target.value)} /></label><label><span>Status</span><select value={formValues.Status ?? "Published"} onChange={event => setValue("Status", event.target.value)}><option>Published</option><option>Draft</option><option>Hidden</option></select></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingGalleryId(null); selectFeature("gallery"); }}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {editingGalleryId ? "Update Gallery" : "Add Gallery"}</button></div></section></>;
     }
     if (active.id === "add-testimonial") {
       const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
