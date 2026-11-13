@@ -52,6 +52,7 @@
           const designation = document.createElement('span'); designation.textContent = item.designation || ''; card.appendChild(designation);
           outer.appendChild(card); testimonialStage.appendChild(outer);
         });
+        window.velentraShowTestimonials?.();
       }
     } catch (_) {
       // Preview content is optional and should never block the imported site.

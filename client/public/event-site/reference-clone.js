@@ -1,6 +1,7 @@
 (() => {
   const style = document.createElement('style');
   style.textContent = `
+    html, body { height: auto !important; min-height: 100% !important; overflow-y: auto !important; overflow-x: hidden !important; }
     .carousel .owl-stage-outer,
     .carousel .owl-stage,
     .carousel .owl-bg-img { height: auto !important; }
@@ -12,6 +13,7 @@
     .carousel[data-items="3"] .owl-item.static-visible { flex: 0 0 calc((100% - 40px) / 3) !important; margin-right: 20px !important; }
     .carousel[data-items="3"]:not([data-margin]) .owl-item.static-visible { flex-basis: calc(100% / 3) !important; margin-right: 0 !important; }
     .carousel .owl-item.static-visible:last-child { margin-right: 0 !important; }
+    .testimonial .owl-item .testimonial-item { min-height: 292px !important; height: 292px !important; box-sizing: border-box !important; }
     .carousel .owl-bg-img img { display: block !important; width: 100% !important; height: auto !important; opacity: 1 !important; visibility: visible !important; }
     #header, #header-wrap { height: 45px !important; min-height: 45px !important; }
     @media (max-width: 980px) and (min-width: 601px) {
@@ -36,6 +38,27 @@
   };
   setStaticCarouselItems();
   window.addEventListener('resize', setStaticCarouselItems);
+  const setupTestimonialCarousel = () => {
+    const carousel = document.querySelector('.testimonial.owl-carousel');
+    const stage = carousel?.querySelector('.owl-stage');
+    if (!carousel || !stage || carousel.dataset.staticControls === 'true') return;
+    carousel.dataset.staticControls = 'true';
+    let start = 0;
+    const show = () => {
+      const items = [...stage.children].filter(item => !item.classList.contains('cloned'));
+      const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3;
+      if (!items.length) return;
+      start = Math.max(0, Math.min(start, Math.max(0, items.length - count)));
+      stage.querySelectorAll('.owl-item').forEach(item => item.classList.remove('static-visible'));
+      items.slice(start, start + count).forEach(item => item.classList.add('static-visible'));
+    };
+    carousel.querySelector('.owl-next')?.addEventListener('click', () => { const items = [...stage.children].filter(item => !item.classList.contains('cloned')); const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3; start = items.length > count ? (start + 1) % (items.length - count + 1) : 0; show(); });
+    carousel.querySelector('.owl-prev')?.addEventListener('click', () => { const items = [...stage.children].filter(item => !item.classList.contains('cloned')); const count = window.innerWidth <= 600 ? 1 : window.innerWidth <= 980 ? 2 : 3; start = items.length > count ? (start - 1 + items.length - count + 1) % (items.length - count + 1) : 0; show(); });
+    window.addEventListener('resize', show);
+    window.velentraShowTestimonials = show;
+    show();
+  };
+  setupTestimonialCarousel();
 
   const trigger = document.querySelector('#mainMenu-trigger button');
   const menu = document.querySelector('#mainMenu');
