@@ -290,7 +290,12 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [pageSize, setPageSize] = useState("10");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
-    try { const stored = localStorage.getItem(testimonialStorageKey(eventId)) ?? sessionStorage.getItem(testimonialStorageKey(eventId)); return stored ? JSON.parse(stored) as TestimonialRecord[] : defaultTestimonials; } catch { return defaultTestimonials; }
+    try {
+      const stored = localStorage.getItem(testimonialStorageKey(eventId)) ?? sessionStorage.getItem(testimonialStorageKey(eventId));
+      if (!stored) return defaultTestimonials;
+      const parsed = JSON.parse(stored) as TestimonialRecord[];
+      return parsed.length === 1 && parsed[0]?.id === "testimonial-default" ? defaultTestimonials : parsed;
+    } catch { return defaultTestimonials; }
   });
   const [testimonialView, setTestimonialView] = useState("Default");
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
