@@ -936,13 +936,13 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-brochure-search input:focus { border-color: #347fb8; box-shadow: 0 0 0 3px rgba(52,127,184,.12); }
 .employee-brochures-table { min-width: 0 !important; table-layout: fixed; }
 .employee-brochures-table th, .employee-brochures-table td { padding: 12px 9px; }
-.employee-brochures-table th:nth-child(1), .employee-brochures-table td:nth-child(1) { width: 11%; }
-.employee-brochures-table th:nth-child(2), .employee-brochures-table td:nth-child(2) { width: 28%; }
-.employee-brochures-table th:nth-child(3), .employee-brochures-table td:nth-child(3) { width: 18%; }
-.employee-brochures-table th:nth-child(4), .employee-brochures-table td:nth-child(4) { width: 12%; }
-.employee-brochures-table th:nth-child(5), .employee-brochures-table td:nth-child(5) { width: 13%; }
-.employee-brochures-table th:nth-child(6), .employee-brochures-table td:nth-child(6) { width: 13%; }
-.employee-brochures-table th:nth-child(7), .employee-brochures-table td:nth-child(7) { width: 5%; }
+.employee-brochures-table th:nth-child(1), .employee-brochures-table td:nth-child(1) { width: 9%; }
+.employee-brochures-table th:nth-child(2), .employee-brochures-table td:nth-child(2) { width: 25%; }
+.employee-brochures-table th:nth-child(3), .employee-brochures-table td:nth-child(3) { width: 17%; }
+.employee-brochures-table th:nth-child(4), .employee-brochures-table td:nth-child(4) { width: 11%; }
+.employee-brochures-table th:nth-child(5), .employee-brochures-table td:nth-child(5) { width: 12%; }
+.employee-brochures-table th:nth-child(6), .employee-brochures-table td:nth-child(6) { width: 18%; }
+.employee-brochures-table th:nth-child(7), .employee-brochures-table td:nth-child(7) { width: 8%; }
 .employee-brochures-table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .employee-brochures-table td:nth-child(2) { white-space: normal; overflow-wrap: anywhere; }
 .employee-brochures-table td:last-child { text-align: center; overflow: visible; }
