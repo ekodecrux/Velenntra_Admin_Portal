@@ -70,6 +70,7 @@
 - [x] Persist Admin-created events to local and session storage, and accept a valid event-subdomain username such as `expertaid` even when the login page is opened in a different browser tab.
 - [x] Resolve the signed-in Employee to its matching event by subdomain, use that event ID for Website Configuration, persist section edits across tabs, and apply those edits to the matching event website preview.
 - [x] Add an event-specific Testimonials List matching the reference layout, preload all imported testimonials, support Default/Posted Data views, edit/delete/add actions, image uploads, status, display-position selection, and synchronization to the event website testimonial carousel.
+- [x] Keep the Testimonials ID column compact at a fixed width so the table space is used by the actual testimonial fields.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.
