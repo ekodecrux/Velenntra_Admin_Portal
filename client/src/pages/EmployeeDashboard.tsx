@@ -11,6 +11,7 @@ import {
   ChevronRight,
   CircleHelp,
   ClipboardList,
+  Download,
   FileText,
   Image,
   LayoutDashboard,
@@ -39,6 +40,7 @@ type FieldSpec = { label: string; type?: "text" | "email" | "url" | "date" | "se
 
 type Row = { title: string; status: string; meta: string; note: string; details?: Record<string, string> };
 type TestimonialRecord = { id: string; name: string; comment: string; image: string; designation: string; status: string; position: string };
+type BrochureRecord = { id: string; date: string; name: string; email: string; country: string; phone: string; address: string; href: string };
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
   { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
@@ -293,6 +295,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [websiteSelectedSection, setWebsiteSelectedSection] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [pageSize, setPageSize] = useState("10");
+  const [brochureSearch, setBrochureSearch] = useState("");
+  const [brochureRows, setBrochureRows] = useState<BrochureRecord[]>([]);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
@@ -306,6 +310,28 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [testimonialView, setTestimonialView] = useState("Default");
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
   useEffect(() => { try { const serialized = JSON.stringify(testimonialRows); localStorage.setItem(testimonialStorageKey(eventId), serialized); sessionStorage.setItem(testimonialStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, testimonialRows]);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/event-site/index.html?event=${encodeURIComponent(eventId)}`)
+      .then(response => response.text())
+      .then(html => {
+        if (cancelled) return;
+        const document = new DOMParser().parseFromString(html, "text/html");
+        const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"));
+        const seen = new Set<string>();
+        const resources = links
+          .map(link => ({ href: link.href, label: link.textContent?.replace(/\s+/g, " ").trim() || link.title || "Conference brochure" }))
+          .filter(item => {
+            if (!/brochure|initial-announcement|final-program|abstract-book/i.test(item.href) || seen.has(item.href)) return false;
+            seen.add(item.href);
+            return true;
+          })
+          .map((item, index) => ({ id: `brochure-${index + 1}`, date: "—", name: item.label, email: "—", country: "—", phone: "—", address: "—", href: item.href }));
+        setBrochureRows(resources);
+      })
+      .catch(() => setBrochureRows([]));
+    return () => { cancelled = true; };
+  }, [eventId]);
   const active = getFeature(activeId);
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
     header: { name: "Header", fields: ["Logo image", "Left header content", "Right header content", "Top header text", "Top header text color", "Event title", "Start date", "End date", "Venue", "Header background color", "Bottom date bar color", "Navigation links", "Font family", "Font size", "Text color", "Font weight", "Background color", "Spacing and padding"] },
@@ -455,6 +481,18 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   );
 
   const renderFeature = () => {
+    if (active.id === "brochures") {
+      const query = brochureSearch.trim().toLowerCase();
+      const visibleBrochures = brochureRows.filter(row => [row.date, row.name, row.email, row.country, row.phone, row.address].join(" ").toLowerCase().includes(query));
+      return <>
+        <div className="employee-page-heading employee-feature-heading"><div><h1>Brochure Download</h1></div></div>
+        <section className="employee-brochures-card">
+          <div className="employee-brochures-toolbar"><div className="employee-testimonials-title"><BookOpenText size={16} /> List</div><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><label className="employee-brochure-search">Search: <input type="search" value={brochureSearch} onChange={event => setBrochureSearch(event.target.value)} /></label></div>
+          <div className="employee-table-wrap"><table className="employee-brochures-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Country</th><th>Phone No</th><th>Address</th><th>Actions</th></tr></thead><tbody>{visibleBrochures.slice(0, Number(pageSize)).map(row => <tr key={row.id}><td>{row.date}</td><td>{row.name}</td><td>{row.email}</td><td>{row.country}</td><td>{row.phone}</td><td>{row.address}</td><td><a className="employee-icon-action" href={row.href} target="_blank" rel="noreferrer" aria-label={`Download ${row.name}`} title="Download brochure"><Download size={15} /></a></td></tr>)}{visibleBrochures.length === 0 ? <tr><td colSpan={7}>No brochure resources found in the event website.</td></tr> : null}</tbody></table></div>
+          <div className="employee-table-footer"><span>Showing {visibleBrochures.length ? 1 : 0} to {Math.min(visibleBrochures.length, Number(pageSize))} of {visibleBrochures.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
+        </section>
+      </>;
+    }
     if (active.id === "testimonials-list") {
       const visibleTestimonials = (testimonialView === "Posted Data" ? testimonialRows.filter(item => item.status === "Active") : testimonialRows).slice().sort((a, b) => { const rank = (value: string) => value === "First" ? -1 : value === "Middle" ? 500 : value === "Last" ? 999 : Number(value) || 0; return rank(a.position) - rank(b.position); });
       return <>
