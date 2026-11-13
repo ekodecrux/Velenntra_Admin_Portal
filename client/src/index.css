@@ -1221,3 +1221,28 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .auth-heading p { font-size: 11px; }
   .field-label-row .text-link { font-size: 11px; }
 }
+
+/* Compact reference composition: narrow devices show the complete frame and a proportionally scaled centered card. */
+@media (max-width: 560px) {
+  .auth-panel { padding: 4px 0 24px; }
+  .auth-content { width: min(52vw, 230px); min-width: 210px; padding: 7px 10px 8px; border-width: 1px; border-radius: 9px; }
+  .login-card-brand { padding-bottom: 4px; }
+  .login-card-brand .brand-logo-image { width: 100%; height: 38px; }
+  .auth-heading { padding: 3px 0 4px; }
+  .auth-heading h2 { font-size: 19px; line-height: 1; }
+  .auth-heading p { margin-top: 2px; font-size: 7px; line-height: 1.15; }
+  .field-group { margin-top: 5px; }
+  .field-group label { margin-bottom: 2px; font-size: 8px; }
+  .field-label-row .text-link { font-size: 7px; }
+  .input-shell { min-height: 26px; border-width: 1px; border-radius: 4px; }
+  .input-shell > svg { width: 11px; height: 11px; margin-left: 5px; }
+  .input-shell input { padding-left: 4px; font-size: 8px; }
+  .input-action { width: 20px; }
+  .input-action svg { width: 10px; height: 10px; }
+  .login-options-row { margin-top: 3px; }
+  .remember-me { gap: 3px; font-size: 7px; }
+  .remember-me input { width: 10px; height: 10px; }
+  .signin-button { min-height: 28px; margin-top: 6px; border-radius: 4px; gap: 5px; font-size: 10px; }
+  .signin-button svg { width: 12px; height: 12px; }
+  .auth-footer { bottom: 5px; font-size: 7px; }
+}
