@@ -1502,3 +1502,20 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 
 .conference-top-brand { right: 52%; padding: 0 .8%; background: rgba(255,255,255,.94); border-radius: 0 0 16px 16px; }
 .conference-top-brand img { width: clamp(190px, 20vw, 280px); mix-blend-mode: normal; }
+
+/* Readability pass: taller controls and a clearer logo lockup above the form. */
+.auth-content { padding-top: 2.8%; padding-bottom: 2.6%; }
+.login-card-brand { height: 23%; padding-bottom: 1.5%; }
+.login-card-brand .brand-logo-image { width: 82%; height: 108%; object-fit: contain; }
+.login-card-title { height: 13%; margin-top: 3%; }
+.auth-form { margin-top: 3.5%; }
+.auth-form .field-group { margin-top: 3.5%; }
+.auth-form .input-shell { min-height: clamp(40px, 5.4vh, 58px); height: clamp(40px, 5.4vh, 58px); }
+.auth-form .input-shell input { font-size: clamp(12px, 1.15vw, 18px); }
+.auth-form .signin-button { margin-top: 4.5%; padding: 3.5% 0; }
+@media (max-width: 700px) {
+  .login-card-brand { height: 22%; }
+  .login-card-brand .brand-logo-image { width: 84%; }
+  .auth-form .input-shell { min-height: 28px; height: 28px; }
+  .auth-form .input-shell input { font-size: 7px; }
+}
