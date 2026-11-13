@@ -41,6 +41,7 @@ type FieldSpec = { label: string; type?: "text" | "email" | "url" | "date" | "se
 type Row = { title: string; status: string; meta: string; note: string; details?: Record<string, string> };
 type TestimonialRecord = { id: string; name: string; comment: string; image: string; designation: string; status: string; position: string };
 type BrochureRecord = { id: string; serial: number; date: string; name: string; email: string; country: string; phone: string; address: string; href: string };
+type AbstractRecord = { id: string; name: string; abstractTitle: string; email: string; country: string; phone: string; category: string; trackName: string; address: string; interested: string; organization: string; date: string };
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
   { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
@@ -253,6 +254,7 @@ const defaultRows = (feature: Feature): Row[] => [
 ];
 const testimonialStorageKey = (eventId: string) => `velentra-testimonials-${eventId || "global"}`;
 const testimonialPositionOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "First", "Middle", "Last"];
+const abstractStorageKey = (eventId: string) => `velentra-abstracts-${eventId || "global"}`;
 const defaultTestimonials: TestimonialRecord[] = [
   { id: "testimonial-kenichi", name: "Kenichi Komura", comment: "I learned a lot from the meeting. I enjoyed the Conference and visiting at Las Vegas.", image: "/event-site/uploads/testimonials/kenichi-komura-2906.jpg", designation: "Gifu University, Japan", status: "Active", position: "1" },
   { id: "testimonial-heechae", name: "Heechae Choi", comment: "Thank you for the fantastic arrangement of the past conference meeting in Singapore.", image: "/event-site/uploads/testimonials/heechae-choi-7099.jpg", designation: "University of Cologne, Germany", status: "Active", position: "2" },
@@ -298,6 +300,11 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [brochureSearch, setBrochureSearch] = useState("");
   const [brochureRows, setBrochureRows] = useState<BrochureRecord[]>([]);
   const [selectedBrochure, setSelectedBrochure] = useState<BrochureRecord | null>(null);
+  const [abstractRows, setAbstractRows] = useState<AbstractRecord[]>(() => {
+    try { return JSON.parse(localStorage.getItem(abstractStorageKey(eventId)) ?? sessionStorage.getItem(abstractStorageKey(eventId)) ?? "[]") as AbstractRecord[]; } catch { return []; }
+  });
+  const [abstractSearch, setAbstractSearch] = useState("");
+  const [abstractSubmissionUrl, setAbstractSubmissionUrl] = useState("");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
@@ -332,6 +339,15 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       })
       .catch(() => setBrochureRows([]));
     return () => { cancelled = true; };
+  }, [eventId]);
+  useEffect(() => {
+    try { const serialized = JSON.stringify(abstractRows); localStorage.setItem(abstractStorageKey(eventId), serialized); sessionStorage.setItem(abstractStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ }
+  }, [eventId, abstractRows]);
+  useEffect(() => {
+    fetch(`/event-site/index.html?event=${encodeURIComponent(eventId)}`).then(response => response.text()).then(html => {
+      const document = new DOMParser().parseFromString(html, "text/html");
+      setAbstractSubmissionUrl(document.querySelector<HTMLAnchorElement>('a[href*="submit-abstract"]')?.href ?? "");
+    }).catch(() => setAbstractSubmissionUrl(""));
   }, [eventId]);
   const active = getFeature(activeId);
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
@@ -482,6 +498,18 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   );
 
   const renderFeature = () => {
+    if (active.id === "abstracts") {
+      const query = abstractSearch.trim().toLowerCase();
+      const visibleAbstracts = abstractRows.filter(row => Object.values(row).join(" ").toLowerCase().includes(query));
+      return <>
+        <div className="employee-page-heading employee-feature-heading"><div><h1>Abstracts</h1></div></div>
+        <section className="employee-abstracts-card">
+          <div className="employee-abstracts-toolbar"><div className="employee-testimonials-title"><FileText size={16} /> Abstracts Upload</div><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><label className="employee-brochure-search">Search: <input type="search" value={abstractSearch} onChange={event => setAbstractSearch(event.target.value)} /></label>{abstractSubmissionUrl ? <a className="employee-primary-button employee-abstract-submit" href={abstractSubmissionUrl} target="_blank" rel="noreferrer">Submit Abstract <ArrowUpRight size={14} /></a> : null}</div>
+          <div className="employee-table-wrap"><table className="employee-abstracts-table"><thead><tr><th>S.No</th><th>Name</th><th>Abstract Title</th><th>Email</th><th>Country</th><th>Phone No</th><th>Category</th><th>Track Name</th><th>Address</th><th>Interested</th><th>Organization</th><th>Date</th><th>Action</th></tr></thead><tbody>{visibleAbstracts.slice(0, Number(pageSize)).map((row, index) => <tr key={row.id}><td>{index + 1}</td><td>{row.name}</td><td>{row.abstractTitle}</td><td>{row.email}</td><td>{row.country}</td><td>{row.phone}</td><td>{row.category}</td><td>{row.trackName}</td><td>{row.address}</td><td>{row.interested}</td><td>{row.organization}</td><td>{row.date}</td><td><button className="employee-row-action" type="button" onClick={() => setNotice(`${row.name}'s abstract is selected for review.`)}>View</button></td></tr>)}{visibleAbstracts.length === 0 ? <tr><td colSpan={13}>No data available in table</td></tr> : null}</tbody></table></div>
+          <div className="employee-table-footer"><span>Showing {visibleAbstracts.length ? 1 : 0} to {Math.min(visibleAbstracts.length, Number(pageSize))} of {visibleAbstracts.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last page.")}>Next</button></div></div>
+        </section>
+      </>;
+    }
     if (active.id === "brochures") {
       const query = brochureSearch.trim().toLowerCase();
       const visibleBrochures = brochureRows.filter(row => [row.date, row.name, row.email, row.country, row.phone, row.address].join(" ").toLowerCase().includes(query));
