@@ -1152,3 +1152,31 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .velentra-shell { background-color: #edf6ff; background-image: radial-gradient(circle at 92% 10%, rgba(196,224,252,.7) 0 2px, transparent 3px), linear-gradient(145deg, #0753af 0 8%, transparent 8.2%), linear-gradient(25deg, transparent 0 78%, #0aa35b 78.2% 79.2%, transparent 79.4%), linear-gradient(160deg, transparent 0 84%, #0864c2 84.2% 88%, transparent 88.2%), linear-gradient(145deg, #dcecff 0 22%, #f8fbff 22.2% 76%, #dcecff 76.2%); }
 .velentra-shell::before, .velentra-shell::after { display: block; }
 .auth-content { background: #fff; }
+
+/* Reduce visual scale so the card is proportionate on standard laptop/device viewports. */
+.auth-content { width: min(100%, 660px); min-height: 0; padding: 22px 34px 24px; }
+.login-card-brand .brand-logo-image { width: min(100%, 430px); height: 98px; }
+.auth-heading { padding: 10px 0 12px; }
+.auth-heading h2 { font-size: 44px; }
+.auth-heading p { font-size: 18px; }
+.field-group { margin-top: 15px; }
+.input-shell { min-height: 62px; }
+.input-shell input { font-size: 18px; }
+.signin-button { min-height: 60px; margin-top: 20px; font-size: 24px; }
+@media (max-height: 760px) and (min-width: 701px) {
+  .auth-content { width: min(100%, 660px); padding: 10px 34px 12px; }
+  .login-card-brand .brand-logo-image { height: 54px; }
+  .auth-heading h2 { font-size: 34px; }
+  .auth-heading p { font-size: 13px; }
+  .input-shell { min-height: 44px; }
+  .input-shell input { font-size: 15px; }
+  .signin-button { min-height: 44px; margin-top: 8px; font-size: 18px; }
+}
+@media (max-width: 700px) {
+  .auth-content { width: 100%; padding: 15px 18px 18px; }
+  .login-card-brand .brand-logo-image { height: 56px; }
+  .auth-heading h2 { font-size: 34px; }
+  .auth-heading p { font-size: 13px; }
+  .input-shell { min-height: 50px; }
+  .signin-button { min-height: 50px; font-size: 19px; }
+}
