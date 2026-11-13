@@ -111,3 +111,4 @@
 - [x] Keep the experience responsive across desktop and mobile and usable by keyboard and assistive technology.
 
 - [x] Match the audited live Site Settings modules in both Admin and Employee Website Configuration: Header Section (Top Header, Heading, dates, venue, hotel, address, about image), Footer Section (address, enquiry emails, phone/WhatsApp, website, conference theme, social links), Theme Settings (theme/accent colors, logo, alt/title, banner), and Conference Credits (credit name, details, badge). Prefill event values, support local uploads, and sync theme/header/footer changes into the event website preview.
+- [x] Match the live application’s visible navigation label: show `Site Settings` in the Admin and Employee main sidebars instead of `Website Configuration`; keep the event website editor and its Header/Footer/Theme/Credits modules behind that Site Settings entry.

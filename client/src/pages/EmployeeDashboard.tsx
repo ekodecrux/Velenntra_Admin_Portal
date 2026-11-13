@@ -134,10 +134,10 @@ const sections: Section[] = [
     items: [item("home-tabs", "Home Tabs", "Manage content tabs displayed on the homepage.", SlidersHorizontal), item("add-home-tab", "Add New Tab", "Add a new homepage content tab.", Plus, "form")],
   },
   {
-    label: "Website Configuration",
+    label: "Site Settings",
     icon: Settings2,
     direct: true,
-    items: [item("website-editor", "Website Configuration", "Manage website content, sections, images, logos, and publishing controls.", Settings2, "form"), item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
+    items: [item("website-editor", "Site Settings", "Manage the event website sections, content, images, logos, theme, footer, and conference credits.", Settings2, "form"), item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
   },
 ];
 
