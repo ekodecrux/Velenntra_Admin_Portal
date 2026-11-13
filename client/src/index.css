@@ -1564,3 +1564,6 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .brand-wordmark i { width: 13px; height: 1px; }
   .brand-wordmark span { font-size: 7px; letter-spacing: .2em; }
 }
+
+/* Exact rounded-logo correction: the asset already contains the mark ring. */
+.brand-round-mark { border: 0; }
