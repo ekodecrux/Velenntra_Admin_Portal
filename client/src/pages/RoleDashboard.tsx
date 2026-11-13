@@ -36,7 +36,13 @@ type RoleFeature = { id: string; label: string; description: string; kind: ViewK
 type RoleSection = { label: string; items: RoleFeature[]; direct?: boolean; icon?: LucideIcon };
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
-  { id: "pages", label: "Menu Pages", editorId: "pages" },
+  { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
+  { id: "buttons-list", label: "Buttons List", editorId: "buttons-list" },
+  { id: "testimonials", label: "Testimonials", editorId: "testimonials" },
+  { id: "pages", label: "Pages", editorId: "pages" },
+  { id: "home-tabs", label: "Home Tabs", editorId: "home-tabs" },
+  { id: "site-settings", label: "Site Settings", editorId: "site-settings" },
+  { id: "menu-pages", label: "Menu Pages", editorId: "pages" },
   { id: "hero", label: "Banner", editorId: "hero" },
   { id: "announcements", label: "Announcements", editorId: "announcements" },
   { id: "about", label: "About content", editorId: "about" },
@@ -46,7 +52,6 @@ const websiteConfigMenu = [
   { id: "conference-schedule", label: "Conference schedule", editorId: "conference-schedule" },
   { id: "video-testimonials", label: "Past conference videos", editorId: "video-testimonials" },
   { id: "gallery", label: "Photo gallery", editorId: "gallery" },
-  { id: "testimonials", label: "Testimonials", editorId: "testimonials" },
   { id: "footer", label: "Footer", editorId: "footer" },
   { id: "social-media", label: "Social media links", editorId: "social-media" },
 ];
@@ -176,7 +181,12 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const active = allFeatures.find(item => item.id === activeId) ?? allFeatures[0];
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
     header: { name: "Header", fields: ["Logo image", "Left header content", "Right header content", "Top header text", "Top header text color", "Event title", "Start date", "End date", "Venue", "Header background color", "Bottom date bar color", "Navigation links", "Font family", "Font size", "Text color", "Font weight", "Background color", "Spacing and padding"] },
+    "conference-sessions": { name: "Conference Sessions", fields: ["Session title", "Session date", "Start time", "End time", "Room / venue", "Speakers", "Status"] },
+    "buttons-list": { name: "Buttons List", fields: ["Button label", "Button URL", "Button style", "Button color", "Status"] },
+    "home-tabs": { name: "Home Tabs", fields: ["Tab 1 title", "Tab 1 content", "Tab 2 title", "Tab 2 content", "Tab image URL", "Upload tab image"] },
+    "site-settings": { name: "Site Settings", fields: ["Site title", "Default page", "Event timezone", "Registration status", "Maintenance message"] },
     pages: { name: "Menu Pages", fields: ["Page title", "Page URL slug", "Page content", "Page image URL", "Upload page image"] },
+    "menu-pages": { name: "Menu Pages", fields: ["Page title", "Page URL slug", "Page content", "Page image URL", "Upload page image"] },
     hero: { name: "Banner", fields: ["Hero headline", "Hero subtitle", "Banner image URL", "Button label", "Button URL"] },
     announcements: { name: "Announcements", fields: ["Announcement 1", "Announcement 2", "Announcement 3", "Announcement text color", "Announcement background color", "Rotation interval (seconds)"] },
     about: { name: "About content", fields: ["About heading", "Feature image URL", "About content"] },
