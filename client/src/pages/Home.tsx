@@ -140,6 +140,28 @@ export default function Home() {
 
   return (
     <div className="velentra-shell">
+      <div className="conference-copy" aria-label="Velentra conference information">
+        <div className="conference-top-brand">
+          <img src="/conference-header-logo.png" alt="Velentra Group" />
+          <span>Innovating Today... Empowering Tomorrow...</span>
+        </div>
+        <div className="conference-hero-copy">
+          <p className="conference-overline">Velentra Group</p>
+          <h1>Conferences</h1>
+          <div className="conference-motto"><i /> <span>Connect · Share · Grow</span> <i /></div>
+          <p>A Platform for Knowledge, Innovation<br />and Collaboration</p>
+        </div>
+        <div className="conference-feature-copy">
+          <span><CalendarDays /> Conference<br />Events</span>
+          <span><UsersRound /> Expert Speakers</span>
+          <span><Workflow /> Knowledge Sharing</span>
+          <span><ShieldCheck /> Networking Opportunities</span>
+        </div>
+        <div className="conference-bottom-copy">
+          <span>© 2026 Velentra Group. All Rights Reserved.</span>
+          <span>Together Towards a Smarter Future</span>
+        </div>
+      </div>
       <section className="brand-panel" aria-label="Velentra platform overview">
         <div className="brand-grid" aria-hidden="true" />
         <div className="brand-orbit brand-orbit-one" aria-hidden="true" />
