@@ -316,8 +316,7 @@ export default function EmployeeDashboard({ onBack, username, initialFeature = "
   };
 
   const openWebsiteConfigurationTab = () => {
-    const tab = window.open("/workspace/employee/website-configuration", "_blank", "noopener,noreferrer");
-    if (!tab) setNotice("Allow pop-ups to open Website Configuration in a new tab.");
+    selectFeature("website-editor");
   };
 
   const beginEdit = (row: Row) => {

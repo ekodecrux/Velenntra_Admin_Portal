@@ -210,8 +210,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   };
 
   const openWebsiteConfigurationTab = () => {
-    const tab = window.open("/workspace/admin/website-configuration", "_blank", "noopener,noreferrer");
-    if (!tab) setNotice("Allow pop-ups to open Website Configuration in a new tab.");
+    selectFeature("website-editor");
   };
 
   const toggleSection = (label: string) => setExpandedSections(current => { const next = new Set(current); if (next.has(label)) next.delete(label); else next.add(label); return next; });

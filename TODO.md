@@ -65,6 +65,7 @@
 - [x] While Website Configuration is active, replace the top-header Admin/Employee label with Website Configuration and add a divider line between the Velentra logo and the title.
 - [x] Remove the duplicate Website Configuration heading from the left menu; keep the label only in the top header above the editor.
 - [x] Keep the initial website preview unchanged while adding Employee-style website management items to the Admin configuration rail: Conference Sessions, Buttons List, Testimonials, Pages, Home Tabs, Site Settings, Menu Pages, Banner, Announcements, About content, Scientific sessions, Past conference, Media partner, Conference schedule, Past conference videos, Photo gallery, Footer, and Social media links.
+- [x] Open Website Configuration in the same authenticated Admin/Employee workspace instead of a new pop-up tab, so the Admin login can always reach the event website editor and its related menu.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.
