@@ -38,17 +38,17 @@ const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
   { id: "pages", label: "Menu Pages", editorId: "pages" },
   { id: "hero", label: "Banner", editorId: "hero" },
-  { id: "announcements", label: "Announcements", editorId: "header" },
+  { id: "announcements", label: "Announcements", editorId: "announcements" },
   { id: "about", label: "About content", editorId: "about" },
-  { id: "scientific-sessions", label: "Scientific sessions", editorId: "pages" },
-  { id: "past-conference", label: "Past conference", editorId: "pages" },
-  { id: "media-partner", label: "Media partner", editorId: "gallery" },
-  { id: "conference-schedule", label: "Conference schedule", editorId: "pages" },
+  { id: "scientific-sessions", label: "Scientific sessions", editorId: "scientific-sessions" },
+  { id: "past-conference", label: "Past conference", editorId: "past-conference" },
+  { id: "media-partner", label: "Media partner", editorId: "media-partner" },
+  { id: "conference-schedule", label: "Conference schedule", editorId: "conference-schedule" },
   { id: "video-testimonials", label: "Past conference videos", editorId: "video-testimonials" },
   { id: "gallery", label: "Photo gallery", editorId: "gallery" },
   { id: "testimonials", label: "Testimonials", editorId: "testimonials" },
   { id: "footer", label: "Footer", editorId: "footer" },
-  { id: "social-media", label: "Social media links", editorId: "footer" },
+  { id: "social-media", label: "Social media links", editorId: "social-media" },
 ];
 type EventRecord = { id: string; title: string; startDate: string; endDate: string; venue: string; eventStatus: string; subdomain: string; domain: string; websiteStatus: string };
 type EmployeeRecord = { id: string; employeeId: string; name: string; email: string; contactNumber: string; address: string; role: string; status: string; updated: string };
@@ -115,7 +115,7 @@ export const roleConfigs: Record<RoleKey, { label: string; shortLabel: string; e
         feature("publishing-readiness", "Publishing Readiness", "Check whether event content is ready to publish.", ShieldCheck),
       ] },
       { label: "Website Configuration", direct: true, icon: Pencil, items: [
-        feature("website-editor", "Website Configuration", "Manage event website content, sections, images, logos, SEO, theme, defaults, and publishing controls.", Pencil, "settings", ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status", "Default site title", "Default contact email", "Default publishing mode", "Default template", "Require Admin approval", "Allow employee edits after publish", "Archive behavior", "Credit title", "Credit content"]),
+        feature("website-editor", "Website Configuration", "Manage event website content, sections, images, logos, theme, defaults, and publishing controls.", Pencil, "settings", ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "Primary color", "Accent color", "Website status", "Default site title", "Default contact email", "Default publishing mode", "Default template", "Require Admin approval", "Allow employee edits after publish", "Archive behavior", "Credit title", "Credit content"]),
         feature("published-sites", "Published Sites", "Review and manage published event websites.", Globe2),
         feature("manage-websites", "Manage Event Websites", "Open event websites, templates, content status, and publish controls.", Globe2),
         feature("publishing-rules", "Publishing Rules", "Manage the single Admin approval and publishing workflow.", Workflow, "settings", ["Require Admin approval", "Allow employee edits after publish", "Archive behavior"]),
@@ -176,19 +176,19 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const active = allFeatures.find(item => item.id === activeId) ?? allFeatures[0];
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
     header: { name: "Header", fields: ["Logo image", "Left header content", "Right header content", "Top header text", "Top header text color", "Event title", "Start date", "End date", "Venue", "Header background color", "Bottom date bar color", "Navigation links", "Font family", "Font size", "Text color", "Font weight", "Background color", "Spacing and padding"] },
-    pages: { name: "Menu Pages", fields: ["Page title", "Page URL slug", "Page content", "SEO title", "SEO description"] },
+    pages: { name: "Menu Pages", fields: ["Page title", "Page URL slug", "Page content", "Page image URL", "Upload page image"] },
     hero: { name: "Banner", fields: ["Hero headline", "Hero subtitle", "Banner image URL", "Button label", "Button URL"] },
-    announcements: { name: "Announcements", fields: ["Top header text", "Top header text color", "Font family", "Font size", "Text color", "Background color", "Spacing and padding"] },
+    announcements: { name: "Announcements", fields: ["Announcement 1", "Announcement 2", "Announcement 3", "Announcement text color", "Announcement background color", "Rotation interval (seconds)"] },
     about: { name: "About content", fields: ["About heading", "Feature image URL", "About content"] },
-    "scientific-sessions": { name: "Scientific sessions", fields: ["Page title", "Page content", "SEO title", "SEO description"] },
-    "past-conference": { name: "Past conference", fields: ["Page title", "Page content", "Feature image URL", "SEO title"] },
-    "media-partner": { name: "Media partner", fields: ["Gallery heading", "Image URLs", "Captions"] },
-    "conference-schedule": { name: "Conference schedule", fields: ["Page title", "Page content", "SEO title"] },
+    "scientific-sessions": { name: "Scientific sessions", fields: ["Scientific sessions heading", "Sessions introduction", "Session topics", "View sessions button label", "Sessions button URL"] },
+    "past-conference": { name: "Past conference", fields: ["Past conference heading", "Conference year", "Conference report", "Feature image URL", "Final program URL", "Past gallery URL"] },
+    "media-partner": { name: "Media partner", fields: ["Media partner heading", "Partner name", "Partner website URL", "Partner logo URL", "Upload partner logo"] },
+    "conference-schedule": { name: "Conference schedule", fields: ["Schedule heading", "Day 1 label and date", "Day 2 label and date", "Day 3 label and date", "Schedule rows"] },
     "video-testimonials": { name: "Past conference videos", fields: ["Video title", "Video URL", "Poster image URL", "Video description"] },
     gallery: { name: "Photo gallery", fields: ["Gallery heading", "Image URLs", "Captions"] },
     testimonials: { name: "Testimonials", fields: ["Testimonial heading", "Testimonial quote", "Author name", "Author role", "Author photo URL"] },
     footer: { name: "Footer", fields: ["Address", "Contact email", "Phone number", "Footer content"] },
-    "social-media": { name: "Social media links", fields: ["Social links"] },
+    "social-media": { name: "Social media links", fields: ["Facebook URL", "X / Twitter URL", "YouTube URL", "Blog URL", "Link labels"] },
   };
 
   const selectFeature = (id: string) => {

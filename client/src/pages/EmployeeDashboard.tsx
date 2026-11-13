@@ -41,17 +41,17 @@ const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
   { id: "pages", label: "Menu Pages", editorId: "pages" },
   { id: "hero", label: "Banner", editorId: "hero" },
-  { id: "announcements", label: "Announcements", editorId: "header" },
+  { id: "announcements", label: "Announcements", editorId: "announcements" },
   { id: "about", label: "About content", editorId: "about" },
-  { id: "scientific-sessions", label: "Scientific sessions", editorId: "pages" },
-  { id: "past-conference", label: "Past conference", editorId: "pages" },
-  { id: "media-partner", label: "Media partner", editorId: "gallery" },
-  { id: "conference-schedule", label: "Conference schedule", editorId: "pages" },
+  { id: "scientific-sessions", label: "Scientific sessions", editorId: "scientific-sessions" },
+  { id: "past-conference", label: "Past conference", editorId: "past-conference" },
+  { id: "media-partner", label: "Media partner", editorId: "media-partner" },
+  { id: "conference-schedule", label: "Conference schedule", editorId: "conference-schedule" },
   { id: "video-testimonials", label: "Past conference videos", editorId: "video-testimonials" },
   { id: "gallery", label: "Photo gallery", editorId: "gallery" },
   { id: "testimonials", label: "Testimonials", editorId: "testimonials" },
   { id: "footer", label: "Footer", editorId: "footer" },
-  { id: "social-media", label: "Social media links", editorId: "footer" },
+  { id: "social-media", label: "Social media links", editorId: "social-media" },
 ];
 
 const item = (id: string, label: string, description: string, icon: LucideIcon, kind: FeatureKind = "list", createTarget?: string): Feature => ({ id, label, description, icon, kind, createTarget });
@@ -127,7 +127,7 @@ const sections: Section[] = [
     label: "Website Configuration",
     icon: Settings2,
     direct: true,
-    items: [item("website-editor", "Website Configuration", "Manage website content, sections, images, logos, SEO, and publishing controls.", Settings2, "form"), item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
+    items: [item("website-editor", "Website Configuration", "Manage website content, sections, images, logos, and publishing controls.", Settings2, "form"), item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
   },
 ];
 
@@ -215,10 +215,10 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-testimonial": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Designation" }, { label: "Comment", type: "textarea" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-video-testimonial": [{ label: "Name" }, { label: "Video URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
   "add-home-tab": [{ label: "Title" }, { label: "Content", type: "textarea" }],
-  "header-section": ["Header copy", "Event start date", "Event end date", "Venue", "Hotel", "Address", "About image", "SEO title", "SEO description", "SEO keywords"].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("description") || label.includes("keywords") ? "textarea" as const : label === "About image" ? "file" as const : "text" as const })),
+  "header-section": ["Header copy", "Event start date", "Event end date", "Venue", "Hotel", "Address", "About image", ].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("description") || label.includes("keywords") ? "textarea" as const : label === "About image" ? "file" as const : "text" as const })),
   "footer-section": ["Footer address", "Email 1", "Email 2", "Email 3", "Phone", "WhatsApp", "Website URL", "Conference short name", "Theme", "Facebook", "X / Twitter", "YouTube", "LinkedIn", "Instagram", "Blog"].map(label => ({ label, type: label.startsWith("Email") ? "email" as const : label.includes("URL") || label === "Facebook" || label === "X / Twitter" || label === "YouTube" || label === "LinkedIn" || label === "Instagram" || label === "Blog" ? "url" as const : "text" as const })),
   "theme-settings": [{ label: "Theme color", type: "text" }, { label: "Accent color", type: "text" }, { label: "Conference logo", type: "file" }, { label: "Logo alt text" }, { label: "Logo title" }, { label: "Theme banner", type: "file" }],
-  "website-editor": ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "SEO title", "SEO description", "Primary color", "Accent color", "Website status"].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("copy") || label.includes("description") || label.includes("links") ? "textarea" as const : label.includes("URL") || label.includes("color") ? "url" as const : "text" as const })),
+  "website-editor": ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "Primary color", "Accent color", "Website status"].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("copy") || label.includes("description") || label.includes("links") ? "textarea" as const : label.includes("URL") || label.includes("color") ? "url" as const : "text" as const })),
   "conference-credits": [{ label: "Credit title" }, { label: "Credit content", type: "textarea" }],
   "add-member": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Country" }, { label: "Designation" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-representative": [{ label: "Name" }, { label: "Organization" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
@@ -275,19 +275,19 @@ export default function EmployeeDashboard({ onBack, username, initialFeature = "
   const active = getFeature(activeId);
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
     header: { name: "Header", fields: ["Logo image", "Left header content", "Right header content", "Top header text", "Top header text color", "Event title", "Start date", "End date", "Venue", "Header background color", "Bottom date bar color", "Navigation links", "Font family", "Font size", "Text color", "Font weight", "Background color", "Spacing and padding"] },
-    pages: { name: "Menu Pages", fields: ["Page title", "Page URL slug", "Page content", "SEO title", "SEO description"] },
+    pages: { name: "Menu Pages", fields: ["Page title", "Page URL slug", "Page content", "Page image URL", "Upload page image"] },
     hero: { name: "Banner", fields: ["Hero headline", "Hero subtitle", "Banner image URL", "Button label", "Button URL"] },
-    announcements: { name: "Announcements", fields: ["Top header text", "Top header text color", "Font family", "Font size", "Text color", "Background color", "Spacing and padding"] },
+    announcements: { name: "Announcements", fields: ["Announcement 1", "Announcement 2", "Announcement 3", "Announcement text color", "Announcement background color", "Rotation interval (seconds)"] },
     about: { name: "About content", fields: ["About heading", "Feature image URL", "About content"] },
-    "scientific-sessions": { name: "Scientific sessions", fields: ["Page title", "Page content", "SEO title", "SEO description"] },
-    "past-conference": { name: "Past conference", fields: ["Page title", "Page content", "Feature image URL", "SEO title"] },
-    "media-partner": { name: "Media partner", fields: ["Gallery heading", "Image URLs", "Captions"] },
-    "conference-schedule": { name: "Conference schedule", fields: ["Page title", "Page content", "SEO title"] },
+    "scientific-sessions": { name: "Scientific sessions", fields: ["Scientific sessions heading", "Sessions introduction", "Session topics", "View sessions button label", "Sessions button URL"] },
+    "past-conference": { name: "Past conference", fields: ["Past conference heading", "Conference year", "Conference report", "Feature image URL", "Final program URL", "Past gallery URL"] },
+    "media-partner": { name: "Media partner", fields: ["Media partner heading", "Partner name", "Partner website URL", "Partner logo URL", "Upload partner logo"] },
+    "conference-schedule": { name: "Conference schedule", fields: ["Schedule heading", "Day 1 label and date", "Day 2 label and date", "Day 3 label and date", "Schedule rows"] },
     "video-testimonials": { name: "Past conference videos", fields: ["Video title", "Video URL", "Poster image URL", "Video description"] },
     gallery: { name: "Photo gallery", fields: ["Gallery heading", "Image URLs", "Captions"] },
     testimonials: { name: "Testimonials", fields: ["Testimonial heading", "Testimonial quote", "Author name", "Author role", "Author photo URL"] },
     footer: { name: "Footer", fields: ["Address", "Contact email", "Phone number", "Footer content"] },
-    "social-media": { name: "Social media links", fields: ["Social links"] },
+    "social-media": { name: "Social media links", fields: ["Facebook URL", "X / Twitter URL", "YouTube URL", "Blog URL", "Link labels"] },
   };
 
   const selectFeature = (id: string) => {
@@ -348,7 +348,7 @@ export default function EmployeeDashboard({ onBack, username, initialFeature = "
   const saveForm = () => {
     if (active.id === "website-editor") {
       try { sessionStorage.setItem("velentra-site-config-global", JSON.stringify(formValues)); } catch { /* Preview storage can be unavailable. */ }
-      setNotice("Website content, images, logos, SEO, and publishing settings saved for Employee and Admin access.");
+      setNotice("Website content, images, logos, and publishing settings saved for Employee and Admin access.");
       return;
     }
     if (active.id === "email-search") {
