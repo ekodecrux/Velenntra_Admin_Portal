@@ -1060,3 +1060,44 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .login-options-row { display: flex; align-items: center; justify-content: flex-start; margin-top: 18px; }
 .remember-me { display: inline-flex; align-items: center; gap: 10px; color: #142c58; font-size: 16px; font-weight: 600; cursor: pointer; }
 .remember-me input { width: 22px; height: 22px; accent-color: #1268cb; }
+
+/* Compact viewport correction: the supplied reference is a full screenshot, so use clean CSS curves rather than placing it behind the card. */
+.velentra-shell { position: relative; overflow: hidden; background-color: #edf6ff; background-image: radial-gradient(circle at 92% 10%, rgba(196,224,252,.7) 0 2px, transparent 3px), linear-gradient(145deg, #0753af 0 8%, transparent 8.2%), linear-gradient(25deg, transparent 0 78%, #0aa35b 78.2% 79.2%, transparent 79.4%), linear-gradient(160deg, transparent 0 84%, #0864c2 84.2% 88%, transparent 88.2%), linear-gradient(145deg, #dcecff 0 22%, #f8fbff 22.2% 76%, #dcecff 76.2%); }
+.velentra-shell::before, .velentra-shell::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; transform: rotate(-18deg); }
+.velentra-shell::before { width: 130%; height: 52%; left: -38%; top: -25%; border: 18px solid rgba(5,99,192,.9); box-shadow: 0 12px 0 rgba(4,164,89,.95), 0 25px 0 rgba(245,251,255,.95); }
+.velentra-shell::after { width: 125%; height: 42%; right: -42%; bottom: -28%; border: 18px solid rgba(5,99,192,.92); box-shadow: 0 -12px 0 rgba(4,164,89,.95), 0 -25px 0 rgba(245,251,255,.95); }
+.auth-panel { position: relative; z-index: 1; overflow: hidden; }
+.auth-content { width: min(100%, 740px); max-height: calc(100svh - 86px); overflow: hidden; padding: 18px 42px 20px; }
+.login-card-brand { padding-bottom: 10px; }
+.login-card-brand .brand-logo-image { height: 78px; }
+.auth-heading { padding: 9px 0 7px; }
+.auth-heading h2 { font-size: clamp(34px, 4vw, 48px); }
+.auth-heading p { margin-top: 5px; font-size: 16px; }
+.field-group { margin-top: 12px; }
+.input-shell { min-height: 56px; }
+.signin-button { min-height: 56px; margin-top: 16px; font-size: 22px; }
+.login-options-row { margin-top: 10px; }
+.remember-me { font-size: 14px; }
+.remember-me input { width: 18px; height: 18px; }
+.auth-footer { z-index: 2; }
+@media (max-height: 760px) and (min-width: 701px) {
+  .auth-panel { padding: 10px 18px 38px; }
+  .auth-content { max-height: calc(100svh - 48px); padding: 12px 42px 14px; }
+  .login-card-brand .brand-logo-image { height: 64px; }
+  .auth-heading h2 { font-size: 38px; }
+  .auth-heading p { font-size: 14px; }
+  .field-group { margin-top: 9px; }
+  .input-shell { min-height: 48px; }
+  .signin-button { min-height: 48px; margin-top: 10px; font-size: 20px; }
+  .login-options-row { margin-top: 6px; }
+}
+@media (max-width: 700px) {
+  .auth-content { max-height: calc(100svh - 86px); overflow: hidden; padding: 17px 20px 20px; }
+  .login-card-brand .brand-logo-image { height: 64px; }
+  .auth-heading { padding-top: 8px; }
+  .auth-heading h2 { font-size: 36px; }
+  .auth-heading p { font-size: 14px; }
+  .field-group { margin-top: 12px; }
+  .input-shell { min-height: 52px; }
+  .signin-button { min-height: 52px; font-size: 20px; margin-top: 14px; }
+}
