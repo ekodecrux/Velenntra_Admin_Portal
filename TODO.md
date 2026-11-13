@@ -63,6 +63,7 @@
 - [x] Replace reused/placeholder fields with unique imported-content schemas for Announcements, Menu Pages, Scientific Sessions, Past Conference, Media Partner, Conference Schedule, Past Conference Videos, Photo Gallery, Testimonials, Footer, and Social Media Links; remove SEO title, description, and keyword controls.
 - [x] Match the Employee reference form presentation in Admin Website Configuration: show `Page : <section>` at the top, a green `Edit: <section>` panel, existing values, image/file upload fields, and section status; Testimonials specifically uses Name, Image, Designation, Comment, and Status fields.
 - [x] While Website Configuration is active, replace the top-header Admin/Employee label with Website Configuration and add a divider line between the Velentra logo and the title.
+- [x] Remove the duplicate Website Configuration heading from the left menu; keep the label only in the top header above the editor.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.
