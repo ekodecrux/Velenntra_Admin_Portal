@@ -28,6 +28,21 @@
       if (values.title && heading) heading.textContent = values.title;
       if (values.subtitle && subtitle) subtitle.textContent = values.subtitle;
       if (values.imageUrl && banner) banner.src = values.imageUrl;
+      const testimonialsRaw = sessionStorage.getItem(`velentra-testimonials-${eventId}`) || localStorage.getItem(`velentra-testimonials-${eventId}`);
+      const testimonials = testimonialsRaw ? JSON.parse(testimonialsRaw).filter(item => item.status === 'Active' && item.position !== 'Hidden') : [];
+      const testimonialStage = document.querySelector('.testimonial .owl-stage');
+      if (testimonialStage && testimonials.length) {
+        testimonialStage.innerHTML = '';
+        testimonials.forEach(item => {
+          const outer = document.createElement('div'); outer.className = 'owl-item active';
+          const card = document.createElement('div'); card.className = 'testimonial-item';
+          if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.name || 'Testimonial'; card.appendChild(image); }
+          const quote = document.createElement('div'); const paragraph = document.createElement('p'); paragraph.textContent = item.comment || ''; quote.appendChild(paragraph); card.appendChild(quote);
+          const name = document.createElement('span'); name.textContent = item.name || ''; card.appendChild(name);
+          const designation = document.createElement('span'); designation.textContent = item.designation || ''; card.appendChild(designation);
+          outer.appendChild(card); testimonialStage.appendChild(outer);
+        });
+      }
     } catch (_) {
       // Preview content is optional and should never block the imported site.
     }

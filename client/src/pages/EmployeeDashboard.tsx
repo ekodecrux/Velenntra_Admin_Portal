@@ -27,7 +27,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { WorkspaceHeader, WorkspaceFooter } from "@/components/WorkspaceChrome";
 import WebsiteEditor from "@/components/WebsiteEditor";
 
@@ -37,6 +37,7 @@ type Section = { label: string; items: Feature[]; direct?: boolean; icon?: Lucid
 type FieldSpec = { label: string; type?: "text" | "email" | "url" | "date" | "select" | "textarea" | "file"; options?: string[]; placeholder?: string };
 
 type Row = { title: string; status: string; meta: string; note: string; details?: Record<string, string> };
+type TestimonialRecord = { id: string; name: string; comment: string; image: string; designation: string; status: string; position: string };
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
   { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
@@ -244,6 +245,17 @@ const emailSearchTables = ["abstracts", "clients", "contact", "downloadbrochure"
 const defaultRows = (feature: Feature): Row[] => [
   { title: `${feature.label} workspace`, status: "Ready", meta: "No records yet", note: "Create the first record to begin" },
 ];
+const testimonialStorageKey = (eventId: string) => `velentra-testimonials-${eventId || "global"}`;
+const defaultTestimonials: TestimonialRecord[] = [
+  { id: "testimonial-kenichi", name: "Kenichi Komura", comment: "I learned a lot from the meeting. I enjoyed the Conference and visiting at Las Vegas.", image: "/event-site/uploads/testimonials/kenichi-komura-2906.jpg", designation: "Gifu University, Japan", status: "Active", position: "Testimonials section" },
+  { id: "testimonial-heechae", name: "Heechae Choi", comment: "Thank you for the fantastic arrangement of the past conference meeting in Singapore.", image: "/event-site/uploads/testimonials/heechae-choi-7099.jpg", designation: "University of Cologne, Germany", status: "Active", position: "Testimonials section" },
+  { id: "testimonial-mykyta", name: "Mykyta Tretiako", comment: "I would like to raise my compliments for organization of Congress. It was a great opportunity to meet and learn from professionals around the Globe.", image: "/event-site/uploads/testimonials/mykyta-tretiako-7544.jpg", designation: "King Abdullah University of science and technology, Saudi Arabia", status: "Active", position: "Testimonials section" },
+  { id: "testimonial-ili", name: "Ili Bazilah Abd Razak", comment: "The organization, speaker lineup, and engagement were excellent. The conference provided a valuable platform for knowledge exchange and collaboration.", image: "/event-site/uploads/testimonials/ili-bazilah-abd-razak-8485.jpg", designation: "Lead Researcher, FGV R&D Sdn Bhd, Malaysia", status: "Active", position: "Testimonials section" },
+  { id: "testimonial-dionysios", name: "Dionysios (Dion) D. Dionysiou", comment: "The conference was great and attendance was good until the last presentation. I learned some new areas from them.", image: "/event-site/uploads/testimonials/dionysios-dion-d-dionysiou-4481.jpg", designation: "University of Cincinnati, USA", status: "Active", position: "Testimonials section" },
+  { id: "testimonial-stanislaw", name: "Stanislaw Dzwigaj", comment: "I appreciate the conferences organized by Magnus Groups and participate in previous editions in Las Vegas, Rome, and Singapore.", image: "/event-site/uploads/testimonials/stanislaw-dzwigaj-9119.jpg", designation: "Sorbonne Universités, France", status: "Active", position: "Testimonials section" },
+  { id: "testimonial-mohamed", name: "Mohamed El-far", comment: "Greetings and thanks to you. You done very well and we have had excellent success.", image: "/event-site/uploads/testimonials/mohamed-el-far-8135.jpg", designation: "Mansoura University, Egypt", status: "Active", position: "Testimonials section" },
+  { id: "testimonial-quang", name: "Quang Nguyen Tran", comment: "Thank you for organizing the last conference in Singapore, it was a memorable event for me.", image: "/event-site/uploads/testimonials/quang-nguyen-tran-4955.png", designation: "École Nationale Supérieure de Chimie de Montpellier, France", status: "Active", position: "Testimonials section" },
+];
 
 function applyWebsiteConfig(eventId: string, frame: HTMLIFrameElement) {
   try {
@@ -277,6 +289,12 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [pageSize, setPageSize] = useState("10");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
+  const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
+    try { const stored = localStorage.getItem(testimonialStorageKey(eventId)) ?? sessionStorage.getItem(testimonialStorageKey(eventId)); return stored ? JSON.parse(stored) as TestimonialRecord[] : defaultTestimonials; } catch { return defaultTestimonials; }
+  });
+  const [testimonialView, setTestimonialView] = useState("Default");
+  const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
+  useEffect(() => { try { const serialized = JSON.stringify(testimonialRows); localStorage.setItem(testimonialStorageKey(eventId), serialized); sessionStorage.setItem(testimonialStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, testimonialRows]);
   const active = getFeature(activeId);
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
     header: { name: "Header", fields: ["Logo image", "Left header content", "Right header content", "Top header text", "Top header text color", "Event title", "Start date", "End date", "Venue", "Header background color", "Bottom date bar color", "Navigation links", "Font family", "Font size", "Text color", "Font weight", "Background color", "Spacing and padding"] },
@@ -355,6 +373,15 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
   const saveForm = () => {
+    if (active.id === "add-testimonial") {
+      const record: TestimonialRecord = { id: editingTestimonialId ?? `testimonial-${Date.now()}`, name: formValues.Name ?? "", comment: formValues.Comment ?? "", image: formValues.Image ?? "", designation: formValues.Designation ?? "", status: formValues.Status ?? "Active", position: formValues.Position ?? "Testimonials section" };
+      setTestimonialRows(current => editingTestimonialId ? current.map(item => item.id === editingTestimonialId ? record : item) : [record, ...current]);
+      setEditingTestimonialId(null);
+      setFormValues({});
+      setNotice(`Testimonial ${editingTestimonialId ? "updated" : "added"} for ${eventTitle || "this event"}.`);
+      selectFeature("testimonials-list");
+      return;
+    }
     if (active.id === "website-editor") {
       try { const serialized = JSON.stringify(formValues); sessionStorage.setItem(`velentra-site-config-${eventId}`, serialized); localStorage.setItem(`velentra-site-config-${eventId}`, serialized); } catch { /* Preview storage can be unavailable. */ }
       setNotice("Website content, images, logos, and publishing settings saved for Employee and Admin access.");
@@ -414,6 +441,24 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   );
 
   const renderFeature = () => {
+    if (active.id === "testimonials-list") {
+      const visibleTestimonials = testimonialView === "Posted Data" ? testimonialRows.filter(item => item.status === "Active") : testimonialRows;
+      return <>
+        <div className="employee-page-heading employee-feature-heading"><div><h1>Testimonials List</h1></div></div>
+        {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
+        <section className="employee-testimonials-card">
+          <div className="employee-testimonials-toolbar"><div className="employee-testimonials-title"><FileText size={16} /> Testimonials List</div><label>Frontend view selected by: <select value={testimonialView} onChange={event => setTestimonialView(event.target.value)}><option>Default</option><option>Posted Data</option></select></label><button className="employee-primary-button" type="button" onClick={() => { setEditingTestimonialId(null); setFormValues({ Status: "Active", Position: "Testimonials section" }); selectFeature("add-testimonial"); }}><Plus size={15} /> Add Testimonial</button></div>
+          <div className="employee-table-wrap"><table className="employee-testimonials-table"><thead><tr><th>ID</th><th>Name</th><th>Comment</th><th>Image</th><th>Designation</th><th>Status</th><th>Display position</th><th>Action</th></tr></thead><tbody>{visibleTestimonials.length ? visibleTestimonials.map((row, index) => <tr key={row.id}><td>{index + 1}</td><td><strong>{row.name}</strong></td><td>{row.comment}</td><td>{row.image ? <img className="employee-testimonial-thumb" src={row.image} alt="" /> : "—"}</td><td>{row.designation}</td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.position}</td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingTestimonialId(row.id); setFormValues({ Name: row.name, Comment: row.comment, Image: row.image, Designation: row.designation, Status: row.status, Position: row.position }); selectFeature("add-testimonial"); }}>Edit</button><button className="employee-row-delete" type="button" onClick={() => { if (window.confirm(`Delete testimonial by ${row.name}?`)) { setTestimonialRows(current => current.filter(item => item.id !== row.id)); setNotice("Testimonial deleted from this event website."); } }}>Delete</button></div></td></tr>) : <tr><td colSpan={8}>No Testimonial found.</td></tr>}</tbody></table></div>
+        </section>
+      </>;
+    }
+    if (active.id === "add-testimonial") {
+      const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
+      return <>
+        <div className="employee-page-heading employee-feature-heading"><div><h1>{editingTestimonialId ? "Edit Testimonial" : "Add Testimonial"}</h1></div></div>
+        <section className="employee-form-card employee-testimonial-form"><div className="employee-form-card-heading"><div><h2>Testimonial</h2></div></div><div className="employee-form-grid"><label><span>Name</span><input value={formValues.Name ?? ""} onChange={event => setValue("Name", event.target.value)} /></label><label><span>Image</span><input type="file" accept="image/*" onChange={event => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => setValue("Image", String(reader.result ?? "")); reader.readAsDataURL(file); }} />{formValues.Image ? <img className="employee-testimonial-form-preview" src={formValues.Image} alt="Current testimonial" /> : null}</label><label><span>Designation</span><input value={formValues.Designation ?? ""} onChange={event => setValue("Designation", event.target.value)} /></label><label className="employee-form-wide"><span>Comment</span><textarea rows={7} value={formValues.Comment ?? ""} onChange={event => setValue("Comment", event.target.value)} /></label><label><span>Status</span><select value={formValues.Status ?? "Active"} onChange={event => setValue("Status", event.target.value)}><option>Active</option><option>Inactive</option></select></label><label><span>Display position</span><select value={formValues.Position ?? "Testimonials section"} onChange={event => setValue("Position", event.target.value)}><option>Testimonials section</option><option>Homepage testimonials</option><option>Footer testimonials</option><option>Hidden</option></select></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingTestimonialId(null); setFormValues({}); selectFeature("testimonials-list"); }}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {editingTestimonialId ? "Update" : "Add"}</button></div></section>
+      </>;
+    }
     if (active.id === "website-preview") return <><div className="employee-page-heading employee-feature-heading"><div><h1>Website Preview</h1><p>{eventTitle || "Imported conference website template used for event subdomains."}</p></div></div><div className="employee-website-standalone-preview"><iframe title="Imported event website preview" src={`/event-site/index.html?event=${eventId}`} onLoad={event => applyWebsiteConfig(eventId, event.currentTarget)} /></div></>;
     if (active.id === "website-editor") return <WebsiteEditor eventId={eventId} eventTitle={eventTitle || username || "Global event website"} onBack={() => selectFeature("website-preview")} onHome={() => selectFeature("dashboard")} onSectionSelected={setWebsiteSelectedSection} onSaved={message => setNotice(message)} />;
     const isForm = active.kind === "form" || activeId.startsWith("add-");
