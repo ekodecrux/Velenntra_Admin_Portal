@@ -21,6 +21,7 @@ import {
   Search,
   Settings2,
   SlidersHorizontal,
+  Trash2,
   UsersRound,
   UserRound,
   Video,
@@ -121,7 +122,7 @@ const sections: Section[] = [
   {
     label: "Testimonials",
     icon: FileText,
-    items: [item("testimonials-list", "Testimonials List", "Review and manage all event testimonials.", FileText), item("add-testimonial", "Add Testimonial", "Create a written testimonial for the website.", FileText, "form"), item("add-video-testimonial", "Add Video Testimonials", "Add a video testimonial and its supporting copy.", Video, "form")],
+    items: [item("testimonials-list", "Testimonials List", "Review and manage all event testimonials.", FileText), item("add-testimonial", "Add Testimonial", "Create a written testimonial for the website.", FileText, "form")],
   },
   { label: "Pages", direct: true, items: [item("pages", "Pages", "Manage the event website's reusable pages.", FileText)] },
   {
@@ -455,7 +456,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         {notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}
         <section className="employee-testimonials-card">
           <div className="employee-testimonials-toolbar"><div className="employee-testimonials-title"><FileText size={16} /> Testimonials List</div><label>Frontend view selected by: <select value={testimonialView} onChange={event => setTestimonialView(event.target.value)}><option>Default</option><option>Posted Data</option></select></label><button className="employee-primary-button" type="button" onClick={() => { setEditingTestimonialId(null); setFormValues({ Status: "Active", Position: String(testimonialRows.length + 1) }); selectFeature("add-testimonial"); }}><Plus size={15} /> Add Testimonial</button></div>
-          <div className="employee-table-wrap"><table className="employee-testimonials-table"><thead><tr><th>ID</th><th>Name</th><th>Comment</th><th>Image</th><th>Designation</th><th>Status</th><th>Display position</th><th>Action</th></tr></thead><tbody>{visibleTestimonials.length ? visibleTestimonials.map((row, index) => <tr key={row.id}><td>{index + 1}</td><td><strong>{row.name}</strong></td><td>{row.comment}</td><td>{row.image ? <img className="employee-testimonial-thumb" src={row.image} alt="" /> : "—"}</td><td>{row.designation}</td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.position}</td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingTestimonialId(row.id); setFormValues({ Name: row.name, Comment: row.comment, Image: row.image, Designation: row.designation, Status: row.status, Position: row.position }); selectFeature("add-testimonial"); }}>Edit</button><button className="employee-row-delete" type="button" onClick={() => { if (window.confirm(`Delete testimonial by ${row.name}?`)) { setTestimonialRows(current => current.filter(item => item.id !== row.id)); setNotice("Testimonial deleted from this event website."); } }}>Delete</button></div></td></tr>) : <tr><td colSpan={8}>No Testimonial found.</td></tr>}</tbody></table></div>
+          <div className="employee-table-wrap"><table className="employee-testimonials-table"><thead><tr><th>ID</th><th>Name</th><th>Comment</th><th>Image</th><th>Designation</th><th>Status</th><th>Display position</th><th>Action</th></tr></thead><tbody>{visibleTestimonials.length ? visibleTestimonials.map((row, index) => <tr key={row.id}><td>{index + 1}</td><td><strong>{row.name}</strong></td><td>{row.comment}</td><td>{row.image ? <img className="employee-testimonial-thumb" src={row.image} alt="" /> : "—"}</td><td>{row.designation}</td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.position}</td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingTestimonialId(row.id); setFormValues({ Name: row.name, Comment: row.comment, Image: row.image, Designation: row.designation, Status: row.status, Position: row.position }); selectFeature("add-testimonial"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete testimonial by ${row.name}`} title="Delete testimonial" onClick={() => { if (window.confirm(`Delete testimonial by ${row.name}?`)) { setTestimonialRows(current => current.filter(item => item.id !== row.id)); setNotice("Testimonial deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>) : <tr><td colSpan={8}>No Testimonial found.</td></tr>}</tbody></table></div>
         </section>
       </>;
     }
