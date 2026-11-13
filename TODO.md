@@ -72,6 +72,7 @@
 - [x] Add an event-specific Testimonials List matching the reference layout, preload all imported testimonials, support Default/Posted Data views, edit/delete/add actions, image uploads, status, display-position selection, and synchronization to the event website testimonial carousel.
 - [x] Keep the Testimonials ID column compact at a fixed width so the table space is used by the actual testimonial fields.
 - [x] Migrate any older single placeholder testimonial record to the complete imported event testimonial list while preserving later user edits.
+- [x] Keep only Testimonials List, Add Testimonial, and Add Video Testimonials under the Testimonials menu; remove Video Testimonials List and sort testimonials by numeric order or First/Middle/Last on both manager and event website.
 - [x] Make Employee Directory an end-to-end management view with search, role filters, Active/Inactive filters, full name/username/email/role/status details, Add Employee as the primary action, and row-level Edit and Delete controls.
 - [x] Keep Employee Directory changes in browser session storage so added, edited, and deleted records remain visible after navigation during the Preview session.
 - [x] Add Employee ID, Contact number, and Address fields to Add/Edit Employee; use Employee ID as the employee's sole username/identifier, display those details in Employee Directory, and include them in directory search.

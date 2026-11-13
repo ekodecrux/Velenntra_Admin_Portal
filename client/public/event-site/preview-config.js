@@ -29,7 +29,7 @@
       if (values.subtitle && subtitle) subtitle.textContent = values.subtitle;
       if (values.imageUrl && banner) banner.src = values.imageUrl;
       const testimonialsRaw = sessionStorage.getItem(`velentra-testimonials-${eventId}`) || localStorage.getItem(`velentra-testimonials-${eventId}`);
-      const testimonials = testimonialsRaw ? JSON.parse(testimonialsRaw).filter(item => item.status === 'Active' && item.position !== 'Hidden') : [];
+      const testimonials = testimonialsRaw ? JSON.parse(testimonialsRaw).filter(item => item.status === 'Active' && item.position !== 'Hidden').sort((a, b) => { const rank = value => value === 'First' ? -1 : value === 'Middle' ? 500 : value === 'Last' ? 999 : Number(value) || 0; return rank(a.position) - rank(b.position); }) : [];
       const testimonialStage = document.querySelector('.testimonial .owl-stage');
       if (testimonialStage && testimonials.length) {
         testimonialStage.innerHTML = '';
