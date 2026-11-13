@@ -1101,3 +1101,49 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .input-shell { min-height: 52px; }
   .signin-button { min-height: 52px; font-size: 20px; margin-top: 14px; }
 }
+
+/* Final reference alignment: use the supplied artwork as the page backdrop and cover its static card with the live opaque form. */
+.velentra-shell { background: #edf6ff url('/login-reference-background.png') center / cover no-repeat; }
+.velentra-shell::before, .velentra-shell::after { display: none; }
+.auth-panel { padding: 0 24px 48px; }
+.auth-content { width: 742px; min-height: 734px; max-height: none; overflow: visible; padding: 28px 42px 30px; border: 1px solid #80b8f3; border-radius: 30px; background: #fff; box-shadow: 0 22px 52px rgba(21, 91, 176, .22); }
+.login-card-brand { padding-bottom: 18px; }
+.login-card-brand .brand-logo-image { width: min(100%, 500px); height: 126px; }
+.auth-heading { padding: 14px 0 18px; }
+.auth-heading h2 { font-size: 54px; }
+.auth-heading p { margin-top: 10px; font-size: 22px; }
+.field-group { margin-top: 20px; }
+.input-shell { min-height: 76px; }
+.input-shell input { font-size: 21px; }
+.login-options-row { margin-top: 16px; }
+.remember-me { font-size: 18px; }
+.remember-me input { width: 23px; height: 23px; }
+.signin-button { min-height: 74px; margin-top: 27px; font-size: 28px; }
+.auth-footer { bottom: 22px; }
+@media (max-height: 760px) and (min-width: 701px) {
+  .auth-panel { padding: 10px 18px 38px; }
+  .auth-content { width: min(100%, 742px); min-height: 0; max-height: calc(100svh - 48px); overflow: hidden; padding: 12px 42px 14px; }
+  .login-card-brand { padding-bottom: 8px; }
+  .login-card-brand .brand-logo-image { height: 62px; }
+  .auth-heading { padding: 7px 0 5px; }
+  .auth-heading h2 { font-size: 38px; }
+  .auth-heading p { margin-top: 4px; font-size: 14px; }
+  .field-group { margin-top: 9px; }
+  .input-shell { min-height: 48px; }
+  .input-shell input { font-size: 16px; }
+  .login-options-row { margin-top: 6px; }
+  .remember-me { font-size: 14px; }
+  .remember-me input { width: 18px; height: 18px; }
+  .signin-button { min-height: 48px; margin-top: 10px; font-size: 20px; }
+}
+@media (max-width: 700px) {
+  .auth-panel { padding: 20px 12px 74px; }
+  .auth-content { width: 100%; min-height: 0; max-height: calc(100svh - 86px); overflow: hidden; padding: 17px 20px 20px; }
+  .login-card-brand .brand-logo-image { height: 64px; }
+  .auth-heading { padding-top: 8px; }
+  .auth-heading h2 { font-size: 36px; }
+  .auth-heading p { font-size: 14px; }
+  .field-group { margin-top: 12px; }
+  .input-shell { min-height: 52px; }
+  .signin-button { min-height: 52px; font-size: 20px; margin-top: 14px; }
+}
