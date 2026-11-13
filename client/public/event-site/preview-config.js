@@ -44,7 +44,7 @@
       if (testimonialStage && testimonials.length) {
         testimonialStage.innerHTML = '';
         testimonials.forEach(item => {
-          const outer = document.createElement('div'); outer.className = 'owl-item active';
+          const outer = document.createElement('div'); outer.className = 'owl-item active static-visible';
           const card = document.createElement('div'); card.className = 'testimonial-item';
           if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.name || 'Testimonial'; card.appendChild(image); }
           const quote = document.createElement('div'); const paragraph = document.createElement('p'); paragraph.textContent = item.comment || ''; quote.appendChild(paragraph); card.appendChild(quote);
@@ -59,4 +59,5 @@
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
+  window.addEventListener('storage', event => { if (event.key && event.key.includes('velentra-testimonials-')) apply(); });
 })();
