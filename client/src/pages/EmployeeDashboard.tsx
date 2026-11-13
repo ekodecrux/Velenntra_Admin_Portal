@@ -11,7 +11,7 @@ import {
   ChevronRight,
   CircleHelp,
   ClipboardList,
-  Download,
+  Eye,
   FileText,
   Image,
   LayoutDashboard,
@@ -297,6 +297,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [pageSize, setPageSize] = useState("10");
   const [brochureSearch, setBrochureSearch] = useState("");
   const [brochureRows, setBrochureRows] = useState<BrochureRecord[]>([]);
+  const [selectedBrochure, setSelectedBrochure] = useState<BrochureRecord | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
@@ -488,9 +489,10 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         <div className="employee-page-heading employee-feature-heading"><div><h1>Brochure Download</h1></div></div>
         <section className="employee-brochures-card">
           <div className="employee-brochures-toolbar"><div className="employee-testimonials-title"><BookOpenText size={16} /> List</div><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><label className="employee-brochure-search">Search: <input type="search" value={brochureSearch} onChange={event => setBrochureSearch(event.target.value)} /></label></div>
-          <div className="employee-table-wrap"><table className="employee-brochures-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Country</th><th>Phone No</th><th>Address</th><th>Actions</th></tr></thead><tbody>{visibleBrochures.slice(0, Number(pageSize)).map(row => <tr key={row.id}><td>{row.date}</td><td>{row.name}</td><td>{row.email}</td><td>{row.country}</td><td>{row.phone}</td><td>{row.address}</td><td><a className="employee-icon-action" href={row.href} target="_blank" rel="noreferrer" aria-label={`Download ${row.name}`} title="Download brochure"><Download size={15} /></a></td></tr>)}{visibleBrochures.length === 0 ? <tr><td colSpan={7}>No brochure resources found in the event website.</td></tr> : null}</tbody></table></div>
-          <div className="employee-table-footer"><span>Showing {visibleBrochures.length ? 1 : 0} to {Math.min(visibleBrochures.length, Number(pageSize))} of {visibleBrochures.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
+          <div className="employee-table-wrap"><table className="employee-brochures-table"><thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Country</th><th>Phone No</th><th>Address</th><th>Actions</th></tr></thead><tbody>{visibleBrochures.slice(0, Number(pageSize)).map(row => <tr key={row.id}><td>{row.date}</td><td>{row.name}</td><td>{row.email}</td><td>{row.country}</td><td>{row.phone}</td><td>{row.address}</td><td><button className="employee-brochure-view-button" type="button" onClick={() => setSelectedBrochure(row)} aria-label={`View details for ${row.name}`} title="View details"><Eye size={15} /></button></td></tr>)}{visibleBrochures.length === 0 ? <tr><td colSpan={7}>No brochure resources found in the event website.</td></tr> : null}</tbody></table></div>
+          <div className="employee-table-footer"><span>Showing {visibleBrochures.length ? 1 : 0} to {Math.min(visibleBrochures.length, Number(pageSize))} of {visibleBrochures.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last page.")}>Next</button></div></div>
         </section>
+        {selectedBrochure ? <div className="employee-brochure-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSelectedBrochure(null); }}><section className="employee-brochure-modal" role="dialog" aria-modal="true" aria-labelledby="brochure-details-title"><div className="employee-brochure-modal-heading"><div><h2 id="brochure-details-title">Brochure details</h2><p>{eventTitle || "Selected event website"}</p></div><button className="employee-brochure-modal-close" type="button" onClick={() => setSelectedBrochure(null)} aria-label="Close brochure details"><X size={16} /></button></div><dl className="employee-brochure-modal-body"><dt>Date</dt><dd>{selectedBrochure.date}</dd><dt>Name</dt><dd>{selectedBrochure.name}</dd><dt>Email</dt><dd>{selectedBrochure.email}</dd><dt>Country</dt><dd>{selectedBrochure.country}</dd><dt>Phone No</dt><dd>{selectedBrochure.phone}</dd><dt>Address</dt><dd>{selectedBrochure.address}</dd><dt>Event website resource</dt><dd><a href={selectedBrochure.href} target="_blank" rel="noreferrer">Open resource</a><br /><small>{selectedBrochure.href}</small></dd></dl></section></div> : null}
       </>;
     }
     if (active.id === "testimonials-list") {
