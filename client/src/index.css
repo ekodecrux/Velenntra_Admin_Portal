@@ -1530,3 +1530,21 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .auth-content { top: 15.5vh; height: 67vh; }
   .auth-footer { top: 79.5vh; }
 }
+
+/* Standards pass for the login card: consistent proportions and a contained footer. */
+.auth-content { left: 60%; top: 15.5vh; width: 37.5vw; height: 69.5vh; padding: 2.4% 2.5% 2%; border-radius: 22px; overflow: hidden; }
+.login-card-brand { height: 22%; padding-bottom: 1.2%; }
+.login-card-brand .brand-logo-image { width: 76%; height: 108%; }
+.login-card-title { height: 13.5%; margin-top: 2.5%; border-radius: 9px; }
+.auth-form { margin-top: 3%; }
+.auth-form .field-group { margin-top: 3.2%; }
+.auth-form .input-shell { min-height: 42px; height: 42px; border-radius: 9px; }
+.auth-form .login-options-row { margin-top: 3.2%; }
+.auth-form .signin-button { min-height: 54px; margin-top: 4%; padding: 0; border-radius: 9px; }
+.auth-footer { left: 60%; top: 80.6vh; width: 37.5vw; height: 4.4vh; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 0 0 22px 22px; }
+@media (max-width: 700px) {
+  .auth-content { left: 60%; top: 15.5vh; width: 37.5vw; height: 69.5vh; }
+  .auth-form .input-shell { min-height: 28px; height: 28px; }
+  .auth-form .signin-button { min-height: 36px; }
+  .auth-footer { left: 60%; top: 80.6vh; width: 37.5vw; height: 4.4vh; }
+}
