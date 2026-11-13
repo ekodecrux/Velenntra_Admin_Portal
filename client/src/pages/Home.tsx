@@ -68,7 +68,13 @@ function readEmployeeUsernames() {
 
 function BrandMark() {
   return (
-    <img className="brand-logo-image" src="/velentra-logo-transparent.png" alt="Velentra Group" />
+    <div className="brand-lockup-natural" aria-label="Velentra Group">
+      <img className="brand-round-mark" src="/velentra-mark.png" alt="" />
+      <div className="brand-wordmark">
+        <strong>VELENTRA</strong>
+        <div><i /> <span>GROUP</span> <i /></div>
+      </div>
+    </div>
   );
 }
 
