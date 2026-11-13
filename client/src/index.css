@@ -1412,3 +1412,8 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 @media (max-width: 700px) {
   .conference-feature-copy { right: 39%; }
 }
+
+.conference-feature-copy { right: 33%; }
+@media (max-width: 700px) {
+  .conference-feature-copy { right: 33%; }
+}
