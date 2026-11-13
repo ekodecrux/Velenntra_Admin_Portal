@@ -55,13 +55,13 @@ const defaultSessions: SessionRecord[] = [
   { id: "session-7", serial: 7, day: "Day 3", date: "September 11, 2027", time: "09:00–10:30", title: "Closing Keynote and Future Directions", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
 ];
 const defaultGallery: GalleryRecord[] = [
-  { id: "gallery-0", serial: 1, title: "Biofuels 2026 | Rome, Italy", image: "/event-site/uploads/gallery/biofuels-2026-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2026-rome-italy", status: "Published" },
-  { id: "gallery-1", serial: 2, title: "Biofuels 2025 | Valencia, Spain", image: "/event-site/uploads/gallery/biofuels-2025-valencia-spain.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2025-valencia-spain", status: "Published" },
-  { id: "gallery-2", serial: 3, title: "Oil and Gas Conference 2024 | Rome, Italy", image: "/event-site/uploads/gallery/oil-and-gas-conference-2024-rome-italy1.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/oil-and-gas-conference-2024-rome-italy", status: "Published" },
-  { id: "gallery-3", serial: 4, title: "Catalysis Conference 2017 | Las Vegas, USA", image: "/event-site/uploads/gallery/catalysis-conference-2017-las-vegas-usa.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2017-las-vegas-usa", status: "Published" },
-  { id: "gallery-4", serial: 5, title: "Catalysis Conference 2018 | Rome, Italy", image: "/event-site/uploads/gallery/catalysis-conference-2018-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2018-rome-italy", status: "Published" },
-  { id: "gallery-5", serial: 6, title: "Catalysis Conference 2019 | London, UK", image: "/event-site/uploads/gallery/catalysis-conference-2019-london-uk.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-london-uk", status: "Published" },
-  { id: "gallery-6", serial: 7, title: "Catalysis Conference 2019 | Singapore", image: "/event-site/uploads/gallery/catalysis-conference-2019-singapore.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-singapore", status: "Published" },
+  { id: "gallery-0", serial: 1, eventSlug: "biofuels-2026-rome-italy", title: "Biofuels 2026 | Rome, Italy", image: "/event-site/uploads/gallery/biofuels-2026-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2026-rome-italy", status: "Published" },
+  { id: "gallery-1", serial: 2, eventSlug: "biofuels-2025-valencia-spain", title: "Biofuels 2025 | Valencia, Spain", image: "/event-site/uploads/gallery/biofuels-2025-valencia-spain.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/biofuels-2025-valencia-spain", status: "Published" },
+  { id: "gallery-2", serial: 3, eventSlug: "oil-and-gas-conference-2024-rome-italy", title: "Oil and Gas Conference 2024 | Rome, Italy", image: "/event-site/uploads/gallery/oil-and-gas-conference-2024-rome-italy1.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/oil-and-gas-conference-2024-rome-italy", status: "Published" },
+  { id: "gallery-3", serial: 4, eventSlug: "catalysis-conference-2017-las-vegas-usa", title: "Catalysis Conference 2017 | Las Vegas, USA", image: "/event-site/uploads/gallery/catalysis-conference-2017-las-vegas-usa.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2017-las-vegas-usa", status: "Published" },
+  { id: "gallery-4", serial: 5, eventSlug: "catalysis-conference-2018-rome-italy", title: "Catalysis Conference 2018 | Rome, Italy", image: "/event-site/uploads/gallery/catalysis-conference-2018-rome-italy.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2018-rome-italy", status: "Published" },
+  { id: "gallery-5", serial: 6, eventSlug: "catalysis-conference-2019-london-uk", title: "Catalysis Conference 2019 | London, UK", image: "/event-site/uploads/gallery/catalysis-conference-2019-london-uk.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-london-uk", status: "Published" },
+  { id: "gallery-6", serial: 7, eventSlug: "catalysis-conference-2019-singapore", title: "Catalysis Conference 2019 | Singapore", image: "/event-site/uploads/gallery/catalysis-conference-2019-singapore.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-singapore", status: "Published" },
 ];
 const websiteConfigMenu = [
   { id: "header", label: "Header", editorId: "header" },
@@ -131,9 +131,9 @@ const sections: Section[] = [
     items: [item("banner-images", "Banner Images", "Review and manage hero banners for the event website.", Image), item("media-partner", "Media Partner", "Manage media partner records and logos.", Image), item("exhibitors", "Exhibitors", "Manage exhibitor profiles and display details.", UsersRound)],
   },
   {
-    label: "Past Conference Gallery/Review",
+    label: "Past Conference Gallery",
     icon: Image,
-    items: [item("gallery", "Gallery", "Review past conference gallery items.", Image), item("reviews", "Reviews", "Manage past conference reviews.", FileText)],
+    items: [item("main-gallery", "Main Gallery Cards", "Browse the past-event gallery cards shown on the event website.", Image), item("gallery", "Gallery", "Manage the individual photos inside a selected past-event gallery.", Image)],
   },
   {
     label: "Events",
@@ -175,7 +175,6 @@ const supplementalFeatures: Feature[] = [
   item("add-media-partner", "Add Media Partner", "Create a media partner record.", Image, "form"),
   item("add-exhibitor", "Add Exhibitor", "Create an exhibitor record.", UsersRound, "form"),
   item("add-gallery", "Add Gallery", "Create a gallery record.", Image, "form"),
-  item("add-review", "Add Post Conference Review", "Create a post-conference review.", FileText, "form"),
   item("add-page", "Add Page", "Create a website page.", FileText, "form"),
 ];
 
@@ -183,7 +182,7 @@ const allFeatures = [...sections.flatMap(section => section.items), ...supplemen
 
 const createTargetByFeature: Record<string, string> = {
   boardmembers: "add-member", keynotespeakers: "add-member", renownedspeakers: "add-member", speakers: "add-member", posterpresenters: "add-member", organizingcommittee: "add-member",
-  representatives: "add-representative", tracks: "add-track", subtracks: "add-subtrack", "registration-prices": "add-registration-price", "banner-images": "add-banner", "media-partner": "add-media-partner", exhibitors: "add-exhibitor", gallery: "add-gallery", reviews: "add-review", pages: "add-page",
+  representatives: "add-representative", tracks: "add-track", subtracks: "add-subtrack", "registration-prices": "add-registration-price", "banner-images": "add-banner", "media-partner": "add-media-partner", exhibitors: "add-exhibitor", gallery: "add-gallery", pages: "add-page",
 };
 
 const formReturnTargets: Record<string, string> = Object.fromEntries(Object.entries(createTargetByFeature).map(([listId, formId]) => [formId, listId]));
@@ -263,7 +262,6 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-media-partner": [{ label: "Partner name" }, { label: "Logo", type: "file" }, { label: "Website URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
   "add-exhibitor": [{ label: "Company name" }, { label: "Contact email", type: "email" }, { label: "Booth or profile URL", type: "url" }, { label: "Description", type: "textarea" }],
   "add-gallery": [{ label: "Title" }, { label: "Image", type: "file" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
-  "add-review": [{ label: "Reviewer name" }, { label: "Review copy", type: "textarea" }, { label: "Event year" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
   "add-page": [{ label: "Page title" }, { label: "Page slug" }, { label: "Content", type: "textarea" }],
 };
 
@@ -332,6 +330,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [editingGalleryId, setEditingGalleryId] = useState<string | null>(null);
   const [gallerySearch, setGallerySearch] = useState("");
   const [galleryPage, setGalleryPage] = useState(1);
+  const [selectedGalleryEvent, setSelectedGalleryEvent] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
@@ -603,13 +602,18 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         </section>
       </>;
     }
+    if (active.id === "main-gallery") {
+      const cards = galleryRows.filter((row, index, list) => list.findIndex(item => item.eventSlug ? item.eventSlug === row.eventSlug : item.url === row.url) === index);
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>Main Gallery Cards</h1><p>Past Conference Gallery cards synchronized from the event website.</p></div></div><section className="employee-main-gallery-card"><div className="employee-main-gallery-grid">{cards.map(card => <button type="button" className="employee-main-gallery-item" key={card.eventSlug || card.url} onClick={() => { setSelectedGalleryEvent(card.eventSlug || card.url); setGalleryPage(1); setGallerySearch(""); selectFeature("gallery"); }}><img src={card.image} alt={card.eventTitle || card.title} /><div><strong>{card.eventTitle || card.title}</strong><span>View all photos <ArrowUpRight size={14} /></span></div></button>)}</div></section></>;
+    }
     if (active.id === "gallery") {
       const query = gallerySearch.trim().toLowerCase();
-      const filteredGallery = galleryRows.filter(row => [row.eventTitle, row.title, row.status].join(" ").toLowerCase().includes(query));
+      const scopedGallery = selectedGalleryEvent ? galleryRows.filter(row => (row.eventSlug || row.url) === selectedGalleryEvent) : galleryRows;
+      const filteredGallery = scopedGallery.filter(row => [row.eventTitle, row.title, row.status].join(" ").toLowerCase().includes(query));
       const totalPages = Math.max(1, Math.ceil(filteredGallery.length / Number(pageSize)));
       const currentPage = Math.min(galleryPage, totalPages);
       const visibleGallery = filteredGallery.slice((currentPage - 1) * Number(pageSize), currentPage * Number(pageSize));
-      return <><div className="employee-page-heading employee-feature-heading"><div><h1>Past Conference Gallery</h1><p>All individual photos from the event website's Photo Gallery (Our Past Events).</p></div></div>{notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}</div> : null}<section className="employee-table-card employee-gallery-card"><div className="employee-table-controls"><strong>Gallery Photos</strong><span>{filteredGallery.length} photos across {new Set(filteredGallery.map(row => row.eventSlug)).size} past conferences</span><label className="employee-length-control">Show <select value={pageSize} onChange={event => { setPageSize(event.target.value); setGalleryPage(1); }}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><label className="employee-brochure-search">Search: <input type="search" value={gallerySearch} onChange={event => { setGallerySearch(event.target.value); setGalleryPage(1); }} /></label><button className="employee-primary-button" type="button" onClick={() => { setEditingGalleryId(null); setFormValues({ Status: "Published" }); selectFeature("add-gallery"); }}><Plus size={15} /> Add Photo</button></div><div className="employee-table-wrap"><table><thead><tr><th>S.No</th><th>Past conference</th><th>Photo</th><th>Photo title</th><th>Gallery page</th><th>Status</th><th>Action</th></tr></thead><tbody>{visibleGallery.map(row => <tr key={row.id}><td>{row.serial}</td><td>{row.eventTitle || "Past conference"}</td><td>{row.image ? <img className="employee-gallery-thumb" src={row.image} alt={row.title} /> : "—"}</td><td><strong>{row.title}</strong></td><td><a href={row.url} target="_blank" rel="noreferrer">View gallery</a></td><td><span className="employee-status-pill">{row.status}</span></td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingGalleryId(row.id); setFormValues({ Title: row.title, Image: row.image, URL: row.url, Status: row.status }); selectFeature("add-gallery"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete ${row.title}`} onClick={() => { if (window.confirm(`Delete gallery photo ${row.title}?`)) { setGalleryRows(current => current.filter(item => item.id !== row.id)); setNotice("Gallery photo deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table>{visibleGallery.length === 0 ? <div className="employee-empty">No gallery photos match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {filteredGallery.length ? ((currentPage - 1) * Number(pageSize)) + 1 : 0} to {Math.min(currentPage * Number(pageSize), filteredGallery.length)} of {filteredGallery.length} photos</span><div><button type="button" disabled={currentPage <= 1} onClick={() => setGalleryPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" disabled={currentPage >= totalPages} onClick={() => setGalleryPage(page => Math.min(totalPages, page + 1))}>Next</button></div></div></section></>;
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>Gallery</h1><p>{selectedGalleryEvent ? `All photos for ${filteredGallery[0]?.eventTitle || selectedGalleryEvent}` : "All individual photos from the event website's Photo Gallery (Our Past Events)."}</p></div></div>{notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}</div> : null}<section className="employee-table-card employee-gallery-card"><div className="employee-table-controls"><button className="employee-secondary-button" type="button" onClick={() => { setSelectedGalleryEvent(null); selectFeature("main-gallery"); }}>← Back to Main Gallery Cards</button><strong>Gallery Photos</strong><span>{filteredGallery.length} photos{selectedGalleryEvent ? " in this past conference" : ` across ${new Set(filteredGallery.map(row => row.eventSlug)).size} past conferences`}</span><label className="employee-length-control">Show <select value={pageSize} onChange={event => { setPageSize(event.target.value); setGalleryPage(1); }}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><label className="employee-brochure-search">Search: <input type="search" value={gallerySearch} onChange={event => { setGallerySearch(event.target.value); setGalleryPage(1); }} /></label><button className="employee-primary-button" type="button" onClick={() => { setEditingGalleryId(null); setFormValues({ Status: "Published" }); selectFeature("add-gallery"); }}><Plus size={15} /> Add Photo</button></div><div className="employee-table-wrap"><table><thead><tr><th>S.No</th><th>Past conference</th><th>Photo</th><th>Photo title</th><th>Gallery page</th><th>Status</th><th>Action</th></tr></thead><tbody>{visibleGallery.map(row => <tr key={row.id}><td>{row.serial}</td><td>{row.eventTitle || "Past conference"}</td><td>{row.image ? <img className="employee-gallery-thumb" src={row.image} alt={row.title} /> : "—"}</td><td><strong>{row.title}</strong></td><td><a href={row.url} target="_blank" rel="noreferrer">View gallery</a></td><td><span className="employee-status-pill">{row.status}</span></td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingGalleryId(row.id); setFormValues({ Title: row.title, Image: row.image, URL: row.url, Status: row.status }); selectFeature("add-gallery"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete ${row.title}`} onClick={() => { if (window.confirm(`Delete gallery photo ${row.title}?`)) { setGalleryRows(current => current.filter(item => item.id !== row.id)); setNotice("Gallery photo deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table>{visibleGallery.length === 0 ? <div className="employee-empty">No gallery photos match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {filteredGallery.length ? ((currentPage - 1) * Number(pageSize)) + 1 : 0} to {Math.min(currentPage * Number(pageSize), filteredGallery.length)} of {filteredGallery.length} photos</span><div><button type="button" disabled={currentPage <= 1} onClick={() => setGalleryPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" disabled={currentPage >= totalPages} onClick={() => setGalleryPage(page => Math.min(totalPages, page + 1))}>Next</button></div></div></section></>;
     }
     if (active.id === "add-gallery") {
       const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
