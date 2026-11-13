@@ -1431,3 +1431,33 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .conference-bottom-copy { border-radius: 0; }
 .auth-panel { z-index: 3; }
 .auth-content { border-radius: 24px; box-shadow: 0 24px 60px rgba(13,69,140,.24), 0 0 0 1px rgba(83,151,224,.24); }
+
+/* Refined visual hierarchy for the image-free login page. */
+.velentra-shell { background: linear-gradient(135deg, #f4f9ff 0%, #ffffff 52%, #eaf4ff 100%); }
+.velentra-shell::before { left: -18%; top: -52%; width: 76%; height: 112%; border-radius: 0 0 62% 0; background: linear-gradient(145deg, #063d91 0%, #075ab4 52%, #0a91d2 100%); opacity: .98; }
+.velentra-shell::after { right: -13%; bottom: -42%; width: 72%; height: 62%; border-radius: 62% 0 0 0; background: linear-gradient(160deg, transparent 0 24%, #11a65c 24.5% 27%, #fff 27.5% 31%, #0964c2 31.5% 53%, #073c91 53.5%); }
+.conference-top-brand { left: 3.2%; right: 5.2%; top: 1.7%; height: 10%; padding: 0 1.2%; border-radius: 0 0 14px 14px; background: rgba(255,255,255,.9); box-shadow: 0 8px 22px rgba(41,100,163,.08); }
+.conference-top-brand img { width: clamp(180px, 18vw, 260px); height: 100%; }
+.conference-top-brand span { padding-top: 2.1%; font-size: clamp(10px, 1.1vw, 17px); }
+.conference-hero-copy { left: 5.7%; top: 20%; width: 39%; padding: 2.5% 2.6% 2.8%; border-radius: 24px; background: rgba(255,255,255,.88); box-shadow: 0 22px 55px rgba(26,88,150,.16); }
+.conference-overline { font-size: clamp(16px, 1.8vw, 29px); letter-spacing: .04em; }
+.conference-hero-copy h1 { font-size: clamp(40px, 4.25vw, 72px); letter-spacing: -.035em; }
+.conference-motto { gap: 1vw; margin-top: 2%; font-size: clamp(16px, 1.9vw, 31px); }
+.conference-motto i { width: 9%; height: 3px; }
+.conference-hero-copy > p:last-child { margin-top: 3%; font-size: clamp(12px, 1.35vw, 22px); }
+.conference-feature-copy { left: 3%; right: 42%; bottom: 8.7%; min-height: 7%; padding: .7% 1%; border-radius: 14px 14px 0 0; }
+.conference-feature-copy span { gap: .5vw; padding: 0 1.3%; font-size: clamp(8px, .82vw, 14px); }
+.conference-feature-copy svg { width: clamp(18px, 2.1vw, 34px); height: clamp(18px, 2.1vw, 34px); }
+.conference-bottom-copy { padding: 1.05% 2.8%; font-size: clamp(8px, .85vw, 14px); }
+.auth-content { left: 61.2vw; top: 18.8vh; width: 34.7vw; height: 59vh; border-radius: 24px; }
+.auth-footer { left: 61.2vw; top: 72.2vh; width: 34.7vw; font-size: clamp(8px, .82vw, 14px); }
+@media (max-width: 700px) {
+  .conference-hero-copy { left: 4%; top: 18%; width: 40%; padding: 2.5%; }
+  .conference-hero-copy h1 { font-size: 26px; }
+  .conference-overline { font-size: 10px; }
+  .conference-motto { font-size: 10px; }
+  .conference-hero-copy > p:last-child { font-size: 7px; }
+  .conference-feature-copy { right: 34%; }
+  .auth-content { left: 61.2vw; top: 18.8vh; width: 34.7vw; height: 59vh; }
+  .auth-footer { left: 61.2vw; top: 72.2vh; width: 34.7vw; }
+}
