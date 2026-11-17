@@ -108,12 +108,12 @@
         const listId = kind === 'banner' ? 'banner-images' : 'media-partner';
         const sectionId = kind === 'banner' ? 'hero' : 'media-partner';
         const defaults = kind === 'banner'
-          ? [{ title: 'Biofuels Conferences 2027', imageUrl: banner?.getAttribute('src') || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg', altText: 'Biofuels Conferences 2027', status: 'Published' }]
+          ? [{ title: 'Biofuels Conferences 2027', imageUrl: '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg', altText: 'Biofuels Conferences 2027', status: 'Published' }]
           : [{ partnerName: 'Conference Alerts', partnerUrl: 'https://www.conferencealerts.in/eventdetail/2855037', partnerLogoUrl: '/event-site/uploads/logos/conference-alerts-8149.png', status: 'Published' }];
         const candidates = [];
         const normalize = value => value?.values ? { ...value.values, title: value.title || value.values.title, status: value.status || value.values.Status } : value?.details ? { ...value.details, title: value.title, status: value.status } : value;
         const push = value => { if (!value) return; if (Array.isArray(value)) value.forEach(push); else if (value.items) push(value.items); else candidates.push(normalize(value)); };
-        push(sectionValues[sectionId]);
+        if (kind !== 'banner') push(sectionValues[sectionId]);
         try { push(JSON.parse(localStorage.getItem(`velentra-admin-media-${listId}`) || sessionStorage.getItem(`velentra-admin-media-${listId}`) || 'null')); } catch {}
         try {
           const managed = JSON.parse(localStorage.getItem(`velentra-managed-media-${eventId}`) || sessionStorage.getItem(`velentra-managed-media-${eventId}`) || '{}');

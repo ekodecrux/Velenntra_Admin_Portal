@@ -332,8 +332,12 @@ const existingWebsiteRows = (featureId: string, eventId: string): Row[] => {
   try {
     const raw = localStorage.getItem(`velentra-section-content-${eventId || "global"}`) || sessionStorage.getItem(`velentra-section-content-${eventId || "global"}`) || (eventId !== "global" ? localStorage.getItem("velentra-section-content-global") || sessionStorage.getItem("velentra-section-content-global") : null);
     const stored = raw ? JSON.parse(raw)?.[featureId] || {} : {};
+    // The bundled website banner is a separate original record. New uploads are kept in managed-media rows and must not overwrite it.
+    if (featureId === "banner-images") {
+      const original = defaults[featureId];
+      return [{ title: original.title, status: original.displayStatus || "Published", meta: original.imageUrl, note: "Original website banner", details: { Image: original.imageUrl, "Image URL": original.imageUrl, "Alt text": original.altText, "Display status": original.displayStatus || "Published", Status: original.displayStatus || "Published" } }];
+    }
     const value = { ...defaults[featureId], ...stored };
-    if (featureId === "banner-images") return [{ title: value.title || "Biofuels Conferences 2027", status: value.displayStatus || value.status || "Published", meta: value.imageUrl || "—", note: "Existing website banner", details: { Image: value.imageUrl || "", "Image URL": value.imageUrl || "", "Alt text": value.altText || value.title || "", "Display status": value.displayStatus || value.status || "Published", Status: value.displayStatus || value.status || "Published" } }];
     if (featureId === "past-conference-info") return [{ title: value.conferenceYear || "Biofuels 2026", status: value.status || "Published", meta: "Existing website information", note: value.body || "Past conference report", details: { "Conference year": value.conferenceYear || "", "Conference report": value.body || "", "Feature image URL": value.imageUrl || "", "Final program URL": value.programUrl || "", "Past gallery URL": value.galleryUrl || "" } }];
     return [{ title: value.partnerName || "Conference Alerts", status: value.displayStatus || value.status || "Published", meta: value.partnerUrl || "—", note: "Existing website media partner", details: { "Website URL": value.partnerUrl || "", Logo: value.partnerLogoUrl || "", "Logo URL": value.partnerLogoUrl || "", "Display status": value.displayStatus || value.status || "Published", Status: value.displayStatus || value.status || "Published" } }];
   } catch { return []; }
