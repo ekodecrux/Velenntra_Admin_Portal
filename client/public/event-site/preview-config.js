@@ -7,9 +7,10 @@
         style.textContent = `
           #slider.velentra-gallery-section { position: relative; }
           #slider.velentra-gallery-section .owl-stage-outer { overflow: hidden !important; width: 100% !important; }
-          #slider.velentra-gallery-section .owl-stage.velentra-gallery-stage { display: flex !important; flex-wrap: nowrap !important; gap: 20px !important; width: 100% !important; max-width: 100% !important; transition: transform .6s ease; will-change: transform; }
-          #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex: 0 0 calc((100% - 40px) / 3) !important; width: calc((100% - 40px) / 3) !important; max-width: calc((100% - 40px) / 3) !important; margin: 0 !important; box-sizing: border-box !important; }
-          #slider.velentra-gallery-section .photoGalleryBox { height: 100%; background: #fff; overflow: hidden; }
+          #slider.velentra-gallery-section .owl-stage.velentra-gallery-stage { display: flex !important; flex-wrap: nowrap !important; gap: 20px !important; width: 100% !important; max-width: 100% !important; height: auto !important; min-height: 300px !important; position: relative !important; left: auto !important; transition: transform .6s ease; will-change: transform; }
+          #slider.velentra-gallery-section .owl-stage-outer { display: block !important; height: auto !important; min-height: 300px !important; }
+          #slider.velentra-gallery-section .owl-item.velentra-gallery-card { display: block !important; visibility: visible !important; opacity: 1 !important; position: static !important; flex: 0 0 calc((100% - 40px) / 3) !important; width: calc((100% - 40px) / 3) !important; max-width: calc((100% - 40px) / 3) !important; height: auto !important; margin: 0 !important; box-sizing: border-box !important; }
+          #slider.velentra-gallery-section .photoGalleryBox { display: block !important; visibility: visible !important; opacity: 1 !important; height: 100% !important; min-height: 300px; background: #fff !important; overflow: hidden !important; }
           #slider.velentra-gallery-section .photoGalleryBox img { display: block; width: 100%; height: 250px; object-fit: cover; }
           #slider.velentra-gallery-section .photoGalleryBox h3 { min-height: 68px; margin: 0; padding: 16px 14px; color: #fff !important; background: rgba(32,35,64,.9); font-size: 16px; line-height: 1.35; text-align: center; }
           .velentra-gallery-arrow { position: absolute; top: 56%; z-index: 5; width: 46px; height: 46px; border: 2px solid #202340; border-radius: 50%; background: rgba(255,255,255,.94); color: #202340; font-size: 32px; line-height: 36px; cursor: pointer; }
@@ -116,10 +117,15 @@
         });
         galleryStage.innerHTML = '';
         galleryStage.classList.add('velentra-gallery-stage');
+        galleryStage.style.setProperty('width', '100%', 'important');
+        galleryStage.style.setProperty('height', 'auto', 'important');
+        galleryStage.style.transform = 'translateX(0)';
         const gallerySection = document.querySelector('#slider');
         gallerySection?.classList.add('velentra-gallery-section');
         eventCards.forEach(item => {
           const outer = document.createElement('div'); outer.className = 'owl-item velentra-gallery-card';
+          outer.style.display = 'block';
+          outer.style.visibility = 'visible';
           const box = document.createElement('div'); box.className = 'photoGalleryBox';
           const link = document.createElement('a'); link.href = item.url || '#'; link.target = '_blank'; link.rel = 'noreferrer'; link.title = item.eventTitle || item.title || 'Past conference gallery';
           if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.eventTitle || item.title || 'Past conference'; link.appendChild(image); }
