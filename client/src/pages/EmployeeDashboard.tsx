@@ -457,14 +457,14 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         const document = new DOMParser().parseFromString(html, "text/html");
         const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"));
         const seen = new Set<string>();
-        const resources = links
+        const resources = eventId === "global" ? links
           .map(link => ({ href: link.href, label: link.textContent?.replace(/\s+/g, " ").trim() || link.title || "Conference brochure" }))
           .filter(item => {
             if (!/brochure|initial-announcement|final-program|abstract-book/i.test(item.href) || seen.has(item.href)) return false;
             seen.add(item.href);
             return true;
           })
-          .map((item, index) => ({ id: `brochure-${index + 1}`, serial: index + 1, date: "—", name: item.label, email: "—", country: "—", phone: "—", address: "—", href: item.href }));
+          .map((item, index) => ({ id: `brochure-${index + 1}`, serial: index + 1, date: "—", name: item.label, email: "—", country: "—", phone: "—", address: "—", href: item.href })) : [];
         const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
         setBrochureRows([...downloads, ...resources]);
       })
@@ -488,7 +488,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         try { setVideoReviewRows(mergeWebsiteVideoReview(JSON.parse(storedVideoReviews) as VideoReviewRecord[], eventId, eventTitle || "")); } catch { setVideoReviewRows([]); }
       }
       const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
-      setBrochureRows(current => [...downloads, ...current.filter(row => !row.isDownload)]);
+      setBrochureRows(current => [...downloads, ...(eventId === "global" ? current.filter(row => !row.isDownload) : [])]);
     };
     window.addEventListener("storage", syncEventRecords);
     window.addEventListener("focus", syncEventRecords);
