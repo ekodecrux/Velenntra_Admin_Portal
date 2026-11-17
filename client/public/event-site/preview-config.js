@@ -7,6 +7,7 @@
         style.textContent = `
           #slider.velentra-gallery-section { position: relative; }
           #slider.velentra-gallery-section .owl-stage-outer { overflow: hidden !important; width: 100% !important; }
+          #slider.velentra-gallery-section .owl-nav, #slider.velentra-gallery-section .owl-dots, #slider.velentra-gallery-section .owl-prev, #slider.velentra-gallery-section .owl-next, #slider.velentra-gallery-section .velentra-gallery-arrow { display: none !important; }
           #slider.velentra-gallery-section .owl-stage.velentra-gallery-stage { display: flex !important; flex-wrap: nowrap !important; gap: 20px !important; width: 100% !important; max-width: 100% !important; height: auto !important; min-height: 300px !important; position: relative !important; left: auto !important; transition: transform .6s ease; will-change: transform; }
           #slider.velentra-gallery-section .owl-stage-outer { display: block !important; height: auto !important; min-height: 300px !important; }
           #slider.velentra-gallery-section .owl-item.velentra-gallery-card { display: block !important; visibility: visible !important; opacity: 1 !important; position: static !important; flex: 0 0 calc((100% - 40px) / 3) !important; width: calc((100% - 40px) / 3) !important; max-width: calc((100% - 40px) / 3) !important; height: auto !important; margin: 0 !important; box-sizing: border-box !important; }
@@ -122,6 +123,7 @@
         galleryStage.style.transform = 'translateX(0)';
         const gallerySection = document.querySelector('#slider');
         gallerySection?.classList.add('velentra-gallery-section');
+        gallerySection?.querySelectorAll('.owl-nav, .owl-dots, .owl-prev, .owl-next, .velentra-gallery-arrow').forEach(node => node.remove());
         eventCards.forEach(item => {
           const outer = document.createElement('div'); outer.className = 'owl-item velentra-gallery-card';
           outer.style.display = 'block';
