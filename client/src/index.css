@@ -1646,3 +1646,16 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-events-table .employee-row-actions { gap: 6px; flex-wrap: nowrap; }
 
 .employee-events-table th:nth-child(8) { white-space: nowrap; }
+
+/* Final Events-table balance: use available width for meaningful content, not empty right padding. */
+.employee-events-table th:nth-child(1), .employee-events-table td:nth-child(1) { width: 22%; }
+.employee-events-table th:nth-child(2), .employee-events-table td:nth-child(2) { width: 8%; }
+.employee-events-table th:nth-child(3), .employee-events-table td:nth-child(3) { width: 8%; }
+.employee-events-table th:nth-child(4), .employee-events-table td:nth-child(4) { width: 11%; }
+.employee-events-table th:nth-child(5), .employee-events-table td:nth-child(5) { width: 10%; }
+.employee-events-table th:nth-child(6), .employee-events-table td:nth-child(6) { width: 16%; }
+.employee-events-table th:nth-child(7), .employee-events-table td:nth-child(7) { width: 9%; }
+.employee-events-table th:nth-child(8), .employee-events-table td:nth-child(8) { width: 8%; text-align: center; }
+.employee-events-table th:nth-child(9), .employee-events-table td:nth-child(9) { width: 8%; text-align: center; }
+.employee-events-table td:nth-child(8) .employee-row-actions,
+.employee-events-table td:nth-child(9) .employee-row-actions { justify-content: center; }
