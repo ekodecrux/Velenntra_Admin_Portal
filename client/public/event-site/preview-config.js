@@ -1,6 +1,26 @@
 (() => {
   const apply = () => {
     try {
+      if (!document.getElementById('velentra-video-review-preview-style')) {
+        const style = document.createElement('style');
+        style.id = 'velentra-video-review-preview-style';
+        style.textContent = `
+          #past-conference-video-review, #video-reviews, .past-conference-video-review { height: auto !important; max-height: none !important; overflow: visible !important; }
+          .velentra-video-review-grid { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; width: 100%; height: auto !important; overflow: visible !important; }
+          .velentra-video-review-card { min-width: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: #fff; color: #173b5a; box-shadow: 0 8px 24px rgba(0,0,0,.16); }
+          .velentra-video-review-media { aspect-ratio: 16/9; min-height: 150px; display: grid; place-items: center; overflow: hidden; background: #173b5a; }
+          .velentra-video-review-media iframe, .velentra-video-review-media video, .velentra-video-review-media img { display: block; width: 100%; height: 100%; min-height: 150px; border: 0; object-fit: cover; }
+          .velentra-video-review-card h4, .velentra-video-review-card p { margin: 10px 14px 0; }
+          .velentra-video-review-card h4 { font-size: 16px; line-height: 1.35; }
+          .velentra-video-review-card p { font-size: 13px; line-height: 1.45; }
+          .velentra-video-review-card p:last-child { margin-bottom: 14px; }
+          @media (max-width: 900px) { .velentra-video-review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+          @media (max-width: 560px) { .velentra-video-review-grid { grid-template-columns: 1fr; } }
+        `;
+        document.head.appendChild(style);
+        document.documentElement.style.overflowY = 'auto';
+        document.body.style.overflowY = 'auto';
+      }
       const eventId = new URLSearchParams(window.location.search).get('event') || 'global';
       const raw = sessionStorage.getItem(`velentra-site-config-${eventId}`) || localStorage.getItem(`velentra-site-config-${eventId}`) || sessionStorage.getItem('velentra-site-config-global') || localStorage.getItem('velentra-site-config-global');
       const sectionRaw = sessionStorage.getItem(`velentra-section-content-${eventId}`) || localStorage.getItem(`velentra-section-content-${eventId}`);
@@ -82,6 +102,9 @@
         }
         videoSection.innerHTML = '';
         if (!videoSection.dataset.velentraManaged) videoSection.classList.add('past-conference-video-review');
+        videoSection.style.overflow = 'visible';
+        videoSection.style.height = 'auto';
+        videoSection.style.maxHeight = 'none';
         const container = document.createElement('div'); container.className = 'container';
         const heading = document.createElement('div'); heading.className = 'heading m-b-20';
         const title = document.createElement('h3'); title.className = 'text-b-color'; title.textContent = 'Past Conference Video Reviews'; heading.appendChild(title); container.appendChild(heading);
