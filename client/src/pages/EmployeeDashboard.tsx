@@ -337,9 +337,12 @@ const existingWebsiteRows = (featureId: string, eventId: string): Row[] => {
       const original = defaults[featureId];
       return [{ title: original.title, status: original.displayStatus || "Published", meta: original.imageUrl, note: "Original website banner", details: { Image: original.imageUrl, "Image URL": original.imageUrl, "Alt text": original.altText, "Display status": original.displayStatus || "Published", Status: original.displayStatus || "Published" } }];
     }
-    const value = { ...defaults[featureId], ...stored };
-    if (featureId === "past-conference-info") return [{ title: value.conferenceYear || "Biofuels 2026", status: value.status || "Published", meta: "Existing website information", note: value.body || "Past conference report", details: { "Conference year": value.conferenceYear || "", "Conference report": value.body || "", "Feature image URL": value.imageUrl || "", "Final program URL": value.programUrl || "", "Past gallery URL": value.galleryUrl || "" } }];
-    return [{ title: value.partnerName || "Conference Alerts", status: value.displayStatus || value.status || "Published", meta: value.partnerUrl || "—", note: "Existing website media partner", details: { "Website URL": value.partnerUrl || "", Logo: value.partnerLogoUrl || "", "Logo URL": value.partnerLogoUrl || "", "Display status": value.displayStatus || value.status || "Published", Status: value.displayStatus || value.status || "Published" } }];
+    if (featureId === "past-conference-info") {
+      const value = { ...defaults[featureId], ...stored };
+      return [{ title: value.conferenceYear || "Biofuels 2026", status: value.status || "Published", meta: "Existing website information", note: value.body || "Past conference report", details: { "Conference year": value.conferenceYear || "", "Conference report": value.body || "", "Feature image URL": value.imageUrl || "", "Final program URL": value.programUrl || "", "Past gallery URL": value.galleryUrl || "" } }];
+    }
+    const original = defaults[featureId];
+    return [{ title: original.partnerName, status: original.displayStatus || "Published", meta: original.partnerUrl, note: "Original website media partner", details: { "Website URL": original.partnerUrl, Logo: original.partnerLogoUrl, "Logo URL": original.partnerLogoUrl, "Display status": original.displayStatus || "Published", Status: original.displayStatus || "Published" } }];
   } catch { return []; }
 };
 const testimonialStorageKey = (eventId: string) => `velentra-testimonials-${eventId || "global"}`;
@@ -627,7 +630,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       status: formValues.Status || formValues["Display status"] || "Draft",
       meta: "Just now",
       note: "Created in this employee workspace",
-      details: { ...formValues },
+      details: { ...formValues, ...(editingRow && ["banner-images", "media-partner"].includes(returnTarget) ? { __managedOriginal: "true" } : {}) },
     };
     if (["past-conference-info"].includes(returnTarget) || (editingRow && ["banner-images", "media-partner"].includes(returnTarget))) {
       try {
@@ -774,7 +777,11 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     const seededRows = ["banner-images", "past-conference-info", "media-partner"].includes(active.id) ? existingWebsiteRows(active.id, eventId) : (rowsByFeature[active.id] ?? []);
     const storedRows = savedRows[active.id] ?? [];
     const rows = ["banner-images", "media-partner"].includes(active.id)
-      ? [...storedRows, ...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title))]
+      ? (() => {
+          const seed = seededRows[0];
+          const cleanStored = storedRows.filter(row => row.title !== seed?.title || row.details?.__managedOriginal === "true");
+          return [...cleanStored, ...seededRows.filter(item => !cleanStored.some(row => row.title === item.title && row.details?.__managedOriginal === "true"))];
+        })()
       : (storedRows.length ? storedRows : seededRows);
     const rowValue = (row: Row, column: string) => row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
     return (

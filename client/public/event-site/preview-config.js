@@ -111,7 +111,7 @@
           ? [{ title: 'Biofuels Conferences 2027', imageUrl: '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg', altText: 'Biofuels Conferences 2027', status: 'Published' }]
           : [{ partnerName: 'Conference Alerts', partnerUrl: 'https://www.conferencealerts.in/eventdetail/2855037', partnerLogoUrl: '/event-site/uploads/logos/conference-alerts-8149.png', status: 'Published' }];
         const candidates = [];
-        const normalize = value => value?.values ? { ...value.values, title: value.title || value.values.title, status: value.status || value.values.Status } : value?.details ? { ...value.details, title: value.title, status: value.status } : value;
+        const normalize = value => value?.values ? { ...value.values, title: value.title || value.values.title, status: value.status || value.values.Status } : value?.details ? { ...value.details, title: value.title, status: value.status, isOriginal: value.details.__managedOriginal === 'true' } : value;
         const push = value => { if (!value) return; if (Array.isArray(value)) value.forEach(push); else if (value.items) push(value.items); else candidates.push(normalize(value)); };
         // Banner and media-partner rows are managed independently below; never let a new Add record overwrite the original section record.
         if (!['banner', 'media'].includes(kind)) push(sectionValues[sectionId]);
@@ -124,7 +124,7 @@
         const original = defaults[0];
         const isOriginal = item => kind === 'banner'
           ? item.title === original.title || item.isOriginal === true
-          : (item.partnerName || item['Partner name']) === original.partnerName || item.isOriginal === true;
+          : (item.partnerName || item['Partner name']) === original.partnerName || item.isOriginal === true || item.__managedOriginal === true;
         const managedOriginal = normalized.find(isOriginal);
         const additions = normalized.filter(item => !isOriginal(item));
         const rows = [managedOriginal || original, ...additions];
