@@ -63,7 +63,10 @@
         window.velentraShowGallery?.();
       }
       const videoReviewsRaw = sessionStorage.getItem(`velentra-video-reviews-${eventId}`) || localStorage.getItem(`velentra-video-reviews-${eventId}`);
-      const videoReviews = videoReviewsRaw ? JSON.parse(videoReviewsRaw).filter(item => item.status === 'Published') : [];
+      const storedVideoReviews = videoReviewsRaw ? JSON.parse(videoReviewsRaw) : [];
+      const configuredVideo = sectionValues['video-testimonials'];
+      if (configuredVideo?.videoUrl && !storedVideoReviews.some(item => item.videoUrl === configuredVideo.videoUrl)) storedVideoReviews.push({ id: `website-video-review-${eventId}`, title: configuredVideo.title || 'Past Conference Video Review', reviewer: 'Website video testimonial', videoUrl: configuredVideo.videoUrl, posterImage: configuredVideo.imageUrl || '', description: configuredVideo.body || '', status: configuredVideo.status || 'Published' });
+      const videoReviews = storedVideoReviews.filter(item => item.status === 'Published');
       let videoSection = document.querySelector('#past-conference-video-review, #video-reviews, .past-conference-video-review');
       if (!videoSection) {
         const existingVideoHeading = Array.from(document.querySelectorAll('h3')).find(item => /past conference review/i.test(item.textContent || ''));
@@ -120,5 +123,5 @@
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
-  window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-'))) apply(); });
+  window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-') || event.key.includes('velentra-section-content-'))) apply(); });
 })();

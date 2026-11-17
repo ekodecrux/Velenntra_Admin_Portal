@@ -53,6 +53,19 @@ const existingVideoReviews = (eventId: string, eventTitle: string): VideoReviewR
   { id: "video-review-rDB4L_hq3lo", serial: 2, eventSlug: eventId || "global", eventTitle: eventTitle || "Imported event website", title: "Magnus Group Conferences Reviews", reviewer: "Conference attendee review", videoUrl: "https://www.youtube.com/watch?v=rDB4L_hq3lo", posterImage: "/event-site/uploads/reviews/rDB4L_hq3lo.jpg", description: "A review from Magnus Group Conferences", status: "Published" },
   { id: "video-review-EWYfx4s1AKU", serial: 3, eventSlug: eventId || "global", eventTitle: eventTitle || "Imported event website", title: "Catalysis Conference 2018 | Rome, Italy", reviewer: "Conference participant", videoUrl: "https://www.youtube.com/watch?v=EWYfx4s1AKU", posterImage: "/event-site/uploads/reviews/EWYfx4s1AKU.jpg", description: "Catalysis Conference 2018 review", status: "Published" },
 ];
+const readWebsiteVideoReview = (eventId: string, eventTitle: string): VideoReviewRecord | null => {
+  try {
+    const raw = localStorage.getItem(`velentra-section-content-${eventId || "global"}`) ?? sessionStorage.getItem(`velentra-section-content-${eventId || "global"}`);
+    const content = raw ? JSON.parse(raw)["video-testimonials"] : null;
+    if (!content?.videoUrl) return null;
+    return { id: `website-video-review-${eventId || "global"}`, serial: 99, eventSlug: eventId || "global", eventTitle: eventTitle || "Imported event website", title: content.title || "Past Conference Video Review", reviewer: "Website video testimonial", videoUrl: content.videoUrl, posterImage: content.imageUrl || "", description: content.body || "", status: content.status || "Published" };
+  } catch { return null; }
+};
+const mergeWebsiteVideoReview = (rows: VideoReviewRecord[], eventId: string, eventTitle: string) => {
+  const websiteRow = readWebsiteVideoReview(eventId, eventTitle);
+  if (!websiteRow || rows.some(row => row.videoUrl === websiteRow.videoUrl || row.id === websiteRow.id)) return rows;
+  return [...rows, { ...websiteRow, serial: rows.length + 1 }];
+};
 const readEventRows = <T,>(name: string, eventId: string): T[] => { try { return JSON.parse(localStorage.getItem(`velentra-${name}-${eventId || "global"}`) || sessionStorage.getItem(`velentra-${name}-${eventId || "global"}`) || "[]") as T[]; } catch { return []; } };
 const defaultSessions: SessionRecord[] = [
   { id: "session-1", serial: 1, day: "Day 1", date: "September 09, 2027", time: "08:00–09:00", title: "Registration", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
@@ -346,7 +359,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [gallerySearch, setGallerySearch] = useState("");
   const [galleryPage, setGalleryPage] = useState(1);
   const [selectedGalleryEvent, setSelectedGalleryEvent] = useState<string | null>(null);
-  const [videoReviewRows, setVideoReviewRows] = useState<VideoReviewRecord[]>(() => { try { const key = videoReviewStorageKey(eventId); const stored = localStorage.getItem(key) ?? sessionStorage.getItem(key); const migrationKey = `${key}-existing-imported`; if (stored === null || (stored === "[]" && !localStorage.getItem(migrationKey))) { localStorage.setItem(migrationKey, "true"); return existingVideoReviews(eventId, eventTitle || ""); } return JSON.parse(stored) as VideoReviewRecord[]; } catch { return existingVideoReviews(eventId, eventTitle || ""); } });
+  const [videoReviewRows, setVideoReviewRows] = useState<VideoReviewRecord[]>(() => { try { const key = videoReviewStorageKey(eventId); const stored = localStorage.getItem(key) ?? sessionStorage.getItem(key); const migrationKey = `${key}-existing-imported`; const base = stored === null || (stored === "[]" && !localStorage.getItem(migrationKey)) ? existingVideoReviews(eventId, eventTitle || "") : JSON.parse(stored) as VideoReviewRecord[]; if (stored === null || (stored === "[]" && !localStorage.getItem(migrationKey))) localStorage.setItem(migrationKey, "true"); return mergeWebsiteVideoReview(base, eventId, eventTitle || ""); } catch { return existingVideoReviews(eventId, eventTitle || ""); } });
   const [editingVideoReviewId, setEditingVideoReviewId] = useState<string | null>(null);
   const [videoReviewSearch, setVideoReviewSearch] = useState("");
   const [selectedVideoReviewEvent, setSelectedVideoReviewEvent] = useState<string | null>(null);
@@ -412,14 +425,16 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       if (storedGallery.length) setGalleryRows(storedGallery);
       const storedVideoReviews = localStorage.getItem(videoReviewStorageKey(eventId)) ?? sessionStorage.getItem(videoReviewStorageKey(eventId));
       if (storedVideoReviews !== null) {
-        try { setVideoReviewRows(JSON.parse(storedVideoReviews) as VideoReviewRecord[]); } catch { setVideoReviewRows([]); }
+        try { setVideoReviewRows(mergeWebsiteVideoReview(JSON.parse(storedVideoReviews) as VideoReviewRecord[], eventId, eventTitle || "")); } catch { setVideoReviewRows([]); }
       }
       const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
       setBrochureRows(current => [...downloads, ...current.filter(row => !row.isDownload)]);
     };
     window.addEventListener("storage", syncEventRecords);
     window.addEventListener("focus", syncEventRecords);
-    return () => { window.removeEventListener("storage", syncEventRecords); window.removeEventListener("focus", syncEventRecords); };
+    const syncWebsiteVideo = () => setVideoReviewRows(current => mergeWebsiteVideoReview(current, eventId, eventTitle || ""));
+    window.addEventListener("storage", syncWebsiteVideo);
+    return () => { window.removeEventListener("storage", syncEventRecords); window.removeEventListener("focus", syncEventRecords); window.removeEventListener("storage", syncWebsiteVideo); };
   }, [eventId]);
   useEffect(() => {
     fetch(`/event-site/index.html?event=${encodeURIComponent(eventId)}`).then(response => response.text()).then(html => {
@@ -428,6 +443,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     }).catch(() => setAbstractSubmissionUrl(""));
   }, [eventId]);
   const active = getFeature(activeId);
+  useEffect(() => { if (active.id === "video-review") setVideoReviewRows(current => mergeWebsiteVideoReview(current, eventId, eventTitle || "")); }, [active.id, eventId, eventTitle]);
   const websiteSectionDetails: Record<string, { name: string; fields: string[] }> = {
     header: { name: "Header", fields: ["Logo image", "Left header content", "Right header content", "Top header text", "Top header text color", "Event title", "Start date", "End date", "Venue", "Header background color", "Bottom date bar color", "Navigation links", "Font family", "Font size", "Text color", "Font weight", "Background color", "Spacing and padding"] },
     "conference-sessions": { name: "Conference Sessions", fields: ["Session title", "Session date", "Start time", "End time", "Room / venue", "Speakers", "Status"] },
