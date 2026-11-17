@@ -48,6 +48,11 @@ type VideoReviewRecord = { id: string; serial: number; eventSlug?: string; event
 const gallerySlug = (title: string) => title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "past-conference-gallery";
 const galleryUrlFromTitle = (title: string) => `/event-site/gallery/${gallerySlug(title)}`;
 const videoReviewStorageKey = (eventId: string) => `velentra-video-reviews-${eventId || "global"}`;
+const existingVideoReviews = (eventId: string, eventTitle: string): VideoReviewRecord[] => [
+  { id: "video-review-FAGl95QLdgQ", serial: 1, eventSlug: eventId || "global", eventTitle: eventTitle || "Imported event website", title: "Biofuels 2025 | Conference Highlights", reviewer: "Conference highlights", videoUrl: "https://www.youtube.com/watch?v=FAGl95QLdgQ", posterImage: "/event-site/uploads/reviews/FAGl95QLdgQ.jpg", description: "Biofuels 2025 conference highlights", status: "Published" },
+  { id: "video-review-rDB4L_hq3lo", serial: 2, eventSlug: eventId || "global", eventTitle: eventTitle || "Imported event website", title: "Magnus Group Conferences Reviews", reviewer: "Conference attendee review", videoUrl: "https://www.youtube.com/watch?v=rDB4L_hq3lo", posterImage: "/event-site/uploads/reviews/rDB4L_hq3lo.jpg", description: "A review from Magnus Group Conferences", status: "Published" },
+  { id: "video-review-EWYfx4s1AKU", serial: 3, eventSlug: eventId || "global", eventTitle: eventTitle || "Imported event website", title: "Catalysis Conference 2018 | Rome, Italy", reviewer: "Conference participant", videoUrl: "https://www.youtube.com/watch?v=EWYfx4s1AKU", posterImage: "/event-site/uploads/reviews/EWYfx4s1AKU.jpg", description: "Catalysis Conference 2018 review", status: "Published" },
+];
 const readEventRows = <T,>(name: string, eventId: string): T[] => { try { return JSON.parse(localStorage.getItem(`velentra-${name}-${eventId || "global"}`) || sessionStorage.getItem(`velentra-${name}-${eventId || "global"}`) || "[]") as T[]; } catch { return []; } };
 const defaultSessions: SessionRecord[] = [
   { id: "session-1", serial: 1, day: "Day 1", date: "September 09, 2027", time: "08:00–09:00", title: "Registration", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
@@ -341,7 +346,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [gallerySearch, setGallerySearch] = useState("");
   const [galleryPage, setGalleryPage] = useState(1);
   const [selectedGalleryEvent, setSelectedGalleryEvent] = useState<string | null>(null);
-  const [videoReviewRows, setVideoReviewRows] = useState<VideoReviewRecord[]>(() => { try { return JSON.parse(localStorage.getItem(videoReviewStorageKey(eventId)) ?? sessionStorage.getItem(videoReviewStorageKey(eventId)) ?? "[]") as VideoReviewRecord[]; } catch { return []; } });
+  const [videoReviewRows, setVideoReviewRows] = useState<VideoReviewRecord[]>(() => { try { const key = videoReviewStorageKey(eventId); const stored = localStorage.getItem(key) ?? sessionStorage.getItem(key); const migrationKey = `${key}-existing-imported`; if (stored === null || (stored === "[]" && !localStorage.getItem(migrationKey))) { localStorage.setItem(migrationKey, "true"); return existingVideoReviews(eventId, eventTitle || ""); } return JSON.parse(stored) as VideoReviewRecord[]; } catch { return existingVideoReviews(eventId, eventTitle || ""); } });
   const [editingVideoReviewId, setEditingVideoReviewId] = useState<string | null>(null);
   const [videoReviewSearch, setVideoReviewSearch] = useState("");
   const [selectedVideoReviewEvent, setSelectedVideoReviewEvent] = useState<string | null>(null);
@@ -405,8 +410,10 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       if (storedSessions.length) setSessionRows(storedSessions);
       const storedGallery = readEventRows<GalleryRecord>("gallery", eventId);
       if (storedGallery.length) setGalleryRows(storedGallery);
-      const storedVideoReviews = readEventRows<VideoReviewRecord>("video-reviews", eventId);
-      setVideoReviewRows(storedVideoReviews);
+      const storedVideoReviews = localStorage.getItem(videoReviewStorageKey(eventId)) ?? sessionStorage.getItem(videoReviewStorageKey(eventId));
+      if (storedVideoReviews !== null) {
+        try { setVideoReviewRows(JSON.parse(storedVideoReviews) as VideoReviewRecord[]); } catch { setVideoReviewRows([]); }
+      }
       const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
       setBrochureRows(current => [...downloads, ...current.filter(row => !row.isDownload)]);
     };

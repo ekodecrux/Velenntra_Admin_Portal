@@ -65,6 +65,10 @@
       const videoReviewsRaw = sessionStorage.getItem(`velentra-video-reviews-${eventId}`) || localStorage.getItem(`velentra-video-reviews-${eventId}`);
       const videoReviews = videoReviewsRaw ? JSON.parse(videoReviewsRaw).filter(item => item.status === 'Published') : [];
       let videoSection = document.querySelector('#past-conference-video-review, #video-reviews, .past-conference-video-review');
+      if (!videoSection) {
+        const existingVideoHeading = Array.from(document.querySelectorAll('h3')).find(item => /past conference review/i.test(item.textContent || ''));
+        videoSection = existingVideoHeading?.closest('section') || null;
+      }
       if (videoReviews.length) {
         if (!videoSection) {
           videoSection = document.createElement('section');
@@ -74,7 +78,7 @@
           (footer?.parentElement || document.body).insertBefore(videoSection, footer || null);
         }
         videoSection.innerHTML = '';
-        videoSection.className = 'past-conference-video-review';
+        if (!videoSection.dataset.velentraManaged) videoSection.classList.add('past-conference-video-review');
         const container = document.createElement('div'); container.className = 'container';
         const heading = document.createElement('div'); heading.className = 'heading m-b-20';
         const title = document.createElement('h3'); title.className = 'text-b-color'; title.textContent = 'Past Conference Video Reviews'; heading.appendChild(title); container.appendChild(heading);
