@@ -555,7 +555,12 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
 
   const deleteRow = (row: Row) => {
     setDeletedRows(current => ({ ...current, [active.id]: [...(current[active.id] ?? []), row.title] }));
-    setNotice(`${row.title} was removed from this local preview.`);
+    setSavedRows(current => {
+      const existing = current[active.id] ?? [];
+      return { ...current, [active.id]: existing.filter(item => item.title !== row.title) };
+    });
+    window.setTimeout(() => document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*")), 0);
+    setNotice(`${row.title} was deleted from this event website.`);
   };
 
   const toggleSection = (label: string) => {
