@@ -1677,3 +1677,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-events-table td:first-child { text-align: left !important; padding-left: 0 !important; padding-right: 8px; }
 .employee-events-table th:first-child { white-space: normal; }
 .employee-events-table td:first-child strong { display: block; white-space: nowrap; overflow: visible; text-overflow: clip; }
+
+/* Small readable inset for the left-aligned Event Title column. */
+.employee-events-table th:first-child,
+.employee-events-table td:first-child { padding-left: 8px !important; }
