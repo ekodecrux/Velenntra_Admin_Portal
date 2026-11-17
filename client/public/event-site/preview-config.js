@@ -94,7 +94,7 @@
       if (values.accentColor && flashBar) flashBar.style.backgroundColor = values.accentColor;
       const footerAddress = document.querySelector('.footer-address, footer address, footer .address');
       if (values.footerAddress && footerAddress) footerAddress.innerHTML = values.footerAddress;
-      const sessionsRaw = sessionStorage.getItem(`velentra-conference-sessions-${eventId}`) || localStorage.getItem(`velentra-conference-sessions-${eventId}`);
+      const sessionsRaw = localStorage.getItem(`velentra-conference-sessions-${eventId}`) || sessionStorage.getItem(`velentra-conference-sessions-${eventId}`);
       const sessions = sessionsRaw ? JSON.parse(sessionsRaw).filter(item => item.status !== 'Hidden') : [];
       const schedule = document.querySelector('#schedule');
       const scheduleTabs = schedule?.querySelector('.tabs-content');
@@ -102,7 +102,7 @@
         const groups = [...new Set(sessions.map(item => `${item.day || 'Day 1'}|${item.date || ''}`))];
         const navigation = schedule.querySelector('.tabs-navigation');
         if (navigation) { navigation.innerHTML = groups.map((group, index) => { const [day, date] = group.split('|'); return `<li class="${index === 0 ? 'active' : ''}"><a href="#velentra-event-${index + 1}">${day}<br><span>${date}</span></a></li>`; }).join(''); }
-        scheduleTabs.innerHTML = groups.map((group, index) => { const [day] = group.split('|'); const rows = sessions.filter(item => `${item.day || 'Day 1'}|${item.date || ''}` === group); return `<div class="tab-pane ${index === 0 ? 'active' : ''}" id="velentra-event-${index + 1}">${rows.map(item => `<div class="row schedule-item"><div class="col-md-3 col-sm-6 col-xs-12"><div>${item.time || ''}</div></div><div class="col-md-9 col-sm-6 col-xs-12"><h4>${item.title || ''}</h4><small>${item.venue || ''}${item.speaker ? ` · ${item.speaker}` : ''}</small></div></div>`).join('')}</div>`; }).join('');
+        scheduleTabs.innerHTML = groups.map((group, index) => { const [day] = group.split('|'); const rows = sessions.filter(item => `${item.day || 'Day 1'}|${item.date || ''}` === group); return `<div class="tab-pane ${index === 0 ? 'active' : ''}" id="velentra-event-${index + 1}">${rows.map(item => `<div class="row schedule-item"><div class="col-md-3 col-sm-6 col-xs-12"><div class="velentra-schedule-time">${item.time || 'Time to be announced'}</div></div><div class="col-md-9 col-sm-6 col-xs-12"><h4>${item.title || ''}</h4><small>${item.venue || ''}${item.speaker ? ` · ${item.speaker}` : ''}</small></div></div>`).join('')}</div>`; }).join('');
       }
       const galleryRaw = sessionStorage.getItem(`velentra-gallery-${eventId}`) || localStorage.getItem(`velentra-gallery-${eventId}`);
       const galleryRows = galleryRaw ? JSON.parse(galleryRaw).filter(item => item.status !== 'Hidden') : [];
@@ -244,5 +244,6 @@
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
+  window.addEventListener('message', event => { if (event.data?.type === 'velentra-session-sync') apply(); });
   window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-') || event.key.includes('velentra-section-content-'))) apply(); });
 })();

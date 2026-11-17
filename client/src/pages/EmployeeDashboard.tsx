@@ -431,7 +431,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   useEffect(() => {
     try { const serialized = JSON.stringify(abstractRows); localStorage.setItem(abstractStorageKey(eventId), serialized); sessionStorage.setItem(abstractStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ }
   }, [eventId, abstractRows]);
-  useEffect(() => { try { const serialized = JSON.stringify(sessionRows); localStorage.setItem(`velentra-conference-sessions-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-conference-sessions-${eventId || "global"}`, serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, sessionRows]);
+  useEffect(() => { try { const serialized = JSON.stringify(sessionRows); localStorage.setItem(`velentra-conference-sessions-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-conference-sessions-${eventId || "global"}`, serialized); document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-session-sync" }, "*")); } catch { /* Preview storage can be unavailable. */ } }, [eventId, sessionRows]);
   useEffect(() => { try { const serialized = JSON.stringify(scheduleDays); localStorage.setItem(`velentra-schedule-days-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-schedule-days-${eventId || "global"}`, serialized); } catch { /* Schedule-day storage can be unavailable. */ } }, [eventId, scheduleDays]);
   useEffect(() => {
     const syncEventRecords = () => {
