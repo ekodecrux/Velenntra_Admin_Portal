@@ -1613,3 +1613,8 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-table-wrap > table td { overflow-wrap: anywhere; word-break: break-word; }
 .employee-table-wrap > table th:last-child,
 .employee-table-wrap > table td:last-child { width: 126px; }
+
+/* Keep technical asset URLs out of visible table cells and prevent action overlap. */
+.employee-table-wrap > table td { vertical-align: middle; }
+.employee-table-wrap > table td:nth-child(5) { white-space: nowrap; }
+.employee-table-wrap > table td:last-child { white-space: nowrap; overflow: visible; }

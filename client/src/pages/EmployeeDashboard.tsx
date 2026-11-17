@@ -335,14 +335,14 @@ const existingWebsiteRows = (featureId: string, eventId: string): Row[] => {
     // The bundled website banner is a separate original record. New uploads are kept in managed-media rows and must not overwrite it.
     if (featureId === "banner-images") {
       const original = defaults[featureId];
-      return [{ title: original.title, status: original.displayStatus || "Published", meta: original.imageUrl, note: "Original website banner", details: { Image: original.imageUrl, "Image URL": original.imageUrl, "Alt text": original.altText, "Display status": original.displayStatus || "Published", Status: original.displayStatus || "Published" } }];
+      return [{ title: original.title, status: original.displayStatus || "Published", meta: "Just now", note: "Original website banner", details: { Image: original.imageUrl, "Image URL": original.imageUrl, "Alt text": original.altText, "Display status": original.displayStatus || "Published", Status: original.displayStatus || "Published" } }];
     }
     if (featureId === "past-conference-info") {
       const value = { ...defaults[featureId], ...stored };
       return [{ title: value.conferenceYear || "Biofuels 2026", status: value.status || "Published", meta: "Existing website information", note: value.body || "Past conference report", details: { "Conference year": value.conferenceYear || "", "Conference report": value.body || "", "Feature image URL": value.imageUrl || "", "Final program URL": value.programUrl || "", "Past gallery URL": value.galleryUrl || "" } }];
     }
     const original = defaults[featureId];
-    return [{ title: original.partnerName, status: original.displayStatus || "Published", meta: original.partnerUrl, note: "Original website media partner", details: { "Website URL": original.partnerUrl, Logo: original.partnerLogoUrl, "Logo URL": original.partnerLogoUrl, "Display status": original.displayStatus || "Published", Status: original.displayStatus || "Published" } }];
+    return [{ title: original.partnerName, status: original.displayStatus || "Published", meta: "Just now", note: "Original website media partner", details: { "Website URL": original.partnerUrl, Logo: original.partnerLogoUrl, "Logo URL": original.partnerLogoUrl, "Display status": original.displayStatus || "Published", Status: original.displayStatus || "Published" } }];
   } catch { return []; }
 };
 const testimonialStorageKey = (eventId: string) => `velentra-testimonials-${eventId || "global"}`;
