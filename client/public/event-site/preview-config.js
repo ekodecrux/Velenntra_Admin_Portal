@@ -111,7 +111,8 @@
           ? [{ title: 'Biofuels Conferences 2027', imageUrl: banner?.getAttribute('src') || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg', altText: 'Biofuels Conferences 2027', status: 'Published' }]
           : [{ partnerName: 'Conference Alerts', partnerUrl: 'https://www.conferencealerts.in/eventdetail/2855037', partnerLogoUrl: '/event-site/uploads/logos/conference-alerts-8149.png', status: 'Published' }];
         const candidates = [];
-        const push = value => { if (!value) return; if (Array.isArray(value)) value.forEach(push); else if (value.items) push(value.items); else candidates.push(value); };
+        const normalize = value => value?.values ? { ...value.values, title: value.title || value.values.title, status: value.status || value.values.Status } : value?.details ? { ...value.details, title: value.title, status: value.status } : value;
+        const push = value => { if (!value) return; if (Array.isArray(value)) value.forEach(push); else if (value.items) push(value.items); else candidates.push(normalize(value)); };
         push(sectionValues[sectionId]);
         try { push(JSON.parse(localStorage.getItem(`velentra-admin-media-${listId}`) || sessionStorage.getItem(`velentra-admin-media-${listId}`) || 'null')); } catch {}
         try {
@@ -120,7 +121,7 @@
         } catch {}
         const rows = [...defaults, ...candidates].map(item => item.values ? item.values : item).filter(item => (item.status || item.displayStatus || 'Published') !== 'Hidden');
         const unique = rows.filter((item, index, list) => index === list.findIndex(other => (kind === 'banner' ? (other.imageUrl || other.Image || other['Image URL'] || other.title) : (other.partnerUrl || other.WebsiteURL || other['Website URL'] || other.partnerName)) === (kind === 'banner' ? (item.imageUrl || item.Image || item['Image URL'] || item.title) : (item.partnerUrl || item.WebsiteURL || item['Website URL'] || item.partnerName))));
-        if (kind === 'banner') return unique.map(item => ({ ...item, imageUrl: item.imageUrl || item.Image || item['Image URL'] || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg' }));
+        if (kind === 'banner') return unique.map(item => ({ ...item, imageUrl: item.imageUrl || item.Image || item['Image URL'] || item['Image'] || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg' }));
         return unique;
       };
       const bannerRecords = readManagedRecords('banner');
@@ -142,7 +143,7 @@
         bannerRecords.forEach((item, index) => {
           const outer = document.createElement('div'); outer.className = `owl-item ${index === 0 ? 'active' : ''}`; outer.style.setProperty('display', 'block', 'important'); outer.style.setProperty('visibility', 'visible', 'important'); outer.style.setProperty('opacity', '1', 'important'); outer.style.setProperty('flex', '0 0 100%', 'important'); outer.style.setProperty('width', '100%', 'important'); outer.style.marginRight = '0';
           const box = document.createElement('div'); box.className = 'owl-bg-img'; box.style.height = 'auto'; box.style.visibility = 'visible'; box.style.opacity = '1';
-          const image = document.createElement('img'); image.className = 'img-responsive'; image.style.display = 'block'; image.style.width = '100%'; image.style.height = 'auto'; image.style.minHeight = '240px'; image.style.objectFit = 'cover'; image.loading = 'eager'; image.src = item.imageUrl || item.Image || item['Image URL'] || ''; image.alt = item.altText || item['Alt text'] || item.title || 'Conference banner';
+          const image = document.createElement('img'); image.className = 'img-responsive'; image.style.display = 'block'; image.style.width = '100%'; image.style.height = 'auto'; image.style.minHeight = '240px'; image.style.objectFit = 'cover'; image.loading = 'eager'; image.src = item.imageUrl || item.Image || item['Image URL'] || item['Image'] || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg'; image.alt = item.altText || item['Alt text'] || item.title || 'Conference banner';
           box.appendChild(image); outer.appendChild(box); bannerStage.appendChild(outer);
         });
         const dots = bannerHost.querySelector('.owl-dots');
