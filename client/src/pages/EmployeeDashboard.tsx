@@ -66,6 +66,7 @@ type GalleryRecord = { id: string; serial: number; eventSlug?: string; eventTitl
 type VideoReviewRecord = { id: string; serial: number; eventSlug?: string; eventTitle?: string; title: string; reviewer: string; videoUrl: string; posterImage: string; description: string; status: string };
 const gallerySlug = (title: string) => title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "past-conference-gallery";
 const galleryUrlFromTitle = (title: string) => `/event-site/gallery/${gallerySlug(title)}`;
+const scientificSessionUrlFromTitle = (title: string) => `/program/scientific-sessions/${gallerySlug(title)}`;
 const videoReviewStorageKey = (eventId: string) => `velentra-video-reviews-${eventId || "global"}`;
 const existingVideoReviews = (eventId: string, eventTitle: string): VideoReviewRecord[] => [
   { id: "video-review-FAGl95QLdgQ", serial: 1, eventSlug: eventId || "global", eventTitle: eventTitle || "Imported event website", title: "Biofuels 2025 | Conference Highlights", reviewer: "Conference highlights", videoUrl: "https://www.youtube.com/watch?v=FAGl95QLdgQ", posterImage: "/event-site/uploads/reviews/FAGl95QLdgQ.jpg", description: "Biofuels 2025 conference highlights", status: "Published" },
@@ -659,6 +660,12 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       setNotice(`Video review ${editingVideoReviewId ? "updated" : "added"} and synchronized to ${eventTitle || "this event website"}.`);
       setEditingVideoReviewId(null); setFormValues({}); selectFeature("video-review");
       return;
+    }
+    if (active.id === "add-scientific-session") {
+      const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
+      const title = formValues["Session Title"] ?? "";
+      const generatedLink = formValues.Link || scientificSessionUrlFromTitle(title);
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>{editingRow ? "Edit Scientific Session" : "Add New Scientific Session"}</h1><p>{editingRow ? "Update the selected session and keep its website content synchronized." : "Add a scientific session to this event website."}</p></div></div><section className="employee-form-card employee-scientific-session-form"><div className="employee-form-card-heading"><div><h2>{editingRow ? "Edit Scientific Session" : "Add New Scientific Session"}</h2></div></div><div className="employee-form-grid"><label className="employee-form-wide"><span>Session Title</span><input value={title} onChange={event => { const value = event.target.value; setValue("Session Title", value); if (!editingRow) setValue("Link", scientificSessionUrlFromTitle(value)); }} placeholder="Enter session title" /></label><label className="employee-form-wide"><span>Link (auto-generated)</span><input type="url" value={generatedLink} readOnly /><small className="employee-form-help">The link is generated automatically from the session title.</small></label><label className="employee-form-wide"><span>Session Description</span><textarea rows={6} value={formValues["Session Description"] ?? ""} onChange={event => setValue("Session Description", event.target.value)} placeholder="Enter session description" /></label><label><span>Status</span><select value={formValues.Status ?? "Active"} onChange={event => setValue("Status", event.target.value)}><option>Active</option><option>Inactive</option><option>Hidden</option></select></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingRow(null); setEditingContext(null); setFormValues({}); selectFeature("scientific-session-list"); }}>Cancel</button><button className="employee-primary-button" type="button" onClick={() => { if (!formValues.Link) setValue("Link", generatedLink); window.setTimeout(saveForm, 0); }}><Check size={16} /> {editingRow ? "Update Session" : "Save Session"}</button></div></section></>;
     }
     if (active.id === "add-gallery") {
       const title = formValues.Title ?? "";
