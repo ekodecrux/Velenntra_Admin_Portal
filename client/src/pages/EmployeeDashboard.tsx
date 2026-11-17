@@ -106,28 +106,10 @@ const defaultGallery: GalleryRecord[] = [
   { id: "gallery-6", serial: 7, eventSlug: "catalysis-conference-2019-singapore", title: "Catalysis Conference 2019 | Singapore", image: "/event-site/uploads/gallery/catalysis-conference-2019-singapore.jpg", url: "https://biofuels-energy.magnusconferences.com/gallery/catalysis-conference-2019-singapore", status: "Published" },
 ];
 const websiteConfigMenu = [
-  { id: "header", label: "Header", editorId: "header" },
-  { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
-  { id: "buttons-list", label: "Buttons List", editorId: "buttons-list" },
-  { id: "testimonials", label: "Testimonials", editorId: "testimonials" },
-  { id: "pages", label: "Pages", editorId: "pages" },
-  { id: "home-tabs", label: "Home Tabs", editorId: "home-tabs" },
   { id: "header-section", label: "Header Section", editorId: "header-section" },
   { id: "footer-section", label: "Footer Section", editorId: "footer-section" },
   { id: "theme-settings", label: "Theme Settings", editorId: "theme-settings" },
   { id: "conference-credits", label: "Conference Credits", editorId: "conference-credits" },
-  { id: "menu-pages", label: "Menu Pages", editorId: "pages" },
-  { id: "hero", label: "Banner", editorId: "hero" },
-  { id: "announcements", label: "Announcements", editorId: "announcements" },
-  { id: "about", label: "About content", editorId: "about" },
-  { id: "scientific-sessions", label: "Scientific sessions", editorId: "scientific-sessions" },
-  { id: "past-conference", label: "Past conference", editorId: "past-conference" },
-  { id: "media-partner", label: "Media partner", editorId: "media-partner" },
-  { id: "conference-schedule", label: "Conference schedule", editorId: "conference-schedule" },
-  { id: "video-testimonials", label: "Past conference videos", editorId: "video-testimonials" },
-  { id: "gallery", label: "Photo gallery", editorId: "gallery" },
-  { id: "footer", label: "Footer", editorId: "footer" },
-  { id: "social-media", label: "Social media links", editorId: "social-media" },
 ];
 
 const item = (id: string, label: string, description: string, icon: LucideIcon, kind: FeatureKind = "list", createTarget?: string): Feature => ({ id, label, description, icon, kind, createTarget });
@@ -926,7 +908,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
 
   return (
     <div className="employee-app-shell workspace-shell">
-      <WorkspaceHeader role="employee" username={username} headerTitle={activeId === "website-editor" ? "Website Configuration" : undefined} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("theme-settings")} onLogout={onBack} />
+      <WorkspaceHeader role="employee" username={username} headerTitle={activeId === "website-editor" ? "Site Settings" : undefined} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("theme-settings")} onLogout={onBack} />
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button>
         {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button><div className="website-config-menu-list">{websiteConfigMenu.map(item => <button type="button" key={item.id} className={`website-config-menu-item ${websiteSelectedSection === item.id ? "website-config-menu-item-active" : ""}`} onClick={() => { if (item.id === "conference-schedule") { selectFeature("conference-sessions"); return; } if (item.id === "past-conference") { selectFeature("past-conference-info"); return; } if (item.id === "media-partner") { selectFeature("media-partner"); return; } setWebsiteSelectedSection(item.id); window.dispatchEvent(new CustomEvent("velentra:select-section", { detail: { sectionId: item.editorId } })); }}>{item.label}</button>)}</div>{websiteSelectedSection && websiteSectionDetails[websiteSelectedSection] ? <div className="website-config-selected-details"><span>Modify section</span><strong>{websiteSectionDetails[websiteSelectedSection].name}</strong><ul>{websiteSectionDetails[websiteSelectedSection].fields.map(field => <li key={field}><button type="button" onClick={() => window.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId: websiteConfigMenu.find(item => item.id === websiteSelectedSection)?.editorId ?? websiteSelectedSection, field } }))}>{field}</button></li>)}</ul></div> : null}</div> : <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => feature.id === "website-editor" ? openWebsiteConfigurationTab() : selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => { if (nestedFeature.id === "add-scientific-session") { setEditingRow(null); setEditingContext(null); setFormValues({}); } selectFeature(nestedFeature.id); }}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>}
