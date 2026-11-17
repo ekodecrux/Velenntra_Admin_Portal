@@ -111,11 +111,31 @@
       }
       if (values.accentColor && flashBar) flashBar.style.backgroundColor = values.accentColor;
       const scientificContent = sectionValues['scientific-sessions'] || {};
-      if (Array.isArray(scientificContent.items)) {
+      const scientificManagedRows = (() => {
+        try {
+          const managed = JSON.parse(localStorage.getItem(`velentra-managed-media-${eventId}`) || sessionStorage.getItem(`velentra-managed-media-${eventId}`) || '{}');
+          return Array.isArray(managed['scientific-session-list']) ? managed['scientific-session-list'] : [];
+        } catch { return []; }
+      })();
+      const scientificManagedItems = scientificManagedRows.map(row => ({
+        title: row.title || '',
+        link: row.details?.Link || row.Link || '',
+        description: row.details?.['Session Description'] || row.details?.Description || row.note || '',
+        fullDescription: row.details?.['Full Session Description'] || row.details?.['Session Description'] || row.details?.Description || row.note || '',
+        isNew: row.details?.__managedScientificSession === 'true',
+        status: row.status || 'Active'
+      })).filter(item => item.title);
+      const scientificItems = [...(Array.isArray(scientificContent.items) ? scientificContent.items : [])];
+      scientificManagedItems.forEach(item => {
+        const existingIndex = scientificItems.findIndex(existing => existing.title === item.title);
+        if (existingIndex >= 0) scientificItems[existingIndex] = { ...scientificItems[existingIndex], ...item };
+        else scientificItems.unshift(item);
+      });
+      if (scientificItems.length) {
         const scientificList = document.querySelector('.sessions-new ul.scientific');
         if (scientificList) {
           const existingLinks = new Map(Array.from(scientificList.querySelectorAll('a')).map(anchor => [anchor.textContent.trim(), anchor.getAttribute('href') || '']));
-          const visibleScientificItems = scientificContent.items.filter(item => (item.status || 'Active') !== 'Hidden').slice().sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew))).slice(0, 15);
+          const visibleScientificItems = scientificItems.filter(item => (item.status || 'Active') !== 'Hidden').slice().sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew))).slice(0, 15);
           scientificList.innerHTML = '';
           visibleScientificItems.forEach(item => {
             const li = document.createElement('li'); const link = document.createElement('a');
