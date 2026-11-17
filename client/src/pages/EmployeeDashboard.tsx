@@ -44,8 +44,10 @@ type BrochureRecord = { id: string; serial: number; date: string; name: string; 
 type AbstractRecord = { id: string; name: string; abstractTitle: string; email: string; country: string; phone: string; category: string; trackName: string; address: string; interested: string; organization: string; date: string };
 type SessionRecord = { id: string; serial: number; day: string; date: string; time: string; title: string; venue: string; speaker: string; status: string };
 type GalleryRecord = { id: string; serial: number; eventSlug?: string; eventTitle?: string; title: string; image: string; url: string; source?: string; status: string };
+type VideoReviewRecord = { id: string; serial: number; eventSlug?: string; eventTitle?: string; title: string; reviewer: string; videoUrl: string; posterImage: string; description: string; status: string };
 const gallerySlug = (title: string) => title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "past-conference-gallery";
 const galleryUrlFromTitle = (title: string) => `/event-site/gallery/${gallerySlug(title)}`;
+const videoReviewStorageKey = (eventId: string) => `velentra-video-reviews-${eventId || "global"}`;
 const readEventRows = <T,>(name: string, eventId: string): T[] => { try { return JSON.parse(localStorage.getItem(`velentra-${name}-${eventId || "global"}`) || sessionStorage.getItem(`velentra-${name}-${eventId || "global"}`) || "[]") as T[]; } catch { return []; } };
 const defaultSessions: SessionRecord[] = [
   { id: "session-1", serial: 1, day: "Day 1", date: "September 09, 2027", time: "08:00–09:00", title: "Registration", venue: "Main Hall", speaker: "Conference Team", status: "Published" },
@@ -136,6 +138,11 @@ const sections: Section[] = [
     label: "Past Conference Gallery",
     icon: Image,
     items: [item("main-gallery", "Main Gallery Cards", "Browse the past-event gallery cards shown on the event website.", Image), item("gallery", "Gallery", "Manage the individual photos inside a selected past-event gallery.", Image)],
+  },
+  {
+    label: "Past Conference Video Review",
+    icon: Video,
+    items: [item("video-review", "Past Conference Video Review", "Manage event-wise past-conference video reviews synchronized to the website.", Video), item("add-video-review", "Add Video Review", "Add a video review to the selected past conference.", Plus, "form")],
   },
   {
     label: "Events",
@@ -264,6 +271,7 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-media-partner": [{ label: "Partner name" }, { label: "Logo", type: "file" }, { label: "Website URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
   "add-exhibitor": [{ label: "Company name" }, { label: "Contact email", type: "email" }, { label: "Booth or profile URL", type: "url" }, { label: "Description", type: "textarea" }],
   "add-gallery": [{ label: "Title" }, { label: "Image", type: "file" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-video-review": [{ label: "Review title" }, { label: "Reviewer name" }, { label: "Video URL", type: "url" }, { label: "Poster image", type: "file" }, { label: "Description", type: "textarea" }, { label: "Status", type: "select", options: ["Published", "Draft", "Hidden"] }],
   "add-page": [{ label: "Page title" }, { label: "Page slug" }, { label: "Content", type: "textarea" }],
 };
 
@@ -333,6 +341,10 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [gallerySearch, setGallerySearch] = useState("");
   const [galleryPage, setGalleryPage] = useState(1);
   const [selectedGalleryEvent, setSelectedGalleryEvent] = useState<string | null>(null);
+  const [videoReviewRows, setVideoReviewRows] = useState<VideoReviewRecord[]>(() => { try { return JSON.parse(localStorage.getItem(videoReviewStorageKey(eventId)) ?? sessionStorage.getItem(videoReviewStorageKey(eventId)) ?? "[]") as VideoReviewRecord[]; } catch { return []; } });
+  const [editingVideoReviewId, setEditingVideoReviewId] = useState<string | null>(null);
+  const [videoReviewSearch, setVideoReviewSearch] = useState("");
+  const [selectedVideoReviewEvent, setSelectedVideoReviewEvent] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
@@ -347,6 +359,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [editingTestimonialId, setEditingTestimonialId] = useState<string | null>(null);
   useEffect(() => { try { const serialized = JSON.stringify(testimonialRows); localStorage.setItem(testimonialStorageKey(eventId), serialized); sessionStorage.setItem(testimonialStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, testimonialRows]);
   useEffect(() => { try { const serialized = JSON.stringify(galleryRows); localStorage.setItem(`velentra-gallery-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-gallery-${eventId || "global"}`, serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, galleryRows]);
+  useEffect(() => { try { const serialized = JSON.stringify(videoReviewRows); localStorage.setItem(videoReviewStorageKey(eventId), serialized); sessionStorage.setItem(videoReviewStorageKey(eventId), serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, videoReviewRows]);
   useEffect(() => {
     fetch("/event-site/gallery-manifest.json").then(response => response.json()).then((manifest: GalleryRecord[]) => {
       setGalleryRows(current => {
@@ -392,6 +405,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       if (storedSessions.length) setSessionRows(storedSessions);
       const storedGallery = readEventRows<GalleryRecord>("gallery", eventId);
       if (storedGallery.length) setGalleryRows(storedGallery);
+      const storedVideoReviews = readEventRows<VideoReviewRecord>("video-reviews", eventId);
+      setVideoReviewRows(storedVideoReviews);
       const downloads = readEventRows<BrochureRecord>("brochure-downloads", eventId).map((row, index) => ({ ...row, serial: row.serial || index + 1, isDownload: true }));
       setBrochureRows(current => [...downloads, ...current.filter(row => !row.isDownload)]);
     };
@@ -486,6 +501,13 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
   const saveForm = () => {
+    if (active.id === "add-video-review") {
+      const record: VideoReviewRecord = { id: editingVideoReviewId ?? `video-review-${Date.now()}`, serial: editingVideoReviewId ? (videoReviewRows.find(item => item.id === editingVideoReviewId)?.serial ?? videoReviewRows.length + 1) : videoReviewRows.length + 1, eventSlug: selectedVideoReviewEvent ?? eventId, eventTitle: eventTitle || "Selected past conference", title: formValues["Review title"] ?? "", reviewer: formValues["Reviewer name"] ?? "", videoUrl: formValues["Video URL"] ?? "", posterImage: formValues["Poster image"] ?? "", description: formValues.Description ?? "", status: formValues.Status ?? "Published" };
+      setVideoReviewRows(current => editingVideoReviewId ? current.map(item => item.id === editingVideoReviewId ? record : item) : [...current, record]);
+      setNotice(`Video review ${editingVideoReviewId ? "updated" : "added"} and synchronized to ${eventTitle || "this event website"}.`);
+      setEditingVideoReviewId(null); setFormValues({}); selectFeature("video-review");
+      return;
+    }
     if (active.id === "add-gallery") {
       const title = formValues.Title ?? "";
       const record: GalleryRecord = { id: editingGalleryId ?? `gallery-${Date.now()}`, serial: editingGalleryId ? (galleryRows.find(item => item.id === editingGalleryId)?.serial ?? galleryRows.length + 1) : galleryRows.length + 1, title, image: formValues.Image ?? "", url: formValues.URL || galleryUrlFromTitle(title), status: formValues.Status ?? "Published" };
@@ -604,6 +626,16 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
           <div className="employee-table-wrap"><table className="employee-testimonials-table"><thead><tr><th>ID</th><th>Name</th><th>Comment</th><th>Image</th><th>Designation</th><th>Status</th><th>Display position</th><th>Action</th></tr></thead><tbody>{visibleTestimonials.length ? visibleTestimonials.map((row, index) => <tr key={row.id}><td>{index + 1}</td><td><strong>{row.name}</strong></td><td>{row.comment}</td><td>{row.image ? <img className="employee-testimonial-thumb" src={row.image} alt="" /> : "—"}</td><td>{row.designation}</td><td><span className="employee-status-pill">{row.status}</span></td><td>{row.position}</td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingTestimonialId(row.id); setFormValues({ Name: row.name, Comment: row.comment, Image: row.image, Designation: row.designation, Status: row.status, Position: row.position }); selectFeature("add-testimonial"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete testimonial by ${row.name}`} title="Delete testimonial" onClick={() => { if (window.confirm(`Delete testimonial by ${row.name}?`)) { setTestimonialRows(current => current.filter(item => item.id !== row.id)); setNotice("Testimonial deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>) : <tr><td colSpan={8}>No Testimonial found.</td></tr>}</tbody></table></div>
         </section>
       </>;
+    }
+    if (active.id === "video-review") {
+      const query = videoReviewSearch.trim().toLowerCase();
+      const scoped = selectedVideoReviewEvent ? videoReviewRows.filter(row => (row.eventSlug || eventId) === selectedVideoReviewEvent) : videoReviewRows;
+      const visible = scoped.filter(row => [row.eventTitle, row.title, row.reviewer, row.description, row.status].join(" ").toLowerCase().includes(query));
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>Past Conference Video Review</h1><p>Manage event-wise video reviews shown in the Past Conference Review section.</p></div><button className="employee-primary-button" type="button" onClick={() => { setEditingVideoReviewId(null); setFormValues({ Status: "Published", "Reviewer name": "", "Review title": "" }); selectFeature("add-video-review"); }}><Plus size={15} /> Add Video Review</button></div>{notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice("")}><X size={15} /></button></div> : null}<section className="employee-table-card employee-video-review-card"><div className="employee-table-controls"><strong>Video Reviews</strong><span>{visible.length} review{visible.length === 1 ? "" : "s"} synchronized to the event website</span><label className="employee-brochure-search">Search: <input type="search" value={videoReviewSearch} onChange={event => setVideoReviewSearch(event.target.value)} /></label></div><div className="employee-table-wrap"><table><thead><tr><th>S.No</th><th>Past conference</th><th>Review title</th><th>Reviewer</th><th>Video</th><th>Status</th><th>Action</th></tr></thead><tbody>{visible.map(row => <tr key={row.id}><td>{row.serial}</td><td>{row.eventTitle || eventTitle || "Selected event"}</td><td><strong>{row.title}</strong><small>{row.description}</small></td><td>{row.reviewer || "—"}</td><td>{row.videoUrl ? <a href={row.videoUrl} target="_blank" rel="noreferrer">Open video</a> : "—"}</td><td><span className="employee-status-pill">{row.status}</span></td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingVideoReviewId(row.id); setSelectedVideoReviewEvent(row.eventSlug || eventId); setFormValues({ "Review title": row.title, "Reviewer name": row.reviewer, "Video URL": row.videoUrl, "Poster image": row.posterImage, Description: row.description, Status: row.status }); selectFeature("add-video-review"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete ${row.title}`} onClick={() => { if (window.confirm(`Delete video review ${row.title}?`)) { setVideoReviewRows(current => current.filter(item => item.id !== row.id)); setNotice("Video review deleted from the event website."); } }}><Trash2 size={16} /></button></div></td></tr>)}{visible.length === 0 ? <tr><td colSpan={7}>No video reviews found. Add a review to publish it to the Past Conference Review section.</td></tr> : null}</tbody></table></div></section></>;
+    }
+    if (active.id === "add-video-review") {
+      const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>{editingVideoReviewId ? "Edit Past Conference Video Review" : "Add Past Conference Video Review"}</h1><p>Changes synchronize to the selected event website Past Conference Review section.</p></div></div><section className="employee-form-card employee-video-review-form"><div className="employee-form-grid"><label><span>Past conference / event</span><input value={eventTitle || "Selected event"} readOnly /></label><label><span>Review title</span><input value={formValues["Review title"] ?? ""} onChange={event => setValue("Review title", event.target.value)} placeholder="A memorable conference experience" /></label><label><span>Reviewer name</span><input value={formValues["Reviewer name"] ?? ""} onChange={event => setValue("Reviewer name", event.target.value)} /></label><label><span>Video URL</span><input type="url" value={formValues["Video URL"] ?? ""} onChange={event => setValue("Video URL", event.target.value)} placeholder="https://www.youtube.com/watch?v=..." /></label><label><span>Poster image</span><input type="file" accept="image/*" onChange={event => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => setValue("Poster image", String(reader.result ?? "")); reader.readAsDataURL(file); }} />{formValues["Poster image"] ? <img className="employee-video-poster-preview" src={formValues["Poster image"]} alt="Video poster preview" /> : null}</label><label><span>Status</span><select value={formValues.Status ?? "Published"} onChange={event => setValue("Status", event.target.value)}><option>Published</option><option>Draft</option><option>Hidden</option></select></label><label className="employee-form-wide"><span>Description</span><textarea rows={5} value={formValues.Description ?? ""} onChange={event => setValue("Description", event.target.value)} placeholder="Short review description" /></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingVideoReviewId(null); selectFeature("video-review"); }}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {editingVideoReviewId ? "Update Video Review" : "Add Video Review"}</button></div></section></>;
     }
     if (active.id === "main-gallery") {
       const cards = galleryRows.filter((row, index, list) => list.findIndex(item => item.eventSlug ? item.eventSlug === row.eventSlug : item.url === row.url) === index);

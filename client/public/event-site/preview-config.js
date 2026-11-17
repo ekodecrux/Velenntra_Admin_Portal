@@ -62,6 +62,38 @@
         });
         window.velentraShowGallery?.();
       }
+      const videoReviewsRaw = sessionStorage.getItem(`velentra-video-reviews-${eventId}`) || localStorage.getItem(`velentra-video-reviews-${eventId}`);
+      const videoReviews = videoReviewsRaw ? JSON.parse(videoReviewsRaw).filter(item => item.status === 'Published') : [];
+      let videoSection = document.querySelector('#past-conference-video-review, #video-reviews, .past-conference-video-review');
+      if (videoReviews.length) {
+        if (!videoSection) {
+          videoSection = document.createElement('section');
+          videoSection.id = 'past-conference-video-review';
+          videoSection.dataset.velentraManaged = 'true';
+          const footer = document.querySelector('footer');
+          (footer?.parentElement || document.body).insertBefore(videoSection, footer || null);
+        }
+        videoSection.innerHTML = '';
+        videoSection.className = 'past-conference-video-review';
+        const container = document.createElement('div'); container.className = 'container';
+        const heading = document.createElement('div'); heading.className = 'heading m-b-20';
+        const title = document.createElement('h3'); title.className = 'text-b-color'; title.textContent = 'Past Conference Video Reviews'; heading.appendChild(title); container.appendChild(heading);
+        const grid = document.createElement('div'); grid.className = 'velentra-video-review-grid';
+        videoReviews.forEach(item => {
+          const card = document.createElement('article'); card.className = 'velentra-video-review-card';
+          const media = document.createElement('div'); media.className = 'velentra-video-review-media';
+          const url = item.videoUrl || '';
+          const youtube = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?/]+)/i);
+          if (youtube) { const iframe = document.createElement('iframe'); iframe.src = `https://www.youtube.com/embed/${youtube[1]}`; iframe.title = item.title || 'Past conference video review'; iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'; iframe.allowFullscreen = true; media.appendChild(iframe); }
+          else if (/^data:video\//i.test(url) || /\.(mp4|webm|ogg)(?:$|\?)/i.test(url)) { const video = document.createElement('video'); video.src = url; video.controls = true; if (item.posterImage) video.poster = item.posterImage; media.appendChild(video); }
+          else if (item.posterImage) { const image = document.createElement('img'); image.src = item.posterImage; image.alt = item.title || 'Past conference video review'; media.appendChild(image); }
+          else { const empty = document.createElement('div'); empty.textContent = 'Video review'; media.appendChild(empty); }
+          card.appendChild(media); const cardTitle = document.createElement('h4'); cardTitle.textContent = item.title || 'Past conference video review'; card.appendChild(cardTitle); if (item.reviewer) { const reviewer = document.createElement('p'); reviewer.textContent = item.reviewer; card.appendChild(reviewer); } if (item.description) { const description = document.createElement('p'); description.textContent = item.description; card.appendChild(description); } grid.appendChild(card);
+        });
+        container.appendChild(grid); videoSection.appendChild(container);
+      } else if (videoSection?.dataset.velentraManaged === 'true') {
+        videoSection.remove();
+      }
       const testimonialsRaw = sessionStorage.getItem(`velentra-testimonials-${eventId}`) || localStorage.getItem(`velentra-testimonials-${eventId}`);
       const testimonials = testimonialsRaw ? JSON.parse(testimonialsRaw).filter(item => item.status === 'Active' && item.position !== 'Hidden').sort((a, b) => { const rank = value => value === 'First' ? -1 : value === 'Middle' ? 500 : value === 'Last' ? 999 : Number(value) || 0; return rank(a.position) - rank(b.position); }) : [];
       const testimonialStage = document.querySelector('.testimonial .owl-stage');
@@ -84,5 +116,5 @@
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
-  window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-'))) apply(); });
+  window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-'))) apply(); });
 })();
