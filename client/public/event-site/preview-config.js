@@ -23,8 +23,8 @@
           .banner-arrows .owl-stage-outer, .banner-arrows .owl-stage { height: auto !important; min-height: 240px !important; }
           .banner-arrows .owl-item.active { display: block !important; visibility: visible !important; opacity: 1 !important; height: auto !important; min-height: 240px !important; }
           .banner-arrows .owl-item.active .owl-bg-img, .banner-arrows .owl-item.active img { display: block !important; visibility: visible !important; opacity: 1 !important; }
-          .velentra-media-carousel { position: relative; overflow: hidden; width: 100%; }
-          .velentra-media-track { display: flex; gap: 24px; transition: transform .65s ease; }
+          .velentra-media-carousel { position: relative; display: flex !important; justify-content: center !important; overflow: hidden; width: 100%; }
+          .velentra-media-track { display: flex; justify-content: center; gap: 24px; width: 100%; transition: transform .65s ease; }
           .velentra-media-card { flex: 0 0 calc((100% - 48px) / 3); min-width: 0; text-align: center; }
           .velentra-media-card a { display: block; padding: 12px; background: #fff; border: 1px solid #e5e7eb; }
           .velentra-media-card img { display: block; width: 100%; height: 105px; object-fit: contain; }
@@ -155,7 +155,7 @@
           bannerStage.querySelectorAll('.owl-item').forEach((item, index) => item.classList.toggle('active', index === bannerIndex));
           dots?.querySelectorAll('.owl-dot').forEach((dot, index) => dot.classList.toggle('active', index === bannerIndex));
         };
-        if (bannerRecords.length > 1) { bannerPrev?.addEventListener('click', event => { event.preventDefault(); moveBanner(-1); }); bannerNext?.addEventListener('click', event => { event.preventDefault(); moveBanner(1); }); }
+        if (bannerRecords.length > 1) { if (bannerPrev) bannerPrev.onclick = event => { event.preventDefault(); moveBanner(-1); }; if (bannerNext) bannerNext.onclick = event => { event.preventDefault(); moveBanner(1); }; }
       }
       const mediaRecords = readManagedRecords('media');
       const mediaHeading = [...document.querySelectorAll('h3')].find(node => /media partner/i.test(node.textContent || ''));

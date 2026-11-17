@@ -261,6 +261,8 @@ const listColumns: Record<string, string[]> = {
   boardmembers: ["Name", "Email", "Designation", "Category", "Status", "Action"],
   "events-list": ["Event Name", "Start Date", "End Date", "Venue", "Status", "Action"],
   "conference-sessions": ["Title", "Date", "Venue", "Speaker", "Status", "Action"],
+  "banner-images": ["S.No", "Title", "Image", "Status", "Updated", "Action"],
+  "media-partner": ["S.No", "Partner", "Logo", "Website", "Status", "Action"],
 };
 
 const formFields: Record<string, string[]> = {
@@ -766,8 +768,11 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     const activeFields = fieldSpecs[active.id] ?? (formFields[active.id] ?? settingsFields).map(label => ({ label }));
     const columns = listColumns[active.id] ?? ["Title", "Status", "Updated", "Notes", "Action"];
     const seededRows = ["banner-images", "past-conference-info", "media-partner"].includes(active.id) ? existingWebsiteRows(active.id, eventId) : (rowsByFeature[active.id] ?? []);
-    const rows = savedRows[active.id] ?? seededRows;
-    const rowValue = (row: Row, column: string) => row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
+    const storedRows = savedRows[active.id] ?? [];
+    const rows = ["banner-images", "media-partner"].includes(active.id)
+      ? [...storedRows, ...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title))]
+      : (storedRows.length ? storedRows : seededRows);
+    const rowValue = (row: Row, column: string) => row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
     return (
       <>
         <div className="employee-page-heading employee-feature-heading">
@@ -795,7 +800,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         ) : (
           <div className="employee-table-card">
             <div className="employee-table-controls"><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><div className="employee-search"><Search size={16} /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search:" /></div>{createTargetByFeature[active.id] ? <button className="employee-primary-button" type="button" onClick={addRecord}><Plus size={15} /> {getFeature(createTargetByFeature[active.id]).label}</button> : null}</div>
-            <div className="employee-table-wrap"><table><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead><tbody>{rows.slice(0, Number(pageSize)).map((row, index) => <tr key={`${row.title}-${index}`}>{columns.map(column => <td key={column}>{column === "Action" ? <div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => beginEdit(row)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button>{createTargetByFeature[active.id] ? <button className="employee-row-delete" type="button" onClick={() => deleteRow(row)}>Delete</button> : null}</div> : column === "Status" ? <span className="employee-status-pill">{rowValue(row, column)}</span> : column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? <strong>{rowValue(row, column)}</strong> : rowValue(row, column)}</td>)}</tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, Number(pageSize))} of {rows.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
+            <div className="employee-table-wrap"><table><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead><tbody>{rows.slice(0, Number(pageSize)).map((row, index) => <tr key={`${row.title}-${index}`}>{columns.map(column => <td key={column}>{column === "S.No" ? <span className="employee-serial-cell">{index + 1}</span> : column === "Image" || column === "Logo" ? (() => { const source = row.details?.Image || row.details?.["Image URL"] || row.details?.Logo || row.details?.["Logo URL"] || (active.id === "banner-images" ? row.meta : ""); return source ? <img className="employee-media-thumb" src={source} alt="" /> : "—"; })() : column === "Website" ? (row.details?.["Website URL"] || row.note || "—") : column === "Action" ? <div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => beginEdit(row)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button>{createTargetByFeature[active.id] ? <button className="employee-row-delete" type="button" onClick={() => deleteRow(row)}>Delete</button> : null}</div> : column === "Status" ? <span className="employee-status-pill">{rowValue(row, column)}</span> : column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? <strong>{rowValue(row, column)}</strong> : rowValue(row, column)}</td>)}</tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, Number(pageSize))} of {rows.length} entries</span><div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div></div>
           </div>
         )}
       </>

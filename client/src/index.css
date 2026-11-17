@@ -1600,3 +1600,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-sessions-card .employee-table-controls > label select { min-width: 118px; }
 @media (max-width: 900px) { .employee-sessions-card .employee-table-controls > label { width: auto; } }
 @media (max-width: 600px) { .employee-sessions-card .employee-table-controls > label, .employee-sessions-card .employee-table-controls .employee-brochure-search { width: 100%; } .employee-sessions-card .employee-table-controls > label select, .employee-sessions-card .employee-table-controls input { flex: 1; } }
+
+/* Banner/media management: make uploaded assets visible in the coordinator tables. */
+.employee-media-thumb { width: 92px; height: 52px; object-fit: contain; display: block; border: 1px solid #dbe4ec; border-radius: 5px; background: #f7fafc; }
+.employee-serial-cell { display: inline-block; min-width: 28px; text-align: center; }
