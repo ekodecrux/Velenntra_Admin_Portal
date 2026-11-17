@@ -51,6 +51,14 @@
           .velentra-video-review-next { right: 0; }
           @media (max-width: 900px) { .velentra-video-review-card { flex-basis: calc((100% - 20px) / 2) !important; width: calc((100% - 20px) / 2) !important; max-width: calc((100% - 20px) / 2) !important; } }
           @media (max-width: 560px) { .velentra-video-review-card { flex-basis: 100% !important; width: 100% !important; max-width: 100% !important; } }
+          .velentra-scientific-detail { display: none; margin-top: 28px; padding: 24px; border-top: 1px solid #e5e7eb; background: #fff; }
+          .velentra-scientific-detail h3 { color: #9e1d38; margin: 0 0 12px; }
+          .velentra-scientific-detail p { line-height: 1.8; margin: 0 0 18px; }
+          .velentra-scientific-detail h4 { color: #202340; margin: 14px 0 10px; }
+          .velentra-related-session-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+          .velentra-related-session-grid a { display: block; padding: 12px; border-radius: 4px; background: #202340; color: #fff; text-decoration: none; }
+          .velentra-scientific-detail-back { margin-top: 18px; padding: 9px 14px; border: 0; border-radius: 4px; background: #9e1d38; color: #fff; cursor: pointer; }
+          @media (max-width: 600px) { .velentra-related-session-grid { grid-template-columns: 1fr; } }
           @media (max-width: 560px) { #past-conference-video-review .container, #video-reviews .container, .past-conference-video-review .container { padding: 0 45px; } .velentra-video-review-heading { font-size: 24px; } }
         `;
         document.head.appendChild(style);
@@ -106,10 +114,26 @@
       if (Array.isArray(scientificContent.items)) {
         const scientificList = document.querySelector('.sessions-new ul.scientific');
         if (scientificList) {
+          const allScientificItems = scientificContent.items.filter(item => (item.status || 'Active') !== 'Hidden');
+          const visibleScientificItems = allScientificItems.slice().sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew))).slice(0, 15);
           scientificList.innerHTML = '';
-          scientificContent.items.filter(item => (item.status || 'Active') !== 'Hidden').forEach(item => {
+          visibleScientificItems.forEach(item => {
             const li = document.createElement('li'); const link = document.createElement('a');
-            link.href = item.link || '#'; link.textContent = item.title || 'Scientific Session'; link.title = item.title || '';
+            link.href = '#scientific-session-detail'; link.textContent = item.title || 'Scientific Session'; link.title = item.title || '';
+            link.addEventListener('click', event => {
+              event.preventDefault();
+              const host = document.querySelector('.sessions-new'); if (!host) return;
+              let detail = host.querySelector('.velentra-scientific-detail');
+              if (!detail) { detail = document.createElement('div'); detail.className = 'velentra-scientific-detail'; host.appendChild(detail); }
+              detail.innerHTML = '';
+              const heading = document.createElement('h3'); heading.textContent = item.title || 'Scientific Session';
+              const body = document.createElement('p'); body.textContent = item.fullDescription || item.description || 'Session details will be published soon.';
+              const relatedHeading = document.createElement('h4'); relatedHeading.textContent = 'Related Sessions';
+              const relatedGrid = document.createElement('div'); relatedGrid.className = 'velentra-related-session-grid';
+              allScientificItems.filter(other => other.title !== item.title).forEach((other, index) => { const card = document.createElement('a'); card.href = '#scientific-session-detail'; card.textContent = `${index + 1}. ${other.title}`; card.addEventListener('click', e => { e.preventDefault(); link.click(); }); relatedGrid.appendChild(card); });
+              const back = document.createElement('button'); back.type = 'button'; back.className = 'velentra-scientific-detail-back'; back.textContent = 'Back to Scientific Sessions'; back.addEventListener('click', () => { detail.style.display = 'none'; scientificList.parentElement?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+              detail.append(heading, body, relatedHeading, relatedGrid, back); detail.style.display = 'block'; detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
             li.appendChild(link); scientificList.appendChild(li);
           });
         }

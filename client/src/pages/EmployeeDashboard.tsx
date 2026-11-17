@@ -452,7 +452,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       if (!rows) return;
       const key = `velentra-section-content-${eventId || "global"}`;
       const current = JSON.parse(localStorage.getItem(key) || sessionStorage.getItem(key) || "{}");
-      current["scientific-sessions"] = { ...(current["scientific-sessions"] || {}), items: rows.map(row => ({ title: row.title, link: row.details?.Link || "", description: row.details?.["Session Description"] || row.details?.Description || "", fullDescription: row.details?.["Full Session Description"] || row.details?.Description || "", relatedSessions: rows.filter(other => other.title !== row.title && other.status !== "Hidden").map(other => other.title), status: row.status })) };
+      current["scientific-sessions"] = { ...(current["scientific-sessions"] || {}), items: rows.map(row => ({ title: row.title, link: row.details?.Link || "", description: row.details?.["Session Description"] || row.details?.Description || "", fullDescription: row.details?.["Full Session Description"] || row.details?.Description || "", relatedSessions: rows.filter(other => other.title !== row.title && other.status !== "Hidden").map(other => other.title), isNew: row.details?.__managedScientificSession === "true", status: row.status })) };
       const serialized = JSON.stringify(current); localStorage.setItem(key, serialized); sessionStorage.setItem(key, serialized);
       document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
     } catch { /* scoped website storage may be unavailable */ }
@@ -722,7 +722,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       status: formValues.Status || formValues["Display status"] || "Draft",
       meta: "Just now",
       note: "Created in this employee workspace",
-      details: { ...formValues, Description: formValues["Session Description"] || formValues.Description || "", "Full Session Description": formValues["Full Session Description"] || formValues["Session Description"] || formValues.Description || "", "Related Sessions": formValues["Related Sessions"] || "", ...(editingRow && ["banner-images", "media-partner"].includes(returnTarget) ? { __managedOriginal: "true" } : {}) },
+      details: { ...formValues, Description: formValues["Session Description"] || formValues.Description || "", "Full Session Description": formValues["Full Session Description"] || formValues["Session Description"] || formValues.Description || "", "Related Sessions": formValues["Related Sessions"] || "", ...(returnTarget === "scientific-session-list" && !editingRow ? { __managedScientificSession: "true" } : {}), ...(editingRow && ["banner-images", "media-partner"].includes(returnTarget) ? { __managedOriginal: "true" } : {}) },
     };
     if (["past-conference-info"].includes(returnTarget) || (editingRow && ["banner-images", "media-partner"].includes(returnTarget))) {
       try {
