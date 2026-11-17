@@ -1627,3 +1627,20 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-media-partner th:nth-child(5), .employee-media-partner td:nth-child(5) { width: 13%; white-space: nowrap; }
 .employee-media-partner th:nth-child(6), .employee-media-partner td:nth-child(6) { width: 126px; white-space: nowrap; }
 .employee-media-partner td:nth-child(4) { line-height: 1.3; }
+
+/* Events list: fit the full table without column collisions or a horizontal scrollbar. */
+.employee-events-table-wrap { overflow-x: hidden; }
+.employee-events-table { width: 100%; min-width: 0; table-layout: fixed; }
+.employee-events-table th, .employee-events-table td { white-space: normal; overflow-wrap: anywhere; word-break: break-word; vertical-align: middle; }
+.employee-events-table th:nth-child(1), .employee-events-table td:nth-child(1) { width: 16%; }
+.employee-events-table th:nth-child(2), .employee-events-table td:nth-child(2) { width: 9%; white-space: nowrap; }
+.employee-events-table th:nth-child(3), .employee-events-table td:nth-child(3) { width: 9%; white-space: nowrap; }
+.employee-events-table th:nth-child(4), .employee-events-table td:nth-child(4) { width: 12%; }
+.employee-events-table th:nth-child(5), .employee-events-table td:nth-child(5) { width: 11%; }
+.employee-events-table th:nth-child(6), .employee-events-table td:nth-child(6) { width: 17%; }
+.employee-events-table th:nth-child(7), .employee-events-table td:nth-child(7) { width: 10%; max-width: none; white-space: nowrap; }
+.employee-events-table th:nth-child(8), .employee-events-table td:nth-child(8) { width: 7%; }
+.employee-events-table th:nth-child(9), .employee-events-table td:nth-child(9) { width: 9%; white-space: nowrap; }
+.employee-events-table td:first-child { min-width: 0; }
+.employee-events-table .employee-event-domain { min-width: 0; font-size: 10px !important; line-height: 1.25; }
+.employee-events-table .employee-row-actions { gap: 6px; flex-wrap: nowrap; }
