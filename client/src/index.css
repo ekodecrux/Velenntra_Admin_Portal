@@ -1659,3 +1659,11 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-events-table th:nth-child(9), .employee-events-table td:nth-child(9) { width: 8%; text-align: center; }
 .employee-events-table td:nth-child(8) .employee-row-actions,
 .employee-events-table td:nth-child(9) .employee-row-actions { justify-content: center; }
+
+/* Use the explicit Events colgroup and keep cells close together. */
+.employee-events-table { table-layout: fixed; }
+.employee-events-table th, .employee-events-table td { padding-left: 8px; padding-right: 8px; }
+.employee-events-table th:nth-child(1), .employee-events-table td:nth-child(1) { width: auto; }
+.employee-events-table th:nth-child(6), .employee-events-table td:nth-child(6) { width: auto; }
+.employee-events-table th:nth-child(8), .employee-events-table td:nth-child(8),
+.employee-events-table th:nth-child(9), .employee-events-table td:nth-child(9) { width: auto; }
