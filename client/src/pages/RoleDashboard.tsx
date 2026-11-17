@@ -36,28 +36,10 @@ type ViewKind = "dashboard" | "list" | "form" | "settings";
 type RoleFeature = { id: string; label: string; description: string; kind: ViewKind; icon: LucideIcon; fields?: string[]; hidden?: boolean };
 type RoleSection = { label: string; items: RoleFeature[]; direct?: boolean; icon?: LucideIcon };
 const websiteConfigMenu = [
-  { id: "header", label: "Header", editorId: "header" },
-  { id: "conference-sessions", label: "Conference Sessions", editorId: "conference-sessions" },
-  { id: "buttons-list", label: "Buttons List", editorId: "buttons-list" },
-  { id: "testimonials", label: "Testimonials", editorId: "testimonials" },
-  { id: "pages", label: "Pages", editorId: "pages" },
-  { id: "home-tabs", label: "Home Tabs", editorId: "home-tabs" },
   { id: "header-section", label: "Header Section", editorId: "header-section" },
   { id: "footer-section", label: "Footer Section", editorId: "footer-section" },
   { id: "theme-settings", label: "Theme Settings", editorId: "theme-settings" },
   { id: "conference-credits", label: "Conference Credits", editorId: "conference-credits" },
-  { id: "menu-pages", label: "Menu Pages", editorId: "pages" },
-  { id: "hero", label: "Banner", editorId: "hero" },
-  { id: "announcements", label: "Announcements", editorId: "announcements" },
-  { id: "about", label: "About content", editorId: "about" },
-  { id: "scientific-sessions", label: "Scientific sessions", editorId: "scientific-sessions" },
-  { id: "past-conference", label: "Past conference", editorId: "past-conference" },
-  { id: "media-partner", label: "Media partner", editorId: "media-partner" },
-  { id: "conference-schedule", label: "Conference schedule", editorId: "conference-schedule" },
-  { id: "video-testimonials", label: "Past conference videos", editorId: "video-testimonials" },
-  { id: "gallery", label: "Photo gallery", editorId: "gallery" },
-  { id: "footer", label: "Footer", editorId: "footer" },
-  { id: "social-media", label: "Social media links", editorId: "social-media" },
 ];
 type EventRecord = { id: string; title: string; startDate: string; endDate: string; venue: string; eventStatus: string; subdomain: string; domain: string; websiteStatus: string };
 type EmployeeRecord = { id: string; employeeId: string; name: string; email: string; contactNumber: string; address: string; role: string; status: string; updated: string };
@@ -412,7 +394,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
 
   return (
     <div className="employee-app-shell workspace-shell">
-      <WorkspaceHeader role="admin" username={username} headerTitle={activeId === "website-editor" ? "Website Configuration" : undefined} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("admin-settings")} onLogout={onBack} />
+      <WorkspaceHeader role="admin" username={username} headerTitle={activeId === "website-editor" ? "Site Settings" : undefined} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("admin-settings")} onLogout={onBack} />
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button>
         {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button><div className="website-config-menu-list">{websiteConfigMenu.map(item => <button type="button" key={item.id} className={`website-config-menu-item ${websiteSelectedSection === item.id ? "website-config-menu-item-active" : ""}`} onClick={() => { if (item.id === "conference-schedule") { selectFeature("conference-sessions"); return; } if (item.id === "past-conference") { selectFeature("past-conference-info"); return; } if (item.id === "media-partner") { selectFeature("media-partner"); return; } setWebsiteSelectedSection(item.id); window.dispatchEvent(new CustomEvent("velentra:select-section", { detail: { sectionId: item.editorId } })); }}>{item.label}</button>)}</div>{websiteSelectedSection && websiteSectionDetails[websiteSelectedSection] ? <div className="website-config-selected-details"><span>Modify section</span><strong>{websiteSectionDetails[websiteSelectedSection].name}</strong><ul>{websiteSectionDetails[websiteSelectedSection].fields.map(field => <li key={field}><button type="button" onClick={() => window.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId: websiteConfigMenu.find(item => item.id === websiteSelectedSection)?.editorId ?? websiteSelectedSection, field } }))}>{field}</button></li>)}</ul></div> : null}</div> : <div className="employee-sidebar-scroll">{config.sections.map(section => { const visibleItems = section.items.filter(item => !item.hidden); if (visibleItems.length === 0) return null; const featureItem = visibleItems[0]; const Icon = featureItem.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === featureItem.id ? "employee-nav-item-active" : ""}`} onClick={() => featureItem.id === "website-editor" ? openWebsiteConfigurationTab() : selectFeature(featureItem.id)}><Icon size={15} /><span>{featureItem.label}</span>{activeId === featureItem.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = visibleItems.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{visibleItems.map(nested => <button type="button" key={nested.id} className={`employee-nav-item ${activeId === nested.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nested.id)}><nested.icon size={15} /><span>{nested.label}</span>{activeId === nested.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>)}</div> : null}</div>; })}</div>}
