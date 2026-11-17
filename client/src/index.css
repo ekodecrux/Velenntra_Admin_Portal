@@ -1667,3 +1667,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-events-table th:nth-child(6), .employee-events-table td:nth-child(6) { width: auto; }
 .employee-events-table th:nth-child(8), .employee-events-table td:nth-child(8),
 .employee-events-table th:nth-child(9), .employee-events-table td:nth-child(9) { width: auto; }
+
+/* Event title starts at the left edge of its allocated column. */
+.employee-events-table th:first-child,
+.employee-events-table td:first-child { text-align: left; padding-left: 12px; }
