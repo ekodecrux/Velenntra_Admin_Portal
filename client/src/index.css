@@ -1604,3 +1604,12 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 /* Banner/media management: make uploaded assets visible in the coordinator tables. */
 .employee-media-thumb { width: 92px; height: 52px; object-fit: contain; display: block; border: 1px solid #dbe4ec; border-radius: 5px; background: #f7fafc; }
 .employee-serial-cell { display: inline-block; min-width: 28px; text-align: center; }
+
+/* Compact coordinator list layout: S.No stays narrow and Banner/Media lists fit on one page. */
+.employee-table-wrap > table { width: 100%; table-layout: fixed; }
+.employee-table-wrap > table th:first-child,
+.employee-table-wrap > table td:first-child { width: 52px; min-width: 52px; max-width: 52px; padding-left: 10px; padding-right: 10px; text-align: center; }
+.employee-table-wrap > table th,
+.employee-table-wrap > table td { overflow-wrap: anywhere; word-break: break-word; }
+.employee-table-wrap > table th:last-child,
+.employee-table-wrap > table td:last-child { width: 126px; }
