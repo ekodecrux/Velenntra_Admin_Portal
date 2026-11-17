@@ -52,8 +52,6 @@ const roleUsernames: Record<RoleId, string> = {
 function readEmployeeUsernames() {
   const usernames = new Set(["EMP001", "EMP"]);
   try {
-    const globalUsername = localStorage.getItem("velentra-global-employee-username") || sessionStorage.getItem("velentra-global-employee-username");
-    if (globalUsername) usernames.add(globalUsername.trim().toUpperCase());
     for (const storage of [sessionStorage, localStorage]) {
       const storedEvents = storage.getItem("velentra-admin-events");
       if (!storedEvents) continue;
@@ -107,12 +105,8 @@ export default function Home() {
       const normalizedIdentifier = identifier.trim().toUpperCase().replace(/\s+/g, " ");
       const isAdminLogin = ["ADMIN", "ADMIN001", "ADMIN@VELENTRA", "ADMIN@VELENTRAGROUP"].includes(normalizedIdentifier);
       const resolvedRole: RoleId = isAdminLogin ? "admin" : "employee";
-      const isEventSubdomain = !isAdminLogin
-        && /^[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?$/.test(normalizedIdentifier)
-        && normalizedIdentifier !== "EMP001"
-        && normalizedIdentifier !== "EMP";
       const isValidPreviewLogin = (resolvedRole === "employee"
-        ? readEmployeeUsernames().has(normalizedIdentifier) || isEventSubdomain
+        ? readEmployeeUsernames().has(normalizedIdentifier)
         : isAdminLogin)
         && password === "123456";
 

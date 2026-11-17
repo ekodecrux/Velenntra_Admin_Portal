@@ -68,7 +68,8 @@ export function normalizeEmployeeRole(role?: string) {
 
 function applyWebsiteConfig(eventId: string, frame: HTMLIFrameElement) {
   try {
-    const stored = sessionStorage.getItem(`velentra-site-config-${eventId}`) ?? sessionStorage.getItem("velentra-site-config-global");
+    const scopedKey = `velentra-site-config-${eventId}`;
+    const stored = sessionStorage.getItem(scopedKey) ?? localStorage.getItem(scopedKey);
     if (!stored || !frame.contentDocument) return;
     const values = JSON.parse(stored) as Record<string, string>;
     const document = frame.contentDocument;
@@ -142,6 +143,26 @@ export const roleConfigs: Record<RoleKey, { label: string; shortLabel: string; e
   },
 };
 
+
+function cloneDefaultWebsiteToEvent(eventId: string) {
+  if (!eventId || eventId === "global") return;
+  const keys = ["velentra-site-config-global", "velentra-site-sections-global", "velentra-section-content-global"];
+  const targets = ["velentra-site-config", "velentra-site-sections", "velentra-section-content"];
+  try {
+    keys.forEach((source, index) => {
+      const value = localStorage.getItem(source) ?? sessionStorage.getItem(source);
+      if (value !== null) {
+        localStorage.setItem(`${targets[index]}-${eventId}`, value);
+        sessionStorage.setItem(`${targets[index]}-${eventId}`, value);
+      }
+    });
+  } catch { /* Preview storage may be unavailable. */ }
+}
+function clearEventWebsiteData(eventId: string) {
+  if (!eventId || eventId === "global") return;
+  const prefixes = ["velentra-site-config-", "velentra-site-sections-", "velentra-section-content-", "velentra-abstracts-", "velentra-brochure-downloads-", "velentra-testimonials-", "velentra-conference-sessions-", "velentra-gallery-", "velentra-video-reviews-"];
+  try { prefixes.forEach(prefix => { localStorage.removeItem(`${prefix}${eventId}`); sessionStorage.removeItem(`${prefix}${eventId}`); }); } catch { /* Preview storage may be unavailable. */ }
+}
 export default function RoleDashboard({ role, onBack, username, initialFeature = "dashboard" }: { role: RoleKey; onBack: () => void; username: string; initialFeature?: string }) {
   const config = roleConfigs[role];
   const [activeId, setActiveId] = useState(initialFeature);
@@ -162,7 +183,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   });
   const [eventRows, setEventRows] = useState<EventRecord[]>(() => {
     try {
-      const stored = sessionStorage.getItem("velentra-admin-events");
+      const stored = sessionStorage.getItem("velentra-admin-events") ?? localStorage.getItem("velentra-admin-events");
       if (stored) return JSON.parse(stored) as EventRecord[];
     } catch { /* Preview storage can be unavailable. */ }
     return [{ id: "event-preview", title: "All Events workspace", startDate: "—", endDate: "—", venue: "Preview venue", eventStatus: "Draft", subdomain: "event-preview", domain: "velentra.events", websiteStatus: "On hold" }];
@@ -255,6 +276,7 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
       const domain = String(values.get("Domain") || "velentra.events").trim();
       const websiteStatus = String(values.get("Website status") || "On hold");
       const event: EventRecord = { id: editingEvent?.id ?? `event-${Date.now()}`, title, startDate, endDate, venue, eventStatus, subdomain, domain, websiteStatus };
+      if (!editingEvent) cloneDefaultWebsiteToEvent(event.id);
       try { sessionStorage.setItem("velentra-global-employee-username", subdomain); localStorage.setItem("velentra-global-employee-username", subdomain); } catch { /* Preview storage can be unavailable. */ }
       setGlobalEmployeeUsername(subdomain);
       setEventRows(current => editingEvent ? current.map(item => item.id === editingEvent.id ? event : item) : [...current, event]);
@@ -284,8 +306,18 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
   const deleteEvent = (event: EventRecord) => {
     if (event.eventStatus.toLowerCase() === "published") { setNotice("Published events cannot be deleted."); return; }
     if (!window.confirm(`Delete ${event.title}? This event has not been published.`)) return;
-    setEventRows(current => current.filter(item => item.id !== event.id));
-    setNotice(`${event.title} deleted.`);
+    clearEventWebsiteData(event.id);
+    setEventRows(current => {
+      const remaining = current.filter(item => item.id !== event.id);
+      const replacement = remaining.at(-1)?.subdomain ?? "";
+      try {
+        if (replacement) { localStorage.setItem("velentra-global-employee-username", replacement); sessionStorage.setItem("velentra-global-employee-username", replacement); }
+        else { localStorage.removeItem("velentra-global-employee-username"); sessionStorage.removeItem("velentra-global-employee-username"); }
+      } catch { /* Preview storage may be unavailable. */ }
+      setGlobalEmployeeUsername(replacement);
+      return remaining;
+    });
+    setNotice(`${event.title} deleted. Its website data and employee login were disabled.`);
   };
   const eventFieldValue = (field: string) => {
     if (!editingEvent) return undefined;

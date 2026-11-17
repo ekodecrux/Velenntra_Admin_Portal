@@ -22,7 +22,17 @@
         document.body.style.overflowY = 'auto';
       }
       const eventId = new URLSearchParams(window.location.search).get('event') || 'global';
-      const raw = sessionStorage.getItem(`velentra-site-config-${eventId}`) || localStorage.getItem(`velentra-site-config-${eventId}`) || sessionStorage.getItem('velentra-site-config-global') || localStorage.getItem('velentra-site-config-global');
+      if (eventId !== 'global') {
+        const registryRaw = localStorage.getItem('velentra-admin-events') || sessionStorage.getItem('velentra-admin-events');
+        let eventExists = false;
+        try { eventExists = (registryRaw ? JSON.parse(registryRaw) : []).some(item => item?.id === eventId); } catch { eventExists = false; }
+        if (!eventExists) {
+          document.body.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;padding:32px;background:#f4f8fc;color:#173b5a;font-family:Arial,sans-serif;text-align:center"><div><h1 style="margin:0 0 10px">Event website unavailable</h1><p style="margin:0">This event has been deleted or is no longer published.</p></div></main>';
+          return;
+        }
+      }
+      const scopedConfigKey = `velentra-site-config-${eventId}`;
+      const raw = sessionStorage.getItem(scopedConfigKey) || localStorage.getItem(scopedConfigKey) || (eventId === 'global' ? sessionStorage.getItem('velentra-site-config-global') || localStorage.getItem('velentra-site-config-global') : null);
       const sectionRaw = sessionStorage.getItem(`velentra-section-content-${eventId}`) || localStorage.getItem(`velentra-section-content-${eventId}`);
       const sectionValues = sectionRaw ? JSON.parse(sectionRaw) : {};
       const values = { ...(sectionValues.header || {}), ...(sectionValues['header-section'] || {}), ...(sectionValues.hero || {}), ...(sectionValues.about || {}), ...(sectionValues.footer || {}), ...(sectionValues['footer-section'] || {}), ...(sectionValues['theme-settings'] || {}), ...(sectionValues['conference-credits'] || {}), ...(raw ? JSON.parse(raw) : {}) };

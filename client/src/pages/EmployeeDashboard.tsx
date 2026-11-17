@@ -315,7 +315,8 @@ const defaultTestimonials: TestimonialRecord[] = [
 
 function applyWebsiteConfig(eventId: string, frame: HTMLIFrameElement) {
   try {
-    const stored = sessionStorage.getItem(`velentra-site-config-${eventId}`) ?? localStorage.getItem(`velentra-site-config-${eventId}`) ?? sessionStorage.getItem("velentra-site-config-global") ?? localStorage.getItem("velentra-site-config-global");
+    const scopedKey = `velentra-site-config-${eventId}`;
+    const stored = sessionStorage.getItem(scopedKey) ?? localStorage.getItem(scopedKey);
     if (!stored || !frame.contentDocument) return;
     const values = JSON.parse(stored) as Record<string, string>;
     const document = frame.contentDocument;

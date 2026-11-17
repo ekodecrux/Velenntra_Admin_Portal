@@ -69,8 +69,8 @@ export default function Workspace() {
       const raw = localStorage.getItem("velentra-admin-events") || sessionStorage.getItem("velentra-admin-events");
       const events = raw ? JSON.parse(raw) as Array<{ id?: string; title?: string; subdomain?: string }> : [];
       const match = events.find(event => event.subdomain?.toLowerCase() === username.toLowerCase());
-      return { id: match?.id ?? "global", title: match?.title ?? `${username} event website` };
-    } catch { return { id: "global", title: "Global event website" }; }
+      return match ? { id: match.id ?? "", title: match.title ?? `${username} event website`, valid: true } : { id: "", title: "Event no longer available", valid: false };
+    } catch { return { id: "", title: "Event no longer available", valid: false }; }
   })[0];
 
   if (loading) {
@@ -94,6 +94,7 @@ export default function Workspace() {
   }
 
   if (requestedRole === "employee") {
+    if (employeeEvent.valid === false) return <div className="workspace-state workspace-state-empty"><div className="workspace-state-icon"><ShieldCheck size={22} /></div><p>This event has been deleted or is no longer available. The employee login has been disabled.</p><button className="signin-button signin-button-small" type="button" onClick={handleLogout}><span>Return to sign in</span><ArrowUpRight size={17} /></button></div>;
     return <EmployeeDashboard onBack={handleLogout} username={user?.name || user?.email || (demoSession ? demoUsername : "EMP")} eventId={employeeEvent.id} eventTitle={employeeEvent.title} initialFeature={websiteParams?.role === "employee" ? "website-editor" : "dashboard"} />;
   }
 
