@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import {
   ArrowUpRight,
   CalendarDays,
@@ -78,7 +77,6 @@ function BrandMark() {
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { user, loading: sessionLoading } = useAuth();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
@@ -230,23 +228,6 @@ export default function Home() {
         <div className="auth-content">
           <div className="login-card-brand"><BrandMark /></div>
           <div className="login-card-title"><UsersRound size={28} /><span>Conference Login</span></div>
-          {user && !sessionLoading ? (
-            <div className="session-banner" role="status">
-              <div className="session-banner-icon"><Check size={16} /></div>
-              <div>
-                <strong>You’re already signed in</strong>
-                <span>{user.name || user.email || "Your Velentra account"} is ready to continue.</span>
-              </div>
-              <button
-                className="session-banner-action"
-                type="button"
-                onClick={() => setLocation(`/workspace/${user.role === "admin" ? "admin" : "employee"}`)}
-              >
-                Open workspace <ArrowUpRight size={15} />
-              </button>
-            </div>
-          ) : null}
-
           <div className="auth-heading">
             <div className="eyebrow"><span className="eyebrow-dot" /> Welcome back</div>
             <h2>Sign In</h2>

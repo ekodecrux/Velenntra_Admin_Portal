@@ -8,6 +8,15 @@ type UseAuthOptions = {
   redirectPath?: string;
 };
 
+function hasLocalDemoSession() {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem("velentra-demo-authenticated") === "true" || localStorage.getItem("velentra-demo-authenticated") === "true";
+  } catch {
+    return false;
+  }
+}
+
 export function useAuth(options?: UseAuthOptions) {
   // Login is started via startLogin() in the effect below, only when we actually
   // navigate — never during render. startLogin() mints a one-time nonce + writes
@@ -17,6 +26,7 @@ export function useAuth(options?: UseAuthOptions) {
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
+    enabled: !hasLocalDemoSession(),
     retry: false,
     refetchOnWindowFocus: false,
   });
