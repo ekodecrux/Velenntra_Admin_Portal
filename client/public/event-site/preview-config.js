@@ -116,7 +116,9 @@
           push(managed[listId]);
         } catch {}
         const rows = [...defaults, ...candidates].map(item => item.values ? item.values : item).filter(item => (item.status || item.displayStatus || 'Published') !== 'Hidden');
-        return rows.filter((item, index, list) => index === list.findIndex(other => (kind === 'banner' ? (other.imageUrl || other.Image || other.title) : (other.partnerUrl || other.WebsiteURL || other.partnerName)) === (kind === 'banner' ? (item.imageUrl || item.Image || item.title) : (item.partnerUrl || item.WebsiteURL || item.partnerName))));
+        const unique = rows.filter((item, index, list) => index === list.findIndex(other => (kind === 'banner' ? (other.imageUrl || other.Image || other['Image URL'] || other.title) : (other.partnerUrl || other.WebsiteURL || other['Website URL'] || other.partnerName)) === (kind === 'banner' ? (item.imageUrl || item.Image || item['Image URL'] || item.title) : (item.partnerUrl || item.WebsiteURL || item['Website URL'] || item.partnerName))));
+        if (kind === 'banner') return unique.map(item => ({ ...item, imageUrl: item.imageUrl || item.Image || item['Image URL'] || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg' }));
+        return unique;
       };
       const bannerRecords = readManagedRecords('banner');
       const bannerHost = document.querySelector('.banner-arrows');
