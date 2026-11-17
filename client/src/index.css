@@ -1618,3 +1618,12 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .employee-table-wrap > table td { vertical-align: middle; }
 .employee-table-wrap > table td:nth-child(5) { white-space: nowrap; }
 .employee-table-wrap > table td:last-child { white-space: nowrap; overflow: visible; }
+
+/* Keep Media Partner fields in separate readable columns. */
+.employee-media-partner th:nth-child(1), .employee-media-partner td:nth-child(1) { width: 52px; }
+.employee-media-partner th:nth-child(2), .employee-media-partner td:nth-child(2) { width: 21%; }
+.employee-media-partner th:nth-child(3), .employee-media-partner td:nth-child(3) { width: 17%; }
+.employee-media-partner th:nth-child(4), .employee-media-partner td:nth-child(4) { width: 27%; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+.employee-media-partner th:nth-child(5), .employee-media-partner td:nth-child(5) { width: 13%; white-space: nowrap; }
+.employee-media-partner th:nth-child(6), .employee-media-partner td:nth-child(6) { width: 126px; white-space: nowrap; }
+.employee-media-partner td:nth-child(4) { line-height: 1.3; }
