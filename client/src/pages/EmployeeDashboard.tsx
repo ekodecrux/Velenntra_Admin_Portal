@@ -386,7 +386,14 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [notice, setNotice] = useState("");
   const [savedRows, setSavedRows] = useState<Record<string, Row[]>>(() => { try { return JSON.parse(localStorage.getItem(`velentra-managed-media-${eventId || "global"}`) || sessionStorage.getItem(`velentra-managed-media-${eventId || "global"}`) || "{}"); } catch { return {}; } });
   const [deletedRows, setDeletedRows] = useState<Record<string, string[]>>({});
-  useEffect(() => { try { const serialized = JSON.stringify(savedRows); localStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, savedRows]);
+  useEffect(() => {
+    try {
+      const serialized = JSON.stringify(savedRows);
+      localStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized);
+      sessionStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized);
+      document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
+    } catch { /* Preview storage can be unavailable. */ }
+  }, [eventId, savedRows]);
   const [editingRow, setEditingRow] = useState<Row | null>(null);
   const [editingContext, setEditingContext] = useState<string | null>(null);
   const [websiteSelectedSection, setWebsiteSelectedSection] = useState<string | null>(null);

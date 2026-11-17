@@ -333,5 +333,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
   else apply();
   window.addEventListener('message', event => { if (event.data?.type === 'velentra-session-sync') apply(); });
-  window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-') || event.key.includes('velentra-section-content-'))) apply(); });
+  window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-') || event.key.includes('velentra-section-content-') || event.key.includes('velentra-managed-media-'))) apply(); });
 })();
