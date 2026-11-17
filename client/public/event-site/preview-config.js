@@ -10,6 +10,11 @@
           .velentra-video-review-card { min-width: 0; overflow: hidden; border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: #fff; color: #173b5a; box-shadow: 0 8px 24px rgba(0,0,0,.16); }
           .velentra-video-review-media { aspect-ratio: 16/9; min-height: 150px; display: grid; place-items: center; overflow: hidden; background: #173b5a; }
           .velentra-video-review-media iframe, .velentra-video-review-media video, .velentra-video-review-media img { display: block; width: 100%; height: 100%; min-height: 150px; border: 0; object-fit: cover; }
+          .velentra-video-review-link { position: relative; display: block; width: 100%; height: 100%; min-height: 150px; color: #fff; text-decoration: none; }
+          .velentra-video-review-link img { transition: transform .2s ease, filter .2s ease; }
+          .velentra-video-review-link:hover img { transform: scale(1.03); filter: brightness(.72); }
+          .velentra-video-review-play { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(220,0,0,.92); color: #fff; font-size: 22px; padding-left: 3px; }
+          .velentra-video-review-watch { position: absolute; left: 12px; bottom: 10px; border-radius: 4px; padding: 6px 9px; background: rgba(0,0,0,.75); color: #fff; font-size: 12px; font-weight: 600; }
           .velentra-video-review-card h4, .velentra-video-review-card p { margin: 10px 14px 0; }
           .velentra-video-review-card h4 { font-size: 16px; line-height: 1.35; }
           .velentra-video-review-card p { font-size: 13px; line-height: 1.45; }
@@ -124,8 +129,28 @@
           const media = document.createElement('div'); media.className = 'velentra-video-review-media';
           const url = item.videoUrl || '';
           const youtube = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?/]+)/i);
-          if (youtube) { const iframe = document.createElement('iframe'); iframe.src = `https://www.youtube.com/embed/${youtube[1]}`; iframe.title = item.title || 'Past conference video review'; iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'; iframe.allowFullscreen = true; media.appendChild(iframe); }
-          else if (/^data:video\//i.test(url) || /\.(mp4|webm|ogg)(?:$|\?)/i.test(url)) { const video = document.createElement('video'); video.src = url; video.controls = true; if (item.posterImage) video.poster = item.posterImage; media.appendChild(video); }
+          if (youtube) {
+            const link = document.createElement('a');
+            link.className = 'velentra-video-review-link';
+            link.href = url;
+            link.target = '_blank';
+            link.rel = 'noreferrer';
+            link.title = 'Watch this video on YouTube';
+            const image = document.createElement('img');
+            image.src = item.posterImage || `https://img.youtube.com/vi/${youtube[1]}/hqdefault.jpg`;
+            image.alt = item.title || 'Past conference video review';
+            image.loading = 'lazy';
+            link.appendChild(image);
+            const play = document.createElement('span');
+            play.className = 'velentra-video-review-play';
+            play.textContent = '▶';
+            link.appendChild(play);
+            const watch = document.createElement('span');
+            watch.className = 'velentra-video-review-watch';
+            watch.textContent = 'Watch on YouTube';
+            link.appendChild(watch);
+            media.appendChild(link);
+          } else if (/^data:video\//i.test(url) || /\.(mp4|webm|ogg)(?:$|\?)/i.test(url)) { const video = document.createElement('video'); video.src = url; video.controls = true; if (item.posterImage) video.poster = item.posterImage; media.appendChild(video); }
           else if (item.posterImage) { const image = document.createElement('img'); image.src = item.posterImage; image.alt = item.title || 'Past conference video review'; media.appendChild(image); }
           else { const empty = document.createElement('div'); empty.textContent = 'Video review'; media.appendChild(empty); }
           card.appendChild(media); const cardTitle = document.createElement('h4'); cardTitle.textContent = item.title || 'Past conference video review'; card.appendChild(cardTitle); if (item.reviewer) { const reviewer = document.createElement('p'); reviewer.textContent = item.reviewer; card.appendChild(reviewer); } if (item.description) { const description = document.createElement('p'); description.textContent = item.description; card.appendChild(description); } grid.appendChild(card);
