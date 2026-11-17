@@ -59,18 +59,6 @@
           .velentra-related-session-grid a { display: block; padding: 12px; border-radius: 4px; background: #202340; color: #fff; text-decoration: none; }
           .velentra-scientific-detail-back { display: inline-block; margin-top: 18px; padding: 9px 14px; border-radius: 4px; background: #9e1d38; color: #fff; text-decoration: none; }
           @media (max-width: 600px) { .velentra-related-session-grid { grid-template-columns: 1fr; } }
-          .velentra-scientific-detail-page { display:block; background:#fff; color:#222; }
-          .velentra-detail-titlebar { background:#202020; color:#fff; padding:28px 0 32px; }
-          .velentra-detail-title-inner, .velentra-detail-layout { width:78%; max-width:1080px; margin:0 auto; }
-          .velentra-detail-title-inner { position:relative; }
-          .velentra-detail-titlebar h1 { margin:0; font-size:24px; font-weight:500; }
-          .velentra-detail-breadcrumb { position:absolute; right:0; bottom:0; display:flex; gap:10px; color:#bbb; font-size:11px; align-items:center; }
-          .velentra-detail-breadcrumb a { color:#ccc; text-decoration:none; }.velentra-detail-breadcrumb strong { color:#a4112b; font-weight:400; max-width:160px; }
-          .velentra-detail-layout { display:grid; grid-template-columns:185px 1fr; gap:22px; padding:18px 0 45px; }
-          .velentra-detail-sidebar { background:#f4f4f4; padding:12px 0; align-self:start; }.velentra-detail-sidebar a { display:block; color:#222; text-decoration:none; padding:6px 28px; font-size:12px; }.velentra-detail-sidebar a.active { color:#a4112b; font-weight:600; }
-          .velentra-detail-main { padding:0; }.velentra-detail-main h2 { color:#a4112b; font-size:17px; margin:0 0 14px; }.velentra-detail-copy { font-size:12px; line-height:1.85; text-align:justify; margin:0 0 10px; }.velentra-detail-main h3 { font-size:17px; color:#222; margin:8px 0 10px; }
-          .velentra-related-session-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }.velentra-related-session-grid a { background:#202340; color:#fff; text-decoration:none; padding:11px 10px; font-size:12px; border-radius:3px; min-height:18px; }
-          @media (max-width:700px) { .velentra-detail-title-inner,.velentra-detail-layout { width:92%; }.velentra-detail-breadcrumb { position:static; margin-top:12px; flex-wrap:wrap; }.velentra-detail-layout { grid-template-columns:1fr; }.velentra-detail-sidebar { display:none; }.velentra-related-session-grid { grid-template-columns:1fr; } }
           @media (max-width: 560px) { #past-conference-video-review .container, #video-reviews .container, .past-conference-video-review .container { padding: 0 45px; } .velentra-video-review-heading { font-size: 24px; } }
         `;
         document.head.appendChild(style);
@@ -123,41 +111,18 @@
       }
       if (values.accentColor && flashBar) flashBar.style.backgroundColor = values.accentColor;
       const scientificContent = sectionValues['scientific-sessions'] || {};
-      const scientificList = document.querySelector('.sessions-new ul.scientific');
-      if (scientificList) {
-        const scientificSlug = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        const sourceItems = Array.isArray(scientificContent.items) ? scientificContent.items : Array.from(scientificList.querySelectorAll('a')).map(anchor => ({ title: anchor.textContent.trim(), link: anchor.getAttribute('href') || '' }));
-        const allScientificItems = sourceItems.filter(item => (item.status || 'Active') !== 'Hidden');
-        const visibleScientificItems = allScientificItems.slice().sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew))).slice(0, 15);
-        scientificList.innerHTML = '';
-        visibleScientificItems.forEach(item => {
-          const li = document.createElement('li'); const link = document.createElement('a');
-          const slug = scientificSlug(item.title);
-          link.href = `index.html?scientific-session=${encodeURIComponent(slug)}`;
-          link.textContent = item.title || 'Scientific Session'; link.title = item.title || '';
-          li.appendChild(link); scientificList.appendChild(li);
-        });
-        const selectedSlug = new URLSearchParams(window.location.search).get('scientific-session');
-        if (selectedSlug) {
-          const selected = allScientificItems.find(item => scientificSlug(item.title) === selectedSlug);
-          if (selected) {
-            const header = document.querySelector('header#header');
-            const footer = document.querySelector('footer#footer');
-            if (header) {
-              let detailPage = document.querySelector('.velentra-scientific-detail-page');
-              if (!detailPage) { detailPage = document.createElement('div'); detailPage.className = 'velentra-scientific-detail-page'; header.insertAdjacentElement('afterend', detailPage); }
-              let sibling = detailPage.nextElementSibling;
-              while (sibling && sibling !== footer) { sibling.style.display = 'none'; sibling = sibling.nextElementSibling; }
-              const relatedItems = allScientificItems.filter(item => item.title !== selected.title);
-              detailPage.innerHTML = `<section class="velentra-detail-titlebar"><div class="velentra-detail-title-inner"><h1></h1><div class="velentra-detail-breadcrumb"><a href="index.html">Home</a><span>Scientific Sessions</span><strong></strong></div></div></section><div class="velentra-detail-layout"><aside class="velentra-detail-sidebar"><a href="index.html">Home</a><a href="#">Scientific Committee</a><a href="#">Speakers</a><a href="#">Program</a><a class="active" href="index.html">&nbsp;&nbsp;Scientific Sessions</a><a href="#">Information</a><a href="#">&nbsp;&nbsp;Venue</a><a href="#">&nbsp;&nbsp;Accommodation</a><a href="#">&nbsp;&nbsp;Guidelines</a><a href="#">&nbsp;&nbsp;FAQ</a><a href="#">About</a></aside><main class="velentra-detail-main"><h2></h2><p class="velentra-detail-copy"></p><h3>Related Sessions</h3><div class="velentra-related-session-grid"></div></main></div>`;
-              detailPage.querySelector('.velentra-detail-title-inner h1').textContent = selected.title || 'Scientific Session';
-              detailPage.querySelector('.velentra-detail-breadcrumb strong').textContent = selected.title || '';
-              detailPage.querySelector('.velentra-detail-main h2').textContent = selected.title || 'Scientific Session';
-              detailPage.querySelector('.velentra-detail-copy').textContent = selected.fullDescription || selected.description || 'Session details will be published soon.';
-              const relatedGrid = detailPage.querySelector('.velentra-related-session-grid');
-              relatedItems.forEach((item, index) => { const card = document.createElement('a'); card.href = `index.html?scientific-session=${encodeURIComponent(scientificSlug(item.title))}`; card.textContent = `${index + 1}. ${item.title}`; relatedGrid.appendChild(card); });
-            }
-          }
+      if (Array.isArray(scientificContent.items)) {
+        const scientificList = document.querySelector('.sessions-new ul.scientific');
+        if (scientificList) {
+          const existingLinks = new Map(Array.from(scientificList.querySelectorAll('a')).map(anchor => [anchor.textContent.trim(), anchor.getAttribute('href') || '']));
+          const visibleScientificItems = scientificContent.items.filter(item => (item.status || 'Active') !== 'Hidden').slice().sort((a, b) => Number(Boolean(b.isNew)) - Number(Boolean(a.isNew))).slice(0, 15);
+          scientificList.innerHTML = '';
+          visibleScientificItems.forEach(item => {
+            const li = document.createElement('li'); const link = document.createElement('a');
+            link.href = existingLinks.get(item.title) || item.link || '#';
+            link.textContent = item.title || 'Scientific Session'; link.title = item.title || '';
+            li.appendChild(link); scientificList.appendChild(li);
+          });
         }
       }
       const footerAddress = document.querySelector('.footer-address, footer address, footer .address');
