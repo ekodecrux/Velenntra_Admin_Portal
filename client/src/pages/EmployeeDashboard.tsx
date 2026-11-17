@@ -629,7 +629,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       note: "Created in this employee workspace",
       details: { ...formValues },
     };
-    if (["banner-images", "past-conference-info", "media-partner"].includes(returnTarget)) {
+    if (["past-conference-info"].includes(returnTarget) || (editingRow && ["banner-images", "media-partner"].includes(returnTarget))) {
       try {
         const key = `velentra-section-content-${eventId || "global"}`;
         const currentRaw = localStorage.getItem(key) || sessionStorage.getItem(key) || "{}";

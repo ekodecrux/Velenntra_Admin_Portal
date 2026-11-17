@@ -113,13 +113,21 @@
         const candidates = [];
         const normalize = value => value?.values ? { ...value.values, title: value.title || value.values.title, status: value.status || value.values.Status } : value?.details ? { ...value.details, title: value.title, status: value.status } : value;
         const push = value => { if (!value) return; if (Array.isArray(value)) value.forEach(push); else if (value.items) push(value.items); else candidates.push(normalize(value)); };
-        if (kind !== 'banner') push(sectionValues[sectionId]);
+        // Banner and media-partner rows are managed independently below; never let a new Add record overwrite the original section record.
+        if (!['banner', 'media'].includes(kind)) push(sectionValues[sectionId]);
         try { push(JSON.parse(localStorage.getItem(`velentra-admin-media-${listId}`) || sessionStorage.getItem(`velentra-admin-media-${listId}`) || 'null')); } catch {}
         try {
           const managed = JSON.parse(localStorage.getItem(`velentra-managed-media-${eventId}`) || sessionStorage.getItem(`velentra-managed-media-${eventId}`) || '{}');
           push(managed[listId]);
         } catch {}
-        const rows = [...defaults, ...candidates].map(item => item.values ? item.values : item).filter(item => (item.status || item.displayStatus || 'Published') !== 'Hidden');
+        const normalized = [...candidates].map(item => item.values ? item.values : item).filter(item => (item.status || item.displayStatus || 'Published') !== 'Hidden');
+        const original = defaults[0];
+        const isOriginal = item => kind === 'banner'
+          ? item.title === original.title || item.isOriginal === true
+          : (item.partnerName || item['Partner name']) === original.partnerName || item.isOriginal === true;
+        const managedOriginal = normalized.find(isOriginal);
+        const additions = normalized.filter(item => !isOriginal(item));
+        const rows = [managedOriginal || original, ...additions];
         const unique = rows.filter((item, index, list) => index === list.findIndex(other => (kind === 'banner' ? (other.imageUrl || other.Image || other['Image URL'] || other.title) : (other.partnerUrl || other.WebsiteURL || other['Website URL'] || other.partnerName)) === (kind === 'banner' ? (item.imageUrl || item.Image || item['Image URL'] || item.title) : (item.partnerUrl || item.WebsiteURL || item['Website URL'] || item.partnerName))));
         if (kind === 'banner') return unique.map(item => ({ ...item, imageUrl: item.imageUrl || item.Image || item['Image URL'] || item['Image'] || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg' }));
         return unique;
