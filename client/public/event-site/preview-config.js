@@ -129,15 +129,17 @@
         bannerStage.innerHTML = '';
         bannerStage.style.width = '100%';
         bannerStage.style.display = 'flex';
+        bannerStage.style.visibility = 'visible';
+        bannerStage.style.opacity = '1';
         bannerStage.style.height = 'auto';
         const bannerOuter = bannerStage.parentElement; if (bannerOuter) { bannerOuter.style.height = 'auto'; bannerOuter.style.overflow = 'hidden'; }
         const bannerCarousel = bannerHost.querySelector('.owl-carousel'); if (bannerCarousel) bannerCarousel.style.height = 'auto';
         bannerStage.style.transition = 'transform .55s ease';
         bannerStage.style.transform = 'translate3d(0,0,0)';
         bannerRecords.forEach((item, index) => {
-          const outer = document.createElement('div'); outer.className = `owl-item ${index === 0 ? 'active' : ''}`; outer.style.flex = '0 0 100%'; outer.style.width = '100%'; outer.style.marginRight = '0';
-          const box = document.createElement('div'); box.className = 'owl-bg-img'; box.style.height = 'auto';
-          const image = document.createElement('img'); image.className = 'img-responsive'; image.style.display = 'block'; image.style.width = '100%'; image.style.height = 'auto'; image.loading = 'eager'; image.src = item.imageUrl || item.Image || item['Image URL'] || ''; image.alt = item.altText || item['Alt text'] || item.title || 'Conference banner';
+          const outer = document.createElement('div'); outer.className = `owl-item ${index === 0 ? 'active' : ''}`; outer.style.display = 'block'; outer.style.visibility = 'visible'; outer.style.opacity = '1'; outer.style.flex = '0 0 100%'; outer.style.width = '100%'; outer.style.marginRight = '0';
+          const box = document.createElement('div'); box.className = 'owl-bg-img'; box.style.height = 'auto'; box.style.visibility = 'visible'; box.style.opacity = '1';
+          const image = document.createElement('img'); image.className = 'img-responsive'; image.style.display = 'block'; image.style.width = '100%'; image.style.height = 'auto'; image.style.minHeight = '240px'; image.style.objectFit = 'cover'; image.loading = 'eager'; image.src = item.imageUrl || item.Image || item['Image URL'] || ''; image.alt = item.altText || item['Alt text'] || item.title || 'Conference banner';
           box.appendChild(image); outer.appendChild(box); bannerStage.appendChild(outer);
         });
         const dots = bannerHost.querySelector('.owl-dots');
