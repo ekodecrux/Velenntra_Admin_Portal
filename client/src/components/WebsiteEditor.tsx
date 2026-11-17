@@ -115,6 +115,7 @@ type Props = {
   onHome?: () => void;
   onSaved?: (message: string) => void;
   onSectionSelected?: (sectionId: string) => void;
+  initialSectionId?: string;
 };
 
 const sectionStorageKey = (eventId: string) => `velentra-site-sections-${eventId || "global"}`;
@@ -170,18 +171,18 @@ function selectedContentForPreview(section: WebsiteSection | undefined, content:
   return values.logoUrl || values.imageUrl || values.pageImageUrl || values.partnerLogoUrl || values.tabImageUrl || values.imageUrls?.split(/\s*,\s*/)[0] || "";
 }
 
-export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onSaved, onSectionSelected }: Props) {
+export default function WebsiteEditor({ eventId, eventTitle, onBack, onHome, onSaved, onSectionSelected, initialSectionId }: Props) {
   const [sections, setSections] = useState<WebsiteSection[]>(() => {
     const stored = readStorage<WebsiteSection[]>(sectionStorageKey(eventId), defaultSections);
     const storedById = new Map(stored.map(section => [section.id, section]));
     return [...defaultSections.map(section => ({ ...section, ...(storedById.get(section.id) ?? {}) })), ...stored.filter(section => !defaultSections.some(defaultSection => defaultSection.id === section.id))];
   });
   const [content, setContent] = useState<Record<string, SectionContent>>(() => readStorage(contentStorageKey(eventId), {}));
-  const [selectedId, setSelectedId] = useState(sections[0]?.id ?? "logo");
+  const [selectedId, setSelectedId] = useState(initialSectionId && sections.some(section => section.id === initialSectionId) ? initialSectionId : (sections[0]?.id ?? "logo"));
   const [editingSection, setEditingSection] = useState<WebsiteSection | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [showSectionEditor, setShowSectionEditor] = useState(false);
+  const [showSectionEditor, setShowSectionEditor] = useState(Boolean(initialSectionId));
   const [newSectionType, setNewSectionType] = useState("Video Testimonials");
   const selected = sections.find(section => section.id === selectedId) ?? sections[0];
   useEffect(() => { writeStorage(sectionStorageKey(eventId), sections); }, [eventId, sections]);
