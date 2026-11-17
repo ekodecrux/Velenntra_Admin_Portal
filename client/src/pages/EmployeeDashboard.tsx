@@ -54,6 +54,14 @@ const sessionDateToDisplay = (value: string) => {
   const parsed = new Date(`${value}T00:00:00`);
   return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" });
 };
+const sessionStartMinutes = (value: string) => {
+  const match = value.trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+  if (!match) return Number.POSITIVE_INFINITY;
+  let hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (match[3]) { const period = match[3].toUpperCase(); if (period === "PM" && hour < 12) hour += 12; if (period === "AM" && hour === 12) hour = 0; }
+  return hour * 60 + minute;
+};
 type GalleryRecord = { id: string; serial: number; eventSlug?: string; eventTitle?: string; title: string; image: string; url: string; source?: string; status: string };
 type VideoReviewRecord = { id: string; serial: number; eventSlug?: string; eventTitle?: string; title: string; reviewer: string; videoUrl: string; posterImage: string; description: string; status: string };
 const gallerySlug = (title: string) => title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "past-conference-gallery";
@@ -558,6 +566,10 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     }
     if (active.id === "add-session") {
       const selectedDay = formValues.Day ?? "Day 1";
+      const candidateTime = (formValues.Time ?? "").trim();
+      const candidateStart = sessionStartMinutes(candidateTime);
+      const duplicateTime = Number.isFinite(candidateStart) && sessionRows.some(item => item.id !== editingSessionId && item.day === selectedDay && sessionStartMinutes(item.time) === candidateStart);
+      if (duplicateTime) { setNotice(`This time slot is already used on ${selectedDay}. Choose a different start time.`); return; }
       const existingDayDate = sessionRows.find(item => item.day === selectedDay && item.date)?.date;
       const record: SessionRecord = { id: editingSessionId ?? `session-${Date.now()}`, serial: editingSessionId ? (sessionRows.find(item => item.id === editingSessionId)?.serial ?? sessionRows.length + 1) : sessionRows.length + 1, day: selectedDay, date: existingDayDate ?? formValues.Date ?? "", time: formValues.Time ?? "", title: formValues.Title ?? "", venue: formValues.Venue ?? "", speaker: formValues.Speaker ?? "", status: formValues.Status ?? "Draft" };
       setSessionRows(current => editingSessionId ? current.map(item => item.id === editingSessionId ? record : item) : [...current, record]);
@@ -705,7 +717,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     }
     if (active.id === "conference-sessions") {
       const query = sessionSearch.trim().toLowerCase();
-      const visibleSessions = sessionRows.filter(row => (sessionDayFilter === "All days" || row.day === sessionDayFilter) && (sessionStatusFilter === "All statuses" || row.status === sessionStatusFilter) && (!query || [row.day, row.date, row.time, row.title, row.venue, row.speaker].join(" ").toLowerCase().includes(query)));
+      const visibleSessions = sessionRows.filter(row => (sessionDayFilter === "All days" || row.day === sessionDayFilter) && (sessionStatusFilter === "All statuses" || row.status === sessionStatusFilter) && (!query || [row.day, row.date, row.time, row.title, row.venue, row.speaker].join(" ").toLowerCase().includes(query))).sort((a, b) => sessionStartMinutes(a.time) - sessionStartMinutes(b.time));
       return <><div className="employee-page-heading employee-feature-heading"><div><h1>Conference Sessions</h1><p>{eventTitle || "Selected event website schedule"}</p></div></div>{notice ? <div className="employee-notice" role="status"><Check size={16} /> {notice}</div> : null}<section className="employee-table-card employee-sessions-card"><div className="employee-table-controls"><strong>Sessions List</strong><span>{visibleSessions.length} of {sessionRows.length} sessions</span><label>Day <select value={sessionDayFilter} onChange={event => setSessionDayFilter(event.target.value)}><option>All days</option>{scheduleDays.map(day => <option key={day}>{day}</option>)}</select></label><label>Status <select value={sessionStatusFilter} onChange={event => setSessionStatusFilter(event.target.value)}><option>All statuses</option><option>Published</option><option>Draft</option><option>Hidden</option></select></label><label className="employee-brochure-search">Search: <input type="search" value={sessionSearch} onChange={event => setSessionSearch(event.target.value)} /></label><button className="employee-primary-button" type="button" onClick={() => { setEditingSessionId(null); setFormValues({ Day: scheduleDays[0] || "Day 1", Status: "Draft" }); selectFeature("add-session"); }}><Plus size={15} /> Add Session</button></div><div className="employee-table-wrap"><table><thead><tr><th>S.No</th><th>Day / Date</th><th>Time</th><th>Session Title</th><th>Venue</th><th>Speaker</th><th>Status</th><th>Action</th></tr></thead><tbody>{visibleSessions.map((row, index) => <tr key={row.id}><td>{index + 1}</td><td>{row.day}<br /><small>{row.date}</small></td><td>{row.time}</td><td><strong>{row.title}</strong></td><td>{row.venue}</td><td>{row.speaker}</td><td><span className="employee-status-pill">{row.status}</span></td><td><div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => { setEditingSessionId(row.id); setFormValues({ Day: row.day, Date: row.date, Time: row.time, Title: row.title, Venue: row.venue, Speaker: row.speaker, Status: row.status }); selectFeature("add-session"); }}>Edit</button><button className="employee-row-delete employee-icon-delete" type="button" aria-label={`Delete session ${row.title}`} onClick={() => { if (window.confirm(`Delete session ${row.title}?`)) { setSessionRows(current => current.filter(item => item.id !== row.id)); setNotice("Session deleted from this event website."); } }}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table>{visibleSessions.length === 0 ? <div className="employee-empty">No sessions match the selected filters.</div> : null}</div></section></>;
     }
     if (active.id === "add-session") {
