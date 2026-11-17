@@ -621,7 +621,17 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     }
     setEditingRow(row);
     setEditingContext(active.id);
-    setFormValues({ ...(row.details ?? {}), Name: row.title, Title: row.title });
+    setFormValues({
+      ...(row.details ?? {}),
+      Name: row.title,
+      Title: row.title,
+      ...(active.id === "scientific-session-list" ? {
+        "Session Title": row.title,
+        Link: row.details?.Link ?? "",
+        "Session Description": row.details?.["Session Description"] ?? row.details?.Description ?? "",
+        Status: row.status,
+      } : {}),
+    });
     selectFeature(target);
   };
 
