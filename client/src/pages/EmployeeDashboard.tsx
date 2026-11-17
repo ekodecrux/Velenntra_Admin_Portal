@@ -218,6 +218,7 @@ const supplementalFeatures: Feature[] = [
   item("add-subtrack", "Add Subtrack", "Create a track subcategory.", ClipboardList, "form"),
   item("add-registration-price", "Add Registration Price", "Create a registration price record.", BarChart3, "form"),
   item("add-banner", "Add Banner", "Upload a banner image record.", Image, "form"),
+  item("add-past-conference-info", "Add Past Conference Information", "Create or update past-conference information.", Image, "form"),
   item("add-media-partner", "Add Media Partner", "Create a media partner record.", Image, "form"),
   item("add-exhibitor", "Add Exhibitor", "Create an exhibitor record.", UsersRound, "form"),
   item("add-gallery", "Add Gallery", "Create a gallery record.", Image, "form"),
@@ -305,8 +306,9 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-track": [{ label: "Track name" }, { label: "Description", type: "textarea" }],
   "add-subtrack": [{ label: "Subtrack name" }, { label: "Parent track" }, { label: "Description", type: "textarea" }],
   "add-registration-price": [{ label: "Price name" }, { label: "Amount" }, { label: "Currency", type: "select", options: ["USD", "EUR", "GBP"] }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
-  "add-banner": [{ label: "Banner title" }, { label: "Image", type: "file" }, { label: "Alt text" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
-  "add-media-partner": [{ label: "Partner name" }, { label: "Logo", type: "file" }, { label: "Website URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
+  "add-banner": [{ label: "Banner title" }, { label: "Image", type: "file" }, { label: "Alt text" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Published"] }],
+  "add-past-conference-info": [{ label: "Conference year" }, { label: "Conference report", type: "textarea" }, { label: "Feature image URL", type: "url" }, { label: "Final program URL", type: "url" }, { label: "Past gallery URL", type: "url" }],
+  "add-media-partner": [{ label: "Partner name" }, { label: "Logo", type: "file" }, { label: "Website URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Published"] }],
   "add-exhibitor": [{ label: "Company name" }, { label: "Contact email", type: "email" }, { label: "Booth or profile URL", type: "url" }, { label: "Description", type: "textarea" }],
   "add-gallery": [{ label: "Title" }, { label: "Image", type: "file" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
   "add-video-review": [{ label: "Review title" }, { label: "Reviewer name" }, { label: "Video URL", type: "url" }, { label: "Poster image", type: "file" }, { label: "Description", type: "textarea" }, { label: "Status", type: "select", options: ["Published", "Draft", "Hidden"] }],
@@ -329,9 +331,9 @@ const existingWebsiteRows = (featureId: string, eventId: string): Row[] => {
     const raw = localStorage.getItem(`velentra-section-content-${eventId || "global"}`) || sessionStorage.getItem(`velentra-section-content-${eventId || "global"}`) || (eventId !== "global" ? localStorage.getItem("velentra-section-content-global") || sessionStorage.getItem("velentra-section-content-global") : null);
     const stored = raw ? JSON.parse(raw)?.[featureId] || {} : {};
     const value = { ...defaults[featureId], ...stored };
-    if (featureId === "banner-images") return [{ title: value.title || "Biofuels Conferences 2027", status: value.displayStatus || value.status || "Published", meta: value.imageUrl || "—", note: "Existing website banner", details: { "Image URL": value.imageUrl || "", "Alt text": value.altText || value.title || "", "Display status": value.displayStatus || value.status || "Published" } }];
+    if (featureId === "banner-images") return [{ title: value.title || "Biofuels Conferences 2027", status: value.displayStatus || value.status || "Published", meta: value.imageUrl || "—", note: "Existing website banner", details: { Image: value.imageUrl || "", "Image URL": value.imageUrl || "", "Alt text": value.altText || value.title || "", "Display status": value.displayStatus || value.status || "Published", Status: value.displayStatus || value.status || "Published" } }];
     if (featureId === "past-conference-info") return [{ title: value.conferenceYear || "Biofuels 2026", status: value.status || "Published", meta: "Existing website information", note: value.body || "Past conference report", details: { "Conference year": value.conferenceYear || "", "Conference report": value.body || "", "Feature image URL": value.imageUrl || "", "Final program URL": value.programUrl || "", "Past gallery URL": value.galleryUrl || "" } }];
-    return [{ title: value.partnerName || "Conference Alerts", status: value.displayStatus || value.status || "Published", meta: value.partnerUrl || "—", note: "Existing website media partner", details: { "Website URL": value.partnerUrl || "", "Logo URL": value.partnerLogoUrl || "", "Display status": value.displayStatus || value.status || "Published" } }];
+    return [{ title: value.partnerName || "Conference Alerts", status: value.displayStatus || value.status || "Published", meta: value.partnerUrl || "—", note: "Existing website media partner", details: { "Website URL": value.partnerUrl || "", Logo: value.partnerLogoUrl || "", "Logo URL": value.partnerLogoUrl || "", "Display status": value.displayStatus || value.status || "Published", Status: value.displayStatus || value.status || "Published" } }];
   } catch { return []; }
 };
 const testimonialStorageKey = (eventId: string) => `velentra-testimonials-${eventId || "global"}`;
@@ -373,8 +375,9 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [mobileNav, setMobileNav] = useState(false);
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
-  const [savedRows, setSavedRows] = useState<Record<string, Row[]>>({});
+  const [savedRows, setSavedRows] = useState<Record<string, Row[]>>(() => { try { return JSON.parse(localStorage.getItem(`velentra-managed-media-${eventId || "global"}`) || sessionStorage.getItem(`velentra-managed-media-${eventId || "global"}`) || "{}"); } catch { return {}; } });
   const [deletedRows, setDeletedRows] = useState<Record<string, string[]>>({});
+  useEffect(() => { try { const serialized = JSON.stringify(savedRows); localStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized); sessionStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized); } catch { /* Preview storage can be unavailable. */ } }, [eventId, savedRows]);
   const [editingRow, setEditingRow] = useState<Row | null>(null);
   const [editingContext, setEditingContext] = useState<string | null>(null);
   const [websiteSelectedSection, setWebsiteSelectedSection] = useState<string | null>(null);
@@ -611,17 +614,33 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       setNotice("Email search completed in the local preview.");
       return;
     }
-    const title = formValues.Name || formValues.Title || `${active.label} draft ${Date.now().toString().slice(-4)}`;
+    const returnTarget = editingContext ?? formReturnTargets[active.id] ?? active.id;
+    const title = formValues.Name || formValues.Title || formValues["Banner title"] || formValues["Partner name"] || formValues["Conference year"] || `${active.label} draft ${Date.now().toString().slice(-4)}`;
     const newRow: Row = {
       title,
-      status: "Draft",
+      status: formValues.Status || formValues["Display status"] || "Draft",
       meta: "Just now",
       note: "Created in this employee workspace",
       details: { ...formValues },
     };
-    const returnTarget = editingContext ?? formReturnTargets[active.id] ?? active.id;
+    if (["banner-images", "past-conference-info", "media-partner"].includes(returnTarget)) {
+      try {
+        const key = `velentra-section-content-${eventId || "global"}`;
+        const currentRaw = localStorage.getItem(key) || sessionStorage.getItem(key) || "{}";
+        const content = JSON.parse(currentRaw);
+        const sectionId = returnTarget === "banner-images" ? "hero" : returnTarget === "past-conference-info" ? "past-conference" : "media-partner";
+        content[sectionId] = returnTarget === "banner-images"
+          ? { title, imageUrl: formValues.Image || formValues["Image URL"] || "", altText: formValues["Alt text"] || title, status: newRow.status }
+          : returnTarget === "past-conference-info"
+            ? { title: "Past Conference Information", conferenceYear: formValues["Conference year"] || title, body: formValues["Conference report"] || "", imageUrl: formValues["Feature image URL"] || "", programUrl: formValues["Final program URL"] || "", galleryUrl: formValues["Past gallery URL"] || "", status: newRow.status }
+            : { title: "Media Partner", partnerName: formValues["Partner name"] || title, partnerUrl: formValues["Website URL"] || "", partnerLogoUrl: formValues.Logo || formValues["Logo URL"] || "", status: newRow.status };
+        const serialized = JSON.stringify(content);
+        localStorage.setItem(key, serialized); sessionStorage.setItem(key, serialized);
+        document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
+      } catch { /* Preview storage can be unavailable. */ }
+    }
     setSavedRows(current => {
-      const existing = current[returnTarget] ?? rowsByFeature[returnTarget] ?? [];
+      const existing = current[returnTarget] ?? (["banner-images", "past-conference-info", "media-partner"].includes(returnTarget) ? existingWebsiteRows(returnTarget, eventId) : rowsByFeature[returnTarget] ?? []);
       const updated = editingRow ? existing.map(row => row.title === editingRow.title ? newRow : row) : [newRow, ...existing];
       return { ...current, [returnTarget]: updated };
     });
@@ -770,7 +789,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
           </div>
         ) : isForm ? (
           <div className="employee-form-card">
-            <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select value={formValues[field.label] ?? field.options?.[0] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}</div>
+            <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select value={formValues[field.label] ?? field.options?.[0] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} value={field.type === "file" ? undefined : (formValues[field.label] ?? "")} onChange={event => { if (field.type === "file") { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => setFormValues(values => ({ ...values, [field.label]: String(reader.result ?? "") })); reader.readAsDataURL(file); } else setFormValues(values => ({ ...values, [field.label]: event.target.value })); }} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}</div>
             <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature(formReturnTargets[active.id] ?? "dashboard")}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {formActionLabels[active.id] ?? (active.id === "email-search" ? "Search Email" : "Submit")}</button></div>
           </div>
         ) : (
