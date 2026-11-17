@@ -134,15 +134,11 @@
         const galleryContainer = gallerySection?.querySelector('.container') || gallerySection;
         if (galleryContainer && eventCards.length > 3) {
           galleryContainer.querySelectorAll('.velentra-gallery-arrow').forEach(button => button.remove());
-          const prev = document.createElement('button'); prev.type = 'button'; prev.className = 'velentra-gallery-arrow velentra-gallery-prev'; prev.setAttribute('aria-label', 'Previous past conference galleries'); prev.textContent = '‹';
-          const next = document.createElement('button'); next.type = 'button'; next.className = 'velentra-gallery-arrow velentra-gallery-next'; next.setAttribute('aria-label', 'Next past conference galleries'); next.textContent = '›';
-          galleryContainer.appendChild(prev); galleryContainer.appendChild(next);
           let index = 0;
           const step = () => { const card = galleryStage.querySelector('.velentra-gallery-card'); return card ? card.getBoundingClientRect().width + 20 : 0; };
-          const move = direction => { const visible = window.innerWidth <= 560 ? 1 : window.innerWidth <= 900 ? 2 : 3; const max = Math.max(0, eventCards.length - visible); index += direction; if (index > max) index = 0; if (index < 0) index = max; galleryStage.style.transform = `translateX(-${index * step()}px)`; };
-          prev.addEventListener('click', () => move(-1)); next.addEventListener('click', () => move(1));
+          const move = () => { const visible = window.innerWidth <= 560 ? 1 : window.innerWidth <= 900 ? 2 : 3; const max = Math.max(0, eventCards.length - visible); index += 1; if (index > max) index = 0; galleryStage.style.transform = `translateX(-${index * step()}px)`; };
           if (gallerySection._velentraGalleryTimer) clearInterval(gallerySection._velentraGalleryTimer);
-          gallerySection._velentraGalleryTimer = setInterval(() => move(1), 3500);
+          gallerySection._velentraGalleryTimer = setInterval(move, 3500);
         }
       }
       const videoReviewsRaw = sessionStorage.getItem(`velentra-video-reviews-${eventId}`) || localStorage.getItem(`velentra-video-reviews-${eventId}`);
