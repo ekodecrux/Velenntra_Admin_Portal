@@ -1590,3 +1590,13 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .velentra-video-review-card p { color: #728083; font-size: 13px; line-height: 1.5; }
 .velentra-video-review-card p:last-child { margin-bottom: 16px; }
 @media (max-width: 800px) { .velentra-video-review-grid { grid-template-columns: 1fr; } }
+
+/* Conference Sessions: keep serial numbers compact and filters usable without wasting table width. */
+.employee-sessions-card .employee-table-wrap table { min-width: 980px; }
+.employee-sessions-card .employee-table-wrap th:first-child,
+.employee-sessions-card .employee-table-wrap td:first-child { width: 52px; min-width: 52px; max-width: 52px; padding-left: 8px; padding-right: 8px; text-align: center; }
+.employee-sessions-card .employee-table-controls { flex-wrap: wrap; gap: 10px; }
+.employee-sessions-card .employee-table-controls > label { display: inline-flex; align-items: center; gap: 6px; }
+.employee-sessions-card .employee-table-controls > label select { min-width: 118px; }
+@media (max-width: 900px) { .employee-sessions-card .employee-table-controls > label { width: auto; } }
+@media (max-width: 600px) { .employee-sessions-card .employee-table-controls > label, .employee-sessions-card .employee-table-controls .employee-brochure-search { width: 100%; } .employee-sessions-card .employee-table-controls > label select, .employee-sessions-card .employee-table-controls input { flex: 1; } }
