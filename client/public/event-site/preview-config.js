@@ -8,9 +8,9 @@
           #past-conference-video-review, #video-reviews, .past-conference-video-review { height: auto !important; max-height: none !important; overflow: visible !important; background: #ad0b2d !important; padding: 42px 0 48px !important; }
           #past-conference-video-review .container, #video-reviews .container, .past-conference-video-review .container { position: relative; max-width: 1120px; margin: 0 auto; padding: 0 54px; }
           .velentra-video-review-heading { color: #fff !important; text-align: center; margin: 0 0 24px; font-size: 30px; line-height: 1.2; font-weight: 600; }
-          .velentra-video-review-viewport { position: relative; width: 100%; overflow: hidden; }
-          .velentra-video-review-grid { display: flex !important; gap: 20px; width: 100%; height: auto !important; overflow: visible !important; transition: transform .6s ease; will-change: transform; }
-          .velentra-video-review-card { flex: 0 0 calc((100% - 40px) / 3); min-width: 0; overflow: hidden; border: 0; border-radius: 0; background: #080808; color: #fff; box-shadow: none; }
+          .velentra-video-review-viewport { position: relative; width: 100% !important; max-width: 100% !important; overflow: hidden !important; clip-path: inset(0); }
+          .velentra-video-review-grid { display: flex !important; flex-wrap: nowrap !important; gap: 20px !important; width: 100% !important; max-width: 100% !important; height: auto !important; overflow: visible !important; transition: transform .6s ease; will-change: transform; }
+          .velentra-video-review-card { flex: 0 0 calc((100% - 40px) / 3) !important; width: calc((100% - 40px) / 3) !important; min-width: 0 !important; max-width: calc((100% - 40px) / 3) !important; box-sizing: border-box !important; overflow: hidden; border: 0; border-radius: 0; background: #080808 !important; color: #fff !important; box-shadow: none; }
           .velentra-video-review-media { aspect-ratio: 16/9; min-height: 150px; display: grid; place-items: center; overflow: hidden; background: #050505; }
           .velentra-video-review-media iframe, .velentra-video-review-media video, .velentra-video-review-media img { display: block; width: 100%; height: 100%; min-height: 150px; border: 0; object-fit: cover; }
           .velentra-video-review-link { position: relative; display: block; width: 100%; height: 100%; min-height: 150px; color: #fff; text-decoration: none; }
@@ -18,14 +18,15 @@
           .velentra-video-review-link:hover img { transform: scale(1.03); filter: brightness(.72); }
           .velentra-video-review-play { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: #f01f18; color: #fff; font-size: 25px; padding-left: 3px; }
           .velentra-video-review-watch { display: none; }
-          .velentra-video-review-card h4 { margin: 0; padding: 17px 10px 18px; min-height: 80px; font-size: 16px; line-height: 1.35; font-weight: 400; }
-          .velentra-video-review-card p { display: none; }
+          .velentra-video-review-card h4 { display: block !important; margin: 0 !important; padding: 17px 10px 18px !important; min-height: 80px; background: #080808 !important; color: #fff !important; font-size: 16px; line-height: 1.35; font-weight: 400; opacity: 1 !important; }
+          .velentra-video-review-card p { display: none !important; }
           .velentra-video-review-arrow { position: absolute; top: 50%; z-index: 2; transform: translateY(-50%); width: 48px; height: 48px; border: 2px solid #090909; border-radius: 50%; background: #ad0b2d; color: #fff; font-size: 34px; line-height: 38px; cursor: pointer; }
           .velentra-video-review-arrow:hover { background: #d51b43; }
           .velentra-video-review-prev { left: 0; }
           .velentra-video-review-next { right: 0; }
-          @media (max-width: 900px) { .velentra-video-review-card { flex-basis: calc((100% - 20px) / 2); } }
-          @media (max-width: 560px) { #past-conference-video-review .container, #video-reviews .container, .past-conference-video-review .container { padding: 0 45px; } .velentra-video-review-card { flex-basis: 100%; } .velentra-video-review-heading { font-size: 24px; } }
+          @media (max-width: 900px) { .velentra-video-review-card { flex-basis: calc((100% - 20px) / 2) !important; width: calc((100% - 20px) / 2) !important; max-width: calc((100% - 20px) / 2) !important; } }
+          @media (max-width: 560px) { .velentra-video-review-card { flex-basis: 100% !important; width: 100% !important; max-width: 100% !important; } }
+          @media (max-width: 560px) { #past-conference-video-review .container, #video-reviews .container, .past-conference-video-review .container { padding: 0 45px; } .velentra-video-review-heading { font-size: 24px; } }
         `;
         document.head.appendChild(style);
         document.documentElement.style.overflowY = 'auto';
