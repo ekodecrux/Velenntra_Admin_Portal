@@ -20,6 +20,20 @@
           .velentra-gallery-next { right: 12px; }
           @media (max-width: 900px) { #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex-basis: calc((100% - 20px) / 2) !important; width: calc((100% - 20px) / 2) !important; max-width: calc((100% - 20px) / 2) !important; } }
           @media (max-width: 560px) { #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex-basis: 100% !important; width: 100% !important; max-width: 100% !important; } }
+          .velentra-banner-carousel { position: relative; width: 100%; overflow: hidden; background: #071b35; }
+          .velentra-banner-track { display: flex; transition: transform .55s ease; width: 100%; }
+          .velentra-banner-slide { flex: 0 0 100%; width: 100%; }
+          .velentra-banner-slide img { display: block; width: 100%; height: 355px; object-fit: cover; }
+          .velentra-banner-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 42px; height: 42px; border: 0; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 30px; line-height: 35px; cursor: pointer; }
+          .velentra-banner-arrow:hover { background: #0b5ca8; }
+          .velentra-banner-prev { left: 12px; } .velentra-banner-next { right: 12px; }
+          .velentra-media-carousel { position: relative; overflow: hidden; width: 100%; }
+          .velentra-media-track { display: flex; gap: 24px; transition: transform .65s ease; }
+          .velentra-media-card { flex: 0 0 calc((100% - 48px) / 3); min-width: 0; text-align: center; }
+          .velentra-media-card a { display: block; padding: 12px; background: #fff; border: 1px solid #e5e7eb; }
+          .velentra-media-card img { display: block; width: 100%; height: 105px; object-fit: contain; }
+          @media (max-width: 700px) { .velentra-banner-slide img { height: 250px; } .velentra-media-card { flex-basis: calc((100% - 24px) / 2); } }
+          @media (max-width: 480px) { .velentra-media-card { flex-basis: 100%; } }
           #past-conference-video-review, #video-reviews, .past-conference-video-review { height: auto !important; max-height: none !important; overflow: visible !important; background: #ad0b2d !important; padding: 42px 0 48px !important; }
           #past-conference-video-review .container, #video-reviews .container, .past-conference-video-review .container { position: relative; max-width: 1120px; margin: 0 auto; padding: 0 54px; }
           .velentra-video-review-heading { color: #fff !important; text-align: center; margin: 0 0 24px; font-size: 30px; line-height: 1.2; font-weight: 600; }
@@ -94,6 +108,48 @@
       if (values.accentColor && flashBar) flashBar.style.backgroundColor = values.accentColor;
       const footerAddress = document.querySelector('.footer-address, footer address, footer .address');
       if (values.footerAddress && footerAddress) footerAddress.innerHTML = values.footerAddress;
+      const readManagedRecords = (kind) => {
+        const listId = kind === 'banner' ? 'banner-images' : 'media-partner';
+        const sectionId = kind === 'banner' ? 'hero' : 'media-partner';
+        const defaults = kind === 'banner'
+          ? [{ title: 'Biofuels Conferences 2027', imageUrl: banner?.getAttribute('src') || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg', altText: 'Biofuels Conferences 2027', status: 'Published' }]
+          : [{ partnerName: 'Conference Alerts', partnerUrl: 'https://www.conferencealerts.in/eventdetail/2855037', partnerLogoUrl: '/event-site/uploads/logos/conference-alerts-8149.png', status: 'Published' }];
+        const candidates = [];
+        const push = value => { if (!value) return; if (Array.isArray(value)) value.forEach(push); else if (value.items) push(value.items); else candidates.push(value); };
+        push(sectionValues[sectionId]);
+        try { push(JSON.parse(localStorage.getItem(`velentra-admin-media-${listId}`) || sessionStorage.getItem(`velentra-admin-media-${listId}`) || 'null')); } catch {}
+        try {
+          const managed = JSON.parse(localStorage.getItem(`velentra-managed-media-${eventId}`) || sessionStorage.getItem(`velentra-managed-media-${eventId}`) || '{}');
+          push(managed[listId]);
+        } catch {}
+        const rows = [...defaults, ...candidates].map(item => item.values ? item.values : item).filter(item => (item.status || item.displayStatus || 'Published') !== 'Hidden');
+        return rows.filter((item, index, list) => index === list.findIndex(other => (kind === 'banner' ? (other.imageUrl || other.Image || other.title) : (other.partnerUrl || other.WebsiteURL || other.partnerName)) === (kind === 'banner' ? (item.imageUrl || item.Image || item.title) : (item.partnerUrl || item.WebsiteURL || item.partnerName))));
+      };
+      const bannerRecords = readManagedRecords('banner');
+      const bannerHost = document.querySelector('.banner-arrows');
+      if (bannerHost && bannerRecords.length) {
+        bannerHost.innerHTML = '';
+        const carousel = document.createElement('div'); carousel.className = 'velentra-banner-carousel';
+        const track = document.createElement('div'); track.className = 'velentra-banner-track';
+        bannerRecords.forEach(item => { const slide = document.createElement('div'); slide.className = 'velentra-banner-slide'; const image = document.createElement('img'); image.src = item.imageUrl || item.Image || item['Image URL'] || ''; image.alt = item.altText || item['Alt text'] || item.title || 'Conference banner'; image.loading = 'eager'; slide.appendChild(image); track.appendChild(slide); });
+        carousel.appendChild(track);
+        let bannerIndex = 0; const moveBanner = direction => { bannerIndex += direction; if (bannerIndex >= bannerRecords.length) bannerIndex = 0; if (bannerIndex < 0) bannerIndex = bannerRecords.length - 1; track.style.transform = `translateX(-${bannerIndex * 100}%)`; };
+        if (bannerRecords.length > 1) { const prev = document.createElement('button'); prev.className = 'velentra-banner-arrow velentra-banner-prev'; prev.type = 'button'; prev.textContent = '‹'; prev.setAttribute('aria-label', 'Previous banner'); const next = document.createElement('button'); next.className = 'velentra-banner-arrow velentra-banner-next'; next.type = 'button'; next.textContent = '›'; next.setAttribute('aria-label', 'Next banner'); prev.onclick = () => moveBanner(-1); next.onclick = () => moveBanner(1); carousel.append(prev, next); }
+        bannerHost.appendChild(carousel);
+      }
+      const mediaRecords = readManagedRecords('media');
+      const mediaHeading = [...document.querySelectorAll('h3')].find(node => /media partner/i.test(node.textContent || ''));
+      const mediaSection = mediaHeading?.closest('section');
+      const mediaRow = mediaSection?.querySelector('.row');
+      if (mediaSection && mediaRow && mediaRecords.length) {
+        mediaRow.innerHTML = ''; mediaRow.className = 'velentra-media-carousel';
+        const mediaTrack = document.createElement('div'); mediaTrack.className = 'velentra-media-track';
+        mediaRecords.forEach(item => { const card = document.createElement('div'); card.className = 'velentra-media-card'; const link = document.createElement('a'); link.href = item.partnerUrl || item.WebsiteURL || item['Website URL'] || '#'; link.target = '_blank'; link.rel = 'noopener noreferrer'; const image = document.createElement('img'); image.src = item.partnerLogoUrl || item.Logo || item['Logo URL'] || ''; image.alt = item.partnerName || item['Partner name'] || 'Media partner'; link.appendChild(image); card.appendChild(link); mediaTrack.appendChild(card); });
+        mediaRow.appendChild(mediaTrack);
+        if (mediaSection._velentraMediaTimer) clearInterval(mediaSection._velentraMediaTimer);
+        let mediaIndex = 0; const moveMedia = () => { const visible = window.innerWidth <= 480 ? 1 : window.innerWidth <= 700 ? 2 : 3; const max = Math.max(0, mediaRecords.length - visible); if (!max) return; mediaIndex = mediaIndex >= max ? 0 : mediaIndex + 1; const card = mediaTrack.querySelector('.velentra-media-card'); const gap = 24; const step = card ? card.getBoundingClientRect().width + gap : 0; mediaTrack.style.transform = `translateX(-${mediaIndex * step}px)`; };
+        if (mediaRecords.length > 1) mediaSection._velentraMediaTimer = setInterval(moveMedia, 3200);
+      }
       const sessionsRaw = localStorage.getItem(`velentra-conference-sessions-${eventId}`) || sessionStorage.getItem(`velentra-conference-sessions-${eventId}`);
       const sessions = sessionsRaw ? JSON.parse(sessionsRaw).filter(item => item.status !== 'Hidden') : [];
       const sessionStartMinutes = value => { const match = String(value || '').trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i); if (!match) return Number.POSITIVE_INFINITY; let hour = Number(match[1]); const minute = Number(match[2]); if (match[3]) { const period = match[3].toUpperCase(); if (period === 'PM' && hour < 12) hour += 12; if (period === 'AM' && hour === 12) hour = 0; } return hour * 60 + minute; };
