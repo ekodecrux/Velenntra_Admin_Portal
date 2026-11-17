@@ -102,6 +102,18 @@
         if (header) header.style.backgroundColor = values.themeColor;
       }
       if (values.accentColor && flashBar) flashBar.style.backgroundColor = values.accentColor;
+      const scientificContent = sectionValues['scientific-sessions'] || {};
+      if (Array.isArray(scientificContent.items)) {
+        const scientificList = document.querySelector('.sessions-new ul.scientific');
+        if (scientificList) {
+          scientificList.innerHTML = '';
+          scientificContent.items.filter(item => (item.status || 'Active') !== 'Hidden').forEach(item => {
+            const li = document.createElement('li'); const link = document.createElement('a');
+            link.href = item.link || '#'; link.textContent = item.title || 'Scientific Session'; link.title = item.title || '';
+            li.appendChild(link); scientificList.appendChild(li);
+          });
+        }
+      }
       const footerAddress = document.querySelector('.footer-address, footer address, footer .address');
       if (values.footerAddress && footerAddress) footerAddress.innerHTML = values.footerAddress;
       const readManagedRecords = (kind) => {

@@ -137,7 +137,14 @@ const sections: Section[] = [
   { label: "Unsubscribe Emails", direct: true, items: [item("unsubscribe-emails", "Unsubscribe Emails", "Review and manage email opt-out records.", Mail, "form")] },
   { label: "Abstracts", direct: true, items: [item("abstracts", "Abstracts", "Review submitted abstracts and their editorial status.", FileText)] },
   { label: "Brochure Download", direct: true, items: [item("brochures", "Brochure Download", "Track brochure downloads and available materials.", BookOpenText)] },
-  { label: "Scientific Sessions", direct: true, items: [item("scientific-sessions", "Scientific Sessions", "Manage and synchronize scientific session content on the event website.", ClipboardList)] },
+  {
+    label: "Scientific Sessions",
+    icon: ClipboardList,
+    items: [
+      item("scientific-session-list", "Session list", "View and manage scientific sessions published on the event website.", ClipboardList),
+      item("add-scientific-session", "Add session", "Add a scientific session to the event website.", Plus, "form"),
+    ],
+  },
   {
     label: "Speakers | Board Members",
     icon: UsersRound,
@@ -233,7 +240,7 @@ const allFeatures = [...sections.flatMap(section => section.items), ...supplemen
 
 const createTargetByFeature: Record<string, string> = {
   boardmembers: "add-member", keynotespeakers: "add-member", renownedspeakers: "add-member", speakers: "add-member", posterpresenters: "add-member", organizingcommittee: "add-member",
-  representatives: "add-representative", "past-conference-info": "add-past-conference-info", tracks: "add-track", subtracks: "add-subtrack", "registration-prices": "add-registration-price", "banner-images": "add-banner", "media-partner": "add-media-partner", exhibitors: "add-exhibitor", gallery: "add-gallery", pages: "add-page",
+  representatives: "add-representative", "scientific-session-list": "add-scientific-session", "past-conference-info": "add-past-conference-info", tracks: "add-track", subtracks: "add-subtrack", "registration-prices": "add-registration-price", "banner-images": "add-banner", "media-partner": "add-media-partner", exhibitors: "add-exhibitor", gallery: "add-gallery", pages: "add-page",
 };
 
 const formReturnTargets: Record<string, string> = Object.fromEntries(Object.entries(createTargetByFeature).map(([listId, formId]) => [formId, listId]));
@@ -251,6 +258,12 @@ const rowsByFeature: Record<string, Row[]> = {
   boardmembers: [{ title: "Editorial board", status: "0 members", meta: "Active", note: "No members added yet" }],
   "events-list": [{ title: "Velentra Annual Conference 2027", status: "In progress", meta: "Oct 14–16, 2027", note: "Main conference website" }],
   "conference-sessions": [{ title: "Opening keynote", status: "Draft", meta: "Day 1 • Main hall", note: "Speaker not assigned" }],
+  "scientific-session-list": [
+    { title: "Sustainable Aviation Fuels & Green Diesel", status: "Active", meta: "Just now", note: "Explore sustainable aviation fuel pathways.", details: { Link: "/program/scientific-sessions/sustainable-aviation-fuels-green-diesel", Description: "Explore sustainable aviation fuel pathways and green diesel technologies." } },
+    { title: "Biofuels: Production & Technologies", status: "Active", meta: "Just now", note: "Production technologies and innovations.", details: { Link: "/program/scientific-sessions/biofuels-production-technologies", Description: "Production technologies and innovations across biofuels." } },
+    { title: "Algae-Based Biofuels & Bioproducts", status: "Active", meta: "Just now", note: "Algae-based biofuels and bioproducts.", details: { Link: "/program/scientific-sessions/algae-based-biofuels-bioproducts", Description: "Algae-based biofuels and bioproducts." } },
+    { title: "Bioethanol, Biodiesel & Biogas Production Technologies", status: "Active", meta: "Just now", note: "Production technologies.", details: { Link: "/program/scientific-sessions/bioethanol-biodiesel-biogas-production-technologies", Description: "Bioethanol, biodiesel, and biogas production technologies." } },
+  ],
   "testimonials-list": [{ title: "A clear, confident conference experience", status: "Draft", meta: "Written testimonial", note: "Not published" }],
   "video-testimonials": [{ title: "Why we return to Velentra", status: "Ready", meta: "02:14", note: "Video review pending" }],
   "email-search": [{ title: "Search the registration directory", status: "Ready", meta: "400 records", note: "Use the search field above" }],
@@ -265,6 +278,7 @@ const listColumns: Record<string, string[]> = {
   boardmembers: ["Name", "Email", "Designation", "Category", "Status", "Action"],
   "events-list": ["Event Name", "Start Date", "End Date", "Venue", "Status", "Action"],
   "conference-sessions": ["Title", "Date", "Venue", "Speaker", "Status", "Action"],
+  "scientific-session-list": ["S.No", "Title", "Link", "Description", "Status", "Action"],
   "banner-images": ["S.No", "Title", "Image", "Status", "Updated", "Action"],
   "media-partner": ["S.No", "Partner", "Logo", "Website", "Status", "Action"],
 };
@@ -273,6 +287,7 @@ const formFields: Record<string, string[]> = {
   "email-search": ["Email Address"],
   "add-event": ["Title", "Status", "Description"],
   "add-session": ["Title", "Status", "Description"],
+  "add-scientific-session": ["Session Title", "Link", "Session Description", "Status"],
   tracks: ["Track name", "Short description", "Display order"],
   subtracks: ["Subtrack name", "Parent track", "Display order"],
   "registration-prices": ["Price name", "Amount", "Currency", "Availability"],
@@ -299,6 +314,7 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "buttons-list": ["Button name 1", "File 1", "Button name 2", "File 2", "Button name 3", "File 3"].map(label => ({ label, type: label.startsWith("File") ? "file" as const : "text" as const })),
   "add-event": [{ label: "Name", placeholder: "Enter event name" }, { label: "Start date", type: "date" }, { label: "End date", type: "date" }, { label: "Venue" }, { label: "Link", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-session": [{ label: "Title" }, { label: "Link", type: "url" }, { label: "Description", type: "textarea" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
+  "add-scientific-session": [{ label: "Session Title" }, { label: "Link", type: "url" }, { label: "Session Description", type: "textarea" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Hidden"] }],
   "add-testimonial": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Designation" }, { label: "Comment", type: "textarea" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-video-testimonial": [{ label: "Name" }, { label: "Video URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
   "add-home-tab": [{ label: "Title" }, { label: "Content", type: "textarea" }],
@@ -321,7 +337,7 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-page": [{ label: "Page title" }, { label: "Page slug" }, { label: "Content", type: "textarea" }],
 };
 
-const formActionLabels: Record<string, string> = { "unsubscribe-emails": "Add Unsubscribe Email", "website-editor": "Save Website", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
+const formActionLabels: Record<string, string> = { "add-scientific-session": "Save session", "unsubscribe-emails": "Add Unsubscribe Email", "website-editor": "Save Website", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
 const emailSearchTables = ["abstracts", "clients", "contact", "downloadbrochure", "editorialboard", "email_messages", "follow_up", "forms_submission", "registration", "registration_users"];
 
 const defaultRows = (feature: Feature): Row[] => [
@@ -397,6 +413,17 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       sessionStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized);
       document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
     } catch { /* Preview storage can be unavailable. */ }
+  }, [eventId, savedRows]);
+  useEffect(() => {
+    try {
+      const rows = savedRows["scientific-session-list"];
+      if (!rows) return;
+      const key = `velentra-section-content-${eventId || "global"}`;
+      const current = JSON.parse(localStorage.getItem(key) || sessionStorage.getItem(key) || "{}");
+      current["scientific-sessions"] = { ...(current["scientific-sessions"] || {}), items: rows.map(row => ({ title: row.title, link: row.details?.Link || "", description: row.details?.["Session Description"] || row.details?.Description || "", status: row.status })) };
+      const serialized = JSON.stringify(current); localStorage.setItem(key, serialized); sessionStorage.setItem(key, serialized);
+      document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
+    } catch { /* scoped website storage may be unavailable */ }
   }, [eventId, savedRows]);
   const [editingRow, setEditingRow] = useState<Row | null>(null);
   const [editingContext, setEditingContext] = useState<string | null>(null);
@@ -553,11 +580,6 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     selectFeature("website-editor");
   };
 
-  const openScientificSessions = () => {
-    setWebsiteSelectedSection("scientific-sessions");
-    selectFeature("website-editor");
-    window.setTimeout(() => window.dispatchEvent(new CustomEvent("velentra:select-section", { detail: { sectionId: "scientific-sessions" } })), 0);
-  };
 
   const beginEdit = (row: Row) => {
     const target = createTargetByFeature[active.id];
@@ -647,7 +669,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       return;
     }
     const returnTarget = editingContext ?? formReturnTargets[active.id] ?? active.id;
-    const title = formValues.Name || formValues.Title || formValues["Banner title"] || formValues["Partner name"] || formValues["Conference year"] || `${active.label} draft ${Date.now().toString().slice(-4)}`;
+    const title = formValues.Name || formValues.Title || formValues["Session Title"] || formValues["Banner title"] || formValues["Partner name"] || formValues["Conference year"] || `${active.label} draft ${Date.now().toString().slice(-4)}`;
     const newRow: Row = {
       title,
       status: formValues.Status || formValues["Display status"] || "Draft",
@@ -846,7 +868,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       <WorkspaceHeader role="employee" username={username} headerTitle={activeId === "website-editor" ? "Website Configuration" : undefined} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("theme-settings")} onLogout={onBack} />
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button>
-        {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button><div className="website-config-menu-list">{websiteConfigMenu.map(item => <button type="button" key={item.id} className={`website-config-menu-item ${websiteSelectedSection === item.id ? "website-config-menu-item-active" : ""}`} onClick={() => { if (item.id === "conference-schedule") { selectFeature("conference-sessions"); return; } if (item.id === "past-conference") { selectFeature("past-conference-info"); return; } if (item.id === "media-partner") { selectFeature("media-partner"); return; } setWebsiteSelectedSection(item.id); window.dispatchEvent(new CustomEvent("velentra:select-section", { detail: { sectionId: item.editorId } })); }}>{item.label}</button>)}</div>{websiteSelectedSection && websiteSectionDetails[websiteSelectedSection] ? <div className="website-config-selected-details"><span>Modify section</span><strong>{websiteSectionDetails[websiteSelectedSection].name}</strong><ul>{websiteSectionDetails[websiteSelectedSection].fields.map(field => <li key={field}><button type="button" onClick={() => window.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId: websiteConfigMenu.find(item => item.id === websiteSelectedSection)?.editorId ?? websiteSelectedSection, field } }))}>{field}</button></li>)}</ul></div> : null}</div> : <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => feature.id === "website-editor" ? openWebsiteConfigurationTab() : feature.id === "scientific-sessions" ? openScientificSessions() : selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nestedFeature.id)}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>}
+        {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button><div className="website-config-menu-list">{websiteConfigMenu.map(item => <button type="button" key={item.id} className={`website-config-menu-item ${websiteSelectedSection === item.id ? "website-config-menu-item-active" : ""}`} onClick={() => { if (item.id === "conference-schedule") { selectFeature("conference-sessions"); return; } if (item.id === "past-conference") { selectFeature("past-conference-info"); return; } if (item.id === "media-partner") { selectFeature("media-partner"); return; } setWebsiteSelectedSection(item.id); window.dispatchEvent(new CustomEvent("velentra:select-section", { detail: { sectionId: item.editorId } })); }}>{item.label}</button>)}</div>{websiteSelectedSection && websiteSectionDetails[websiteSelectedSection] ? <div className="website-config-selected-details"><span>Modify section</span><strong>{websiteSectionDetails[websiteSelectedSection].name}</strong><ul>{websiteSectionDetails[websiteSelectedSection].fields.map(field => <li key={field}><button type="button" onClick={() => window.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId: websiteConfigMenu.find(item => item.id === websiteSelectedSection)?.editorId ?? websiteSelectedSection, field } }))}>{field}</button></li>)}</ul></div> : null}</div> : <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => feature.id === "website-editor" ? openWebsiteConfigurationTab() : selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => selectFeature(nestedFeature.id)}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>}
       </aside>
       {mobileNav ? <button className="employee-nav-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNav(false)} /> : null}
       <main className="employee-main">
