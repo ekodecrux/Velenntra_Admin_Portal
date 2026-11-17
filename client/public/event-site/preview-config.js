@@ -126,7 +126,7 @@
           ? item.title === original.title || item.isOriginal === true
           : (item.partnerName || item['Partner name']) === original.partnerName || item.isOriginal === true || item.__managedOriginal === true;
         const managedOriginal = normalized.find(isOriginal);
-        const additions = normalized.filter(item => !isOriginal(item));
+        const additions = normalized.filter(item => !isOriginal(item) && (kind === 'banner' ? item.title !== original.title : (item.partnerName || item['Partner name']) !== original.partnerName));
         const rows = [managedOriginal || original, ...additions];
         const unique = rows.filter((item, index, list) => index === list.findIndex(other => (kind === 'banner' ? (other.imageUrl || other.Image || other['Image URL'] || other.title) : (other.partnerUrl || other.WebsiteURL || other['Website URL'] || other.partnerName)) === (kind === 'banner' ? (item.imageUrl || item.Image || item['Image URL'] || item.title) : (item.partnerUrl || item.WebsiteURL || item['Website URL'] || item.partnerName))));
         if (kind === 'banner') return unique.map(item => ({ ...item, imageUrl: item.imageUrl || item.Image || item['Image URL'] || item['Image'] || '/event-site/uploads/banners/2nd-edition-of-global-conference-on-3685.jpg' }));
