@@ -1681,3 +1681,6 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 /* Small readable inset for the left-aligned Event Title column. */
 .employee-events-table th:first-child,
 .employee-events-table td:first-child { padding-left: 8px !important; }
+
+/* Keep the full stored Event Title visible in the widened title column. */
+.employee-events-table td:first-child strong { max-width: none; overflow: visible; white-space: normal; overflow-wrap: anywhere; }
