@@ -20,6 +20,9 @@
           .velentra-gallery-next { right: 12px; }
           @media (max-width: 900px) { #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex-basis: calc((100% - 20px) / 2) !important; width: calc((100% - 20px) / 2) !important; max-width: calc((100% - 20px) / 2) !important; } }
           @media (max-width: 560px) { #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex-basis: 100% !important; width: 100% !important; max-width: 100% !important; } }
+          .banner-arrows .owl-stage-outer, .banner-arrows .owl-stage { height: auto !important; min-height: 240px !important; }
+          .banner-arrows .owl-item.active { display: block !important; visibility: visible !important; opacity: 1 !important; height: auto !important; min-height: 240px !important; }
+          .banner-arrows .owl-item.active .owl-bg-img, .banner-arrows .owl-item.active img { display: block !important; visibility: visible !important; opacity: 1 !important; }
           .velentra-media-carousel { position: relative; overflow: hidden; width: 100%; }
           .velentra-media-track { display: flex; gap: 24px; transition: transform .65s ease; }
           .velentra-media-card { flex: 0 0 calc((100% - 48px) / 3); min-width: 0; text-align: center; }
@@ -137,7 +140,7 @@
         bannerStage.style.transition = 'transform .55s ease';
         bannerStage.style.transform = 'translate3d(0,0,0)';
         bannerRecords.forEach((item, index) => {
-          const outer = document.createElement('div'); outer.className = `owl-item ${index === 0 ? 'active' : ''}`; outer.style.display = 'block'; outer.style.visibility = 'visible'; outer.style.opacity = '1'; outer.style.flex = '0 0 100%'; outer.style.width = '100%'; outer.style.marginRight = '0';
+          const outer = document.createElement('div'); outer.className = `owl-item ${index === 0 ? 'active' : ''}`; outer.style.setProperty('display', 'block', 'important'); outer.style.setProperty('visibility', 'visible', 'important'); outer.style.setProperty('opacity', '1', 'important'); outer.style.setProperty('flex', '0 0 100%', 'important'); outer.style.setProperty('width', '100%', 'important'); outer.style.marginRight = '0';
           const box = document.createElement('div'); box.className = 'owl-bg-img'; box.style.height = 'auto'; box.style.visibility = 'visible'; box.style.opacity = '1';
           const image = document.createElement('img'); image.className = 'img-responsive'; image.style.display = 'block'; image.style.width = '100%'; image.style.height = 'auto'; image.style.minHeight = '240px'; image.style.objectFit = 'cover'; image.loading = 'eager'; image.src = item.imageUrl || item.Image || item['Image URL'] || ''; image.alt = item.altText || item['Alt text'] || item.title || 'Conference banner';
           box.appendChild(image); outer.appendChild(box); bannerStage.appendChild(outer);
