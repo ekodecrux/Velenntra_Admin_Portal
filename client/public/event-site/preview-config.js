@@ -5,6 +5,19 @@
         const style = document.createElement('style');
         style.id = 'velentra-video-review-preview-style';
         style.textContent = `
+          #slider.velentra-gallery-section { position: relative; }
+          #slider.velentra-gallery-section .owl-stage-outer { overflow: hidden !important; width: 100% !important; }
+          #slider.velentra-gallery-section .owl-stage.velentra-gallery-stage { display: flex !important; flex-wrap: nowrap !important; gap: 20px !important; width: 100% !important; max-width: 100% !important; transition: transform .6s ease; will-change: transform; }
+          #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex: 0 0 calc((100% - 40px) / 3) !important; width: calc((100% - 40px) / 3) !important; max-width: calc((100% - 40px) / 3) !important; margin: 0 !important; box-sizing: border-box !important; }
+          #slider.velentra-gallery-section .photoGalleryBox { height: 100%; background: #fff; overflow: hidden; }
+          #slider.velentra-gallery-section .photoGalleryBox img { display: block; width: 100%; height: 250px; object-fit: cover; }
+          #slider.velentra-gallery-section .photoGalleryBox h3 { min-height: 68px; margin: 0; padding: 16px 14px; color: #fff !important; background: rgba(32,35,64,.9); font-size: 16px; line-height: 1.35; text-align: center; }
+          .velentra-gallery-arrow { position: absolute; top: 56%; z-index: 5; width: 46px; height: 46px; border: 2px solid #202340; border-radius: 50%; background: rgba(255,255,255,.94); color: #202340; font-size: 32px; line-height: 36px; cursor: pointer; }
+          .velentra-gallery-arrow:hover { background: #202340; color: #fff; }
+          .velentra-gallery-prev { left: 12px; }
+          .velentra-gallery-next { right: 12px; }
+          @media (max-width: 900px) { #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex-basis: calc((100% - 20px) / 2) !important; width: calc((100% - 20px) / 2) !important; max-width: calc((100% - 20px) / 2) !important; } }
+          @media (max-width: 560px) { #slider.velentra-gallery-section .owl-item.velentra-gallery-card { flex-basis: 100% !important; width: 100% !important; max-width: 100% !important; } }
           #past-conference-video-review, #video-reviews, .past-conference-video-review { height: auto !important; max-height: none !important; overflow: visible !important; background: #ad0b2d !important; padding: 42px 0 48px !important; }
           #past-conference-video-review .container, #video-reviews .container, .past-conference-video-review .container { position: relative; max-width: 1120px; margin: 0 auto; padding: 0 54px; }
           .velentra-video-review-heading { color: #fff !important; text-align: center; margin: 0 0 24px; font-size: 30px; line-height: 1.2; font-weight: 600; }
@@ -93,15 +106,38 @@
       const galleryRows = galleryRaw ? JSON.parse(galleryRaw).filter(item => item.status !== 'Hidden') : [];
       const galleryStage = document.querySelector('#slider .owl-stage');
       if (galleryStage && galleryRows.length) {
-        galleryStage.innerHTML = '';
+        const eventCards = [];
+        const seenEvents = new Set();
         galleryRows.forEach(item => {
-          const outer = document.createElement('div'); outer.className = 'owl-item active static-visible';
-          const box = document.createElement('div'); box.className = 'photoGalleryBox';
-          const link = document.createElement('a'); link.href = item.url || '#'; link.target = '_blank'; link.rel = 'noreferrer'; link.title = item.title || 'Past conference gallery';
-          if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.title || 'Past conference'; link.appendChild(image); }
-          const title = document.createElement('h3'); title.textContent = item.title || ''; link.appendChild(title); box.appendChild(link); outer.appendChild(box); galleryStage.appendChild(outer);
+          const key = item.eventSlug || item.url || item.eventTitle || item.title;
+          if (!key || seenEvents.has(key)) return;
+          seenEvents.add(key);
+          eventCards.push(item);
         });
-        window.velentraShowGallery?.();
+        galleryStage.innerHTML = '';
+        galleryStage.classList.add('velentra-gallery-stage');
+        const gallerySection = document.querySelector('#slider');
+        gallerySection?.classList.add('velentra-gallery-section');
+        eventCards.forEach(item => {
+          const outer = document.createElement('div'); outer.className = 'owl-item velentra-gallery-card';
+          const box = document.createElement('div'); box.className = 'photoGalleryBox';
+          const link = document.createElement('a'); link.href = item.url || '#'; link.target = '_blank'; link.rel = 'noreferrer'; link.title = item.eventTitle || item.title || 'Past conference gallery';
+          if (item.image) { const image = document.createElement('img'); image.src = item.image; image.alt = item.eventTitle || item.title || 'Past conference'; link.appendChild(image); }
+          const title = document.createElement('h3'); title.textContent = item.eventTitle || item.title || ''; link.appendChild(title); box.appendChild(link); outer.appendChild(box); galleryStage.appendChild(outer);
+        });
+        const galleryContainer = gallerySection?.querySelector('.container') || gallerySection;
+        if (galleryContainer && eventCards.length > 3) {
+          galleryContainer.querySelectorAll('.velentra-gallery-arrow').forEach(button => button.remove());
+          const prev = document.createElement('button'); prev.type = 'button'; prev.className = 'velentra-gallery-arrow velentra-gallery-prev'; prev.setAttribute('aria-label', 'Previous past conference galleries'); prev.textContent = '‹';
+          const next = document.createElement('button'); next.type = 'button'; next.className = 'velentra-gallery-arrow velentra-gallery-next'; next.setAttribute('aria-label', 'Next past conference galleries'); next.textContent = '›';
+          galleryContainer.appendChild(prev); galleryContainer.appendChild(next);
+          let index = 0;
+          const step = () => { const card = galleryStage.querySelector('.velentra-gallery-card'); return card ? card.getBoundingClientRect().width + 20 : 0; };
+          const move = direction => { const visible = window.innerWidth <= 560 ? 1 : window.innerWidth <= 900 ? 2 : 3; const max = Math.max(0, eventCards.length - visible); index += direction; if (index > max) index = 0; if (index < 0) index = max; galleryStage.style.transform = `translateX(-${index * step()}px)`; };
+          prev.addEventListener('click', () => move(-1)); next.addEventListener('click', () => move(1));
+          if (gallerySection._velentraGalleryTimer) clearInterval(gallerySection._velentraGalleryTimer);
+          gallerySection._velentraGalleryTimer = setInterval(() => move(1), 3500);
+        }
       }
       const videoReviewsRaw = sessionStorage.getItem(`velentra-video-reviews-${eventId}`) || localStorage.getItem(`velentra-video-reviews-${eventId}`);
       const storedVideoReviews = videoReviewsRaw ? JSON.parse(videoReviewsRaw) : [];
