@@ -74,7 +74,15 @@
           try {
             const url = new URL(rawHref, window.location.href);
             if (!importedConferenceHosts.has(url.hostname.toLowerCase())) return;
-            anchor.setAttribute('href', `${url.pathname || '/'}${url.search}${url.hash}`);
+            const sessionPath = url.pathname.match(/^\/program\/scientific-sessions\/([^/]+)\/?$/i);
+            if (sessionPath) {
+              // The preview is mounted at /event-site/index.html. A root
+              // absolute URL would escape the iframe and hit the portal's
+              // React router, which correctly returns 404 for this page.
+              anchor.setAttribute('href', `./?session=${encodeURIComponent(sessionPath[1])}`);
+            } else {
+              anchor.setAttribute('href', `${url.pathname || '/'}${url.search}${url.hash}`);
+            }
             anchor.removeAttribute('target');
             anchor.removeAttribute('rel');
           } catch {
@@ -148,7 +156,8 @@
         else scientificItems.unshift(item);
       });
       const scientificSlug = value => String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      const detailMatch = window.location.pathname.match(/^\/program\/scientific-sessions\/([^/]+)\/?$/i);
+      const detailMatch = window.location.pathname.match(/^\/program\/scientific-sessions\/([^/]+)\/?$/i)
+        || new URLSearchParams(window.location.search).get('session')?.match(/^(.+)$/i);
       if (detailMatch && scientificItems.length) {
         const requestedSlug = decodeURIComponent(detailMatch[1]).toLowerCase();
         const selectedSession = scientificItems.find(item => {
@@ -174,10 +183,10 @@
             const relatedHeading = document.createElement('h4'); relatedHeading.textContent = 'Related Sessions'; detail.appendChild(relatedHeading);
             const relatedGrid = document.createElement('div'); relatedGrid.className = 'velentra-related-session-grid';
             scientificItems.filter(item => item.title && item.title !== selectedSession.title && (item.status || 'Active') !== 'Hidden').slice(0, 6).forEach((item, index) => {
-              const related = document.createElement('a'); related.href = `/program/scientific-sessions/${scientificSlug(item.title)}`; related.textContent = `${index + 1}. ${item.title}`; relatedGrid.appendChild(related);
+              const related = document.createElement('a'); related.href = `./?session=${encodeURIComponent(scientificSlug(item.title))}`; related.textContent = `${index + 1}. ${item.title}`; relatedGrid.appendChild(related);
             });
             detail.appendChild(relatedGrid);
-            const back = document.createElement('a'); back.className = 'velentra-scientific-detail-back'; back.href = '/'; back.textContent = 'Back to Home'; detail.appendChild(back);
+            const back = document.createElement('a'); back.className = 'velentra-scientific-detail-back'; back.href = './'; back.textContent = 'Back to Home'; detail.appendChild(back);
             container.appendChild(title); container.appendChild(detail); detailSection.appendChild(container);
             const footer = wrapper.querySelector('footer'); wrapper.insertBefore(detailSection, footer || null);
           }
