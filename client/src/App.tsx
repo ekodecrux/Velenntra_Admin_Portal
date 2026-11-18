@@ -6,6 +6,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Workspace from "./pages/Workspace";
+import { hydrateServerState, installServerStateBridge } from "./lib/serverState";
+import { useEffect, useState } from "react";
 
 function Router() {
   return (
@@ -20,6 +22,14 @@ function Router() {
 }
 
 function App() {
+  const [stateReady, setStateReady] = useState(false);
+  useEffect(() => {
+    installServerStateBridge();
+    hydrateServerState().finally(() => setStateReady(true));
+  }, []);
+  if (!stateReady) {
+    return <div className="workspace-state"><div className="button-spinner" /><span>Loading Velentra workspace…</span></div>;
+  }
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">

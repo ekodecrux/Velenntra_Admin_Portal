@@ -65,7 +65,7 @@
         document.documentElement.style.overflowY = 'auto';
         document.body.style.overflowY = 'auto';
       }
-      const eventId = new URLSearchParams(window.location.search).get('event') || 'global';
+      const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
       if (eventId !== 'global') {
         const registryRaw = localStorage.getItem('velentra-admin-events') || sessionStorage.getItem('velentra-admin-events');
         let eventExists = false;
@@ -373,8 +373,23 @@
       // Preview content is optional and should never block the imported site.
     }
   };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
-  else apply();
+  const boot = async () => {
+    try {
+      const scopedEventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
+      const response = await fetch(`/api/state?eventId=${encodeURIComponent(scopedEventId)}`, { credentials: 'same-origin', cache: 'no-store' });
+      if (response.ok) {
+        const payload = await response.json();
+        (Array.isArray(payload.rows) ? payload.rows : []).forEach(row => {
+          if (row?.storageKey && typeof row.value === 'string') localStorage.setItem(row.storageKey, row.value);
+        });
+      }
+    } catch (_) {
+      // Static/local previews continue with their existing browser cache.
+    }
+    apply();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
   window.addEventListener('message', event => { if (event.data?.type === 'velentra-session-sync' || event.data?.type === 'velentra-config-sync') apply(); });
   window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-') || event.key.includes('velentra-section-content-') || event.key.includes('velentra-managed-media-'))) apply(); });
 })();

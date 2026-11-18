@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { index, int, longtext, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -25,4 +25,19 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Durable cache for the existing event-scoped portal model. The client keeps
+ * using its established storage keys, while this table makes those records
+ * available to every browser and to public event subdomains.
+ */
+export const appState = mysqlTable("app_state", {
+  storageKey: varchar("storageKey", { length: 191 }).primaryKey(),
+  eventId: varchar("eventId", { length: 128 }).notNull().default("global"),
+  value: longtext("value").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => ({
+  eventIdIndex: index("app_state_event_id_idx").on(table.eventId),
+}));
+
+export type AppState = typeof appState.$inferSelect;
+export type InsertAppState = typeof appState.$inferInsert;

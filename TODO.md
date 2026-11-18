@@ -121,3 +121,14 @@
 - [x] Synchronize the event website Photo Gallery (Our Past Events) into the selected event's Past Conference Gallery application page: preload all imported gallery cards, show S.No, image, event title, gallery link, status, and actions, and support event-scoped add, local image upload, edit, publish/draft/hidden status, delete confirmation, persistence, and live carousel refresh.
 - [x] Include every gallery link from the imported event website, including Biofuels 2026 | Rome, Italy; migrate existing six-item saved lists so the omitted seventh entry appears automatically.
 - [x] Replace the seven summary gallery cards with the complete imported photo collection: 112 individual photos across 7 past conferences, local image assets, event grouping, search, adjustable page size, Previous/Next pagination, photo-level edit/delete, and synchronized gallery rendering.
+
+## Production persistence and automatic event subdomains
+- [ ] Add a durable event-scoped state table and migration.
+- [ ] Add state hydration, upsert, delete, and event-resolution APIs.
+- [ ] Hydrate the portal before first render and mirror supported portal state writes to MySQL.
+- [ ] Keep the default website separate from event websites and preserve event deletion invalidation.
+- [ ] Resolve wildcard event subdomains automatically from the event registry.
+- [ ] Verify Admin login, generated Employee login, event creation, event website edits, and deletion behavior.
+- [ ] Run typecheck, tests, production build, migration validation, and diff checks.
+- [ ] Commit the complete verified implementation and push `main` to both configured Git remotes.
+- [ ] Update the Hostinger checkout and restart only the dedicated Velentra service.

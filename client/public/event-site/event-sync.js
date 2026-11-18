@@ -1,5 +1,5 @@
 (() => {
-  const eventId = new URLSearchParams(window.location.search).get('event') || 'global';
+  const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
   const key = type => `velentra-${type}-${eventId}`;
   const read = type => { try { return JSON.parse(localStorage.getItem(key(type)) || '[]'); } catch { return []; } };
   const write = (type, rows) => { localStorage.setItem(key(type), JSON.stringify(rows)); window.dispatchEvent(new CustomEvent('velentra:event-data-changed', { detail: { type, eventId } })); };
