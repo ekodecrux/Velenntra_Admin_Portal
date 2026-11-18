@@ -66,6 +66,22 @@
         document.body.style.overflowY = 'auto';
       }
       const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
+      const normalizeInternalLinks = () => {
+        const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
+        document.querySelectorAll('a[href]').forEach(anchor => {
+          const rawHref = anchor.getAttribute('href') || '';
+          if (!/^https?:\/\//i.test(rawHref)) return;
+          try {
+            const url = new URL(rawHref, window.location.href);
+            if (!importedConferenceHosts.has(url.hostname.toLowerCase())) return;
+            anchor.setAttribute('href', `${url.pathname || '/'}${url.search}${url.hash}`);
+            anchor.removeAttribute('target');
+            anchor.removeAttribute('rel');
+          } catch {
+            // Leave malformed or non-URL links untouched.
+          }
+        });
+      };
       if (eventId !== 'global') {
         const registryRaw = localStorage.getItem('velentra-admin-events') || sessionStorage.getItem('velentra-admin-events');
         let eventExists = false;
@@ -131,6 +147,42 @@
         if (existingIndex >= 0) scientificItems[existingIndex] = { ...scientificItems[existingIndex], ...item };
         else scientificItems.unshift(item);
       });
+      const scientificSlug = value => String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const detailMatch = window.location.pathname.match(/^\/program\/scientific-sessions\/([^/]+)\/?$/i);
+      if (detailMatch && scientificItems.length) {
+        const requestedSlug = decodeURIComponent(detailMatch[1]).toLowerCase();
+        const selectedSession = scientificItems.find(item => {
+          const linkedSlug = String(item.link || '').split('/').filter(Boolean).pop()?.toLowerCase();
+          return scientificSlug(item.title) === requestedSlug || linkedSlug === requestedSlug;
+        });
+        if (selectedSession) {
+          const wrapper = document.querySelector('#wrapper');
+          const existingDetail = document.getElementById('velentra-scientific-session-detail');
+          existingDetail?.remove();
+          if (wrapper) {
+            Array.from(wrapper.children).forEach(child => {
+              if (child.tagName === 'SECTION' && !child.classList.contains('top-header') && !child.classList.contains('flash-bar')) child.style.display = 'none';
+            });
+            const detailSection = document.createElement('section');
+            detailSection.id = 'velentra-scientific-session-detail';
+            detailSection.className = 'p-t-20 p-b-40 background-white';
+            const container = document.createElement('div'); container.className = 'container';
+            const title = document.createElement('h2'); title.textContent = selectedSession.title || 'Scientific Session';
+            const detail = document.createElement('div'); detail.className = 'velentra-scientific-detail';
+            const detailTitle = document.createElement('h3'); detailTitle.textContent = selectedSession.title || 'Scientific Session'; detail.appendChild(detailTitle);
+            const description = document.createElement('p'); description.textContent = selectedSession.fullDescription || selectedSession.description || 'Session details will be announced soon.'; detail.appendChild(description);
+            const relatedHeading = document.createElement('h4'); relatedHeading.textContent = 'Related Sessions'; detail.appendChild(relatedHeading);
+            const relatedGrid = document.createElement('div'); relatedGrid.className = 'velentra-related-session-grid';
+            scientificItems.filter(item => item.title && item.title !== selectedSession.title && (item.status || 'Active') !== 'Hidden').slice(0, 6).forEach((item, index) => {
+              const related = document.createElement('a'); related.href = `/program/scientific-sessions/${scientificSlug(item.title)}`; related.textContent = `${index + 1}. ${item.title}`; relatedGrid.appendChild(related);
+            });
+            detail.appendChild(relatedGrid);
+            const back = document.createElement('a'); back.className = 'velentra-scientific-detail-back'; back.href = '/'; back.textContent = 'Back to Home'; detail.appendChild(back);
+            container.appendChild(title); container.appendChild(detail); detailSection.appendChild(container);
+            const footer = wrapper.querySelector('footer'); wrapper.insertBefore(detailSection, footer || null);
+          }
+        }
+      }
       if (scientificItems.length) {
         const scientificList = document.querySelector('.sessions-new ul.scientific');
         if (scientificList) {
@@ -369,6 +421,9 @@
         });
         window.velentraShowTestimonials?.();
       }
+      // The bundled template came from another conference host. Keep every
+      // internal conference page on the current Velentra root/subdomain.
+      normalizeInternalLinks();
     } catch (_) {
       // Preview content is optional and should never block the imported site.
     }
