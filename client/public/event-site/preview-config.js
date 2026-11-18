@@ -70,6 +70,13 @@
         const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
         document.querySelectorAll('a[href]').forEach(anchor => {
           const rawHref = anchor.getAttribute('href') || '';
+          const relativeSessionPath = rawHref.match(/^\/program\/scientific-sessions\/([^/?#]+)\/?(?:[?#].*)?$/i);
+          if (relativeSessionPath) {
+            anchor.setAttribute('href', `./?session=${encodeURIComponent(relativeSessionPath[1])}`);
+            anchor.removeAttribute('target');
+            anchor.removeAttribute('rel');
+            return;
+          }
           if (!/^https?:\/\//i.test(rawHref)) return;
           try {
             const url = new URL(rawHref, window.location.href);
