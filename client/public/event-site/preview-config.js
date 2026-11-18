@@ -68,6 +68,7 @@
       const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
       const isEmbeddedPreview = window.location.pathname === '/event-site' || window.location.pathname.startsWith('/event-site/');
       const scientificDetailHref = slug => isEmbeddedPreview ? `./?session=${encodeURIComponent(slug)}` : `/program/scientific-sessions/${encodeURIComponent(slug)}`;
+      const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
       const normalizeInternalLinks = () => {
         const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
         document.querySelectorAll('a[href]').forEach(anchor => {
@@ -81,6 +82,12 @@
             }
             return;
           }
+          if (isEmbeddedPreview && rawHref.startsWith('/') && !rawHref.startsWith('/event-site/')) {
+            anchor.setAttribute('href', previewPageHref(rawHref.split(/[?#]/)[0] || '/') + rawHref.slice(rawHref.split(/[?#]/)[0].length));
+            anchor.removeAttribute('target');
+            anchor.removeAttribute('rel');
+            return;
+          }
           if (!/^https?:\/\//i.test(rawHref)) return;
           try {
             const url = new URL(rawHref, window.location.href);
@@ -92,7 +99,9 @@
               // React router, which correctly returns 404 for this page.
               anchor.setAttribute('href', scientificDetailHref(sessionPath[1]));
             } else {
-              anchor.setAttribute('href', `${url.pathname || '/'}${url.search}${url.hash}`);
+              anchor.setAttribute('href', isEmbeddedPreview
+                ? `${previewPageHref(url.pathname || '/')}${url.search}${url.hash}`
+                : `${url.pathname || '/'}${url.search}${url.hash}`);
             }
             anchor.removeAttribute('target');
             anchor.removeAttribute('rel');
