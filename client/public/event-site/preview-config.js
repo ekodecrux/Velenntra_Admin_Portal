@@ -169,7 +169,7 @@
       const scientificSlug = value => String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       const detailMatch = window.location.pathname.match(/^\/program\/scientific-sessions\/([^/]+)\/?$/i)
         || new URLSearchParams(window.location.search).get('session')?.match(/^(.+)$/i);
-      if (detailMatch && scientificItems.length) {
+      if (isEmbeddedPreview && detailMatch && scientificItems.length) {
         const requestedSlug = decodeURIComponent(detailMatch[1]).toLowerCase();
         const selectedSession = scientificItems.find(item => {
           const linkedSlug = String(item.link || '').split('/').filter(Boolean).pop()?.toLowerCase();

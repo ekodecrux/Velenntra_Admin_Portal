@@ -86,9 +86,12 @@ async function startServer() {
     const subdomain = hostname.slice(0, -(`.${baseDomain}`).length).split(".").at(-1) || "";
     const event = await resolveEventBySubdomain(subdomain);
     if (!event || !event.id) return res.status(404).send("Event website not found");
-    const eventSitePath = process.env.NODE_ENV === "development"
-      ? path.resolve(import.meta.dirname, "../..", "client", "public", "event-site", "index.html")
-      : path.resolve(import.meta.dirname, "public", "event-site", "index.html");
+    const eventSiteRoot = process.env.NODE_ENV === "development"
+      ? path.resolve(import.meta.dirname, "../..", "client", "public", "event-site")
+      : path.resolve(import.meta.dirname, "public", "event-site");
+    const cleanRoute = req.path.replace(/^\/+|\/+$/g, "");
+    const mirroredPage = cleanRoute ? path.join(eventSiteRoot, "mirror", cleanRoute, "index.html") : path.join(eventSiteRoot, "index.html");
+    const eventSitePath = cleanRoute && fs.existsSync(mirroredPage) ? mirroredPage : path.join(eventSiteRoot, "index.html");
     const html = await fs.promises.readFile(eventSitePath, "utf8");
     const injected = html.replace("</head>", `<script>window.__VELENTRA_EVENT_ID__=${JSON.stringify(String(event.id))};window.__VELENTRA_EVENT_HOST__=${JSON.stringify(hostname)};</script></head>`);
     return res.status(200).type("html").send(injected);
