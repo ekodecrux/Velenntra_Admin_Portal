@@ -66,15 +66,19 @@
         document.body.style.overflowY = 'auto';
       }
       const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
+      const isEmbeddedPreview = window.location.pathname === '/event-site' || window.location.pathname.startsWith('/event-site/');
+      const scientificDetailHref = slug => isEmbeddedPreview ? `./?session=${encodeURIComponent(slug)}` : `/program/scientific-sessions/${encodeURIComponent(slug)}`;
       const normalizeInternalLinks = () => {
         const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
         document.querySelectorAll('a[href]').forEach(anchor => {
           const rawHref = anchor.getAttribute('href') || '';
           const relativeSessionPath = rawHref.match(/^\/program\/scientific-sessions\/([^/?#]+)\/?(?:[?#].*)?$/i);
           if (relativeSessionPath) {
-            anchor.setAttribute('href', `./?session=${encodeURIComponent(relativeSessionPath[1])}`);
-            anchor.removeAttribute('target');
-            anchor.removeAttribute('rel');
+            if (isEmbeddedPreview) {
+              anchor.setAttribute('href', scientificDetailHref(relativeSessionPath[1]));
+              anchor.removeAttribute('target');
+              anchor.removeAttribute('rel');
+            }
             return;
           }
           if (!/^https?:\/\//i.test(rawHref)) return;
@@ -86,7 +90,7 @@
               // The preview is mounted at /event-site/index.html. A root
               // absolute URL would escape the iframe and hit the portal's
               // React router, which correctly returns 404 for this page.
-              anchor.setAttribute('href', `./?session=${encodeURIComponent(sessionPath[1])}`);
+              anchor.setAttribute('href', scientificDetailHref(sessionPath[1]));
             } else {
               anchor.setAttribute('href', `${url.pathname || '/'}${url.search}${url.hash}`);
             }
@@ -190,10 +194,10 @@
             const relatedHeading = document.createElement('h4'); relatedHeading.textContent = 'Related Sessions'; detail.appendChild(relatedHeading);
             const relatedGrid = document.createElement('div'); relatedGrid.className = 'velentra-related-session-grid';
             scientificItems.filter(item => item.title && item.title !== selectedSession.title && (item.status || 'Active') !== 'Hidden').slice(0, 6).forEach((item, index) => {
-              const related = document.createElement('a'); related.href = `./?session=${encodeURIComponent(scientificSlug(item.title))}`; related.textContent = `${index + 1}. ${item.title}`; relatedGrid.appendChild(related);
+              const related = document.createElement('a'); related.href = scientificDetailHref(scientificSlug(item.title)); related.textContent = `${index + 1}. ${item.title}`; relatedGrid.appendChild(related);
             });
             detail.appendChild(relatedGrid);
-            const back = document.createElement('a'); back.className = 'velentra-scientific-detail-back'; back.href = './'; back.textContent = 'Back to Home'; detail.appendChild(back);
+            const back = document.createElement('a'); back.className = 'velentra-scientific-detail-back'; back.href = isEmbeddedPreview ? './' : '/'; back.textContent = 'Back to Home'; detail.appendChild(back);
             container.appendChild(title); container.appendChild(detail); detailSection.appendChild(container);
             const footer = wrapper.querySelector('footer'); wrapper.insertBefore(detailSection, footer || null);
           }
