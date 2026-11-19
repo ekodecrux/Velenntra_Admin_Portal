@@ -184,8 +184,10 @@
         } catch { return []; }
       })();
       const scientificManagedItems = scientificManagedRows.map(row => ({
-        title: row.title || '',
-        link: row.details?.Link || row.Link || '',
+        title: row.details?.['Session Title'] || row.title || '',
+        link: row.details?.['Session Title'] && row.details?.Link && row.details?.Link.split('/').pop() !== String(row.details['Session Title']).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+          ? `/program/scientific-sessions/${String(row.details['Session Title']).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`
+          : (row.details?.Link || row.Link || ''),
         description: row.details?.['Session Description'] || row.details?.Description || row.note || '',
         fullDescription: row.details?.['Full Session Description'] || row.details?.['Session Description'] || row.details?.Description || row.note || '',
         isNew: row.details?.__managedScientificSession === 'true',
