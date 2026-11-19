@@ -646,10 +646,11 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
   const deleteRow = (row: Row) => {
-    setDeletedRows(current => ({ ...current, [active.id]: [...(current[active.id] ?? []), row.title] }));
+    const deletionKeys = [row.title, row.details?.Title, row.details?.["Session Title"], row.details?.__scientificSessionSourceTitle].filter(Boolean) as string[];
+    setDeletedRows(current => ({ ...current, [active.id]: [...new Set([...(current[active.id] ?? []), ...deletionKeys])] }));
     setSavedRows(current => {
       const existing = current[active.id] ?? [];
-      return { ...current, [active.id]: existing.filter(item => item.title !== row.title) };
+      return { ...current, [active.id]: existing.filter(item => !deletionKeys.includes(item.title) && !deletionKeys.includes(item.details?.Title ?? "") && !deletionKeys.includes(item.details?.["Session Title"] ?? "") && !deletionKeys.includes(item.details?.__scientificSessionSourceTitle ?? "")) };
     });
     window.setTimeout(() => document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*")), 0);
     setNotice(`${row.title} was deleted from this event website.`);
@@ -712,12 +713,13 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         localStorage.setItem(sectionKey, sectionSerialized); sessionStorage.setItem(sectionKey, sectionSerialized);
         setSavingScientificSession(true);
         setSavedRows(current => ({ ...current, "scientific-session-list": updated }));
+        setEditingRow(null); setEditingContext(null); setFormValues({});
+        setNotice(`Scientific Session ${editingRow ? "updated" : "added"}; saving to the event website…`);
+        selectFeature("scientific-session-list");
         Promise.all([persistServerState(managedKey, eventId || "global", managedSerialized), persistServerState(sectionKey, eventId || "global", sectionSerialized)]).finally(() => {
           document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
           setSavingScientificSession(false);
-          setEditingRow(null); setEditingContext(null); setFormValues({});
           setNotice(`Scientific Session ${editingRow ? "updated" : "added"} successfully.`);
-          selectFeature("scientific-session-list");
         });
       } catch {
         setSavingScientificSession(false);
@@ -956,7 +958,9 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       if (active.id === "scientific-session-list" && column === "Description" && value.length > 180) return `${value.slice(0, 180).trimEnd()}…`;
       return value;
     };
-    const filteredRows = rows.filter(row => !search.trim() || JSON.stringify(row).toLowerCase().includes(search.trim().toLowerCase()));
+    const deletedForActive = new Set(deletedRows[active.id] ?? []);
+    const visibleRows = rows.filter(row => !deletedForActive.has(row.title) && !deletedForActive.has(row.details?.Title ?? "") && !deletedForActive.has(row.details?.["Session Title"] ?? "") && !deletedForActive.has(row.details?.__scientificSessionSourceTitle ?? ""));
+    const filteredRows = visibleRows.filter(row => !search.trim() || JSON.stringify(row).toLowerCase().includes(search.trim().toLowerCase()));
     const genericTotalPages = Math.max(1, Math.ceil(filteredRows.length / Number(pageSize)));
     const genericCurrentPage = Math.min(genericPage, genericTotalPages);
     const paginatedRows = ["banner-images", "media-partner"].includes(active.id)
