@@ -705,12 +705,13 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     const scientificLink = returnTarget === "scientific-session-list" && title
       ? (formValues.Link || `/program/scientific-sessions/${title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`)
       : formValues.Link;
+    const scientificSourceTitle = editingRow?.details?.__scientificSessionSourceTitle || editingRow?.title;
     const newRow: Row = {
       title,
       status: formValues.Status || formValues["Display status"] || "Draft",
       meta: "Just now",
       note: "Created in this employee workspace",
-      details: { ...formValues, ...(returnTarget === "scientific-session-list" ? { Link: scientificLink, ...(editingRow ? { __scientificSessionSourceTitle: editingRow.title } : {}), ...(!editingRow ? { __managedScientificSession: "true" } : {}) } : {}), Description: formValues["Session Description"] || formValues.Description || "", "Full Session Description": formValues["Full Session Description"] || formValues["Session Description"] || formValues.Description || "", "Related Sessions": formValues["Related Sessions"] || "", ...(editingRow && ["banner-images", "media-partner"].includes(returnTarget) ? { __managedOriginal: "true" } : {}) },
+      details: { ...formValues, ...(returnTarget === "scientific-session-list" ? { Link: scientificLink, ...(scientificSourceTitle ? { __scientificSessionSourceTitle: scientificSourceTitle } : {}), ...(!editingRow ? { __managedScientificSession: "true" } : {}) } : {}), Description: formValues["Session Description"] || formValues.Description || "", "Full Session Description": formValues["Full Session Description"] || formValues["Session Description"] || formValues.Description || "", "Related Sessions": formValues["Related Sessions"] || "", ...(editingRow && ["banner-images", "media-partner"].includes(returnTarget) ? { __managedOriginal: "true" } : {}) },
     };
     if (["past-conference-info"].includes(returnTarget) || (editingRow && ["banner-images", "media-partner"].includes(returnTarget))) {
       try {
@@ -731,8 +732,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     setSavedRows(current => {
       const existing = current[returnTarget] ?? (["banner-images", "past-conference-info", "media-partner"].includes(returnTarget) ? existingWebsiteRows(returnTarget, eventId) : rowsByFeature[returnTarget] ?? []);
       const updated = editingRow
-        ? existing.map(row => row.title === editingRow.title ? newRow : row)
-        : [newRow, ...existing];
+        ? existing.map(row => row.title === editingRow.title || (scientificSourceTitle && row.details?.__scientificSessionSourceTitle === scientificSourceTitle) ? newRow : row)
+        : [...existing, newRow];
       return { ...current, [returnTarget]: updated };
     });
     window.setTimeout(() => document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*")), 0);
