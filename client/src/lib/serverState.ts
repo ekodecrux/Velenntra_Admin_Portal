@@ -33,7 +33,7 @@ function eventIdForKey(storageKey: string) {
 }
 
 function send(method: "PUT" | "DELETE", payload: Record<string, string>) {
-  void fetch("/api/state", {
+  return fetch("/api/state", {
     method,
     headers: { "Content-Type": "application/json" },
     credentials: "same-origin",
@@ -63,9 +63,9 @@ export function installServerStateBridge() {
   bridgeInstalled = true;
 }
 
-export function persistServerState(storageKey: string, eventId: string, value: string) {
-  if (!shouldSync(storageKey)) return;
-  send("PUT", { storageKey, eventId: eventId || "global", value });
+export function persistServerState(storageKey: string, eventId: string, value: string): Promise<void> {
+  if (!shouldSync(storageKey)) return Promise.resolve();
+  return send("PUT", { storageKey, eventId: eventId || "global", value }).then(() => undefined);
 }
 
 function writeWithoutSync(storageKey: string, value: string) {

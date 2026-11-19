@@ -510,7 +510,7 @@
       // Preview content is optional and should never block the imported site.
     }
   };
-  const boot = async () => {
+  const hydrateServerState = async () => {
     try {
       const scopedEventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
       const response = await fetch(`/api/state?eventId=${encodeURIComponent(scopedEventId)}`, { credentials: 'same-origin', cache: 'no-store' });
@@ -523,10 +523,13 @@
     } catch (_) {
       // Static/local previews continue with their existing browser cache.
     }
+  };
+  const boot = async () => {
+    await hydrateServerState();
     apply();
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
-  window.addEventListener('message', event => { if (event.data?.type === 'velentra-session-sync' || event.data?.type === 'velentra-config-sync') apply(); });
+  window.addEventListener('message', async event => { if (event.data?.type === 'velentra-session-sync' || event.data?.type === 'velentra-config-sync') { await hydrateServerState(); apply(); } });
   window.addEventListener('storage', event => { if (event.key && (event.key.includes('velentra-testimonials-') || event.key.includes('velentra-conference-sessions-') || event.key.includes('velentra-gallery-') || event.key.includes('velentra-video-reviews-') || event.key.includes('velentra-section-content-') || event.key.includes('velentra-managed-media-'))) apply(); });
 })();
