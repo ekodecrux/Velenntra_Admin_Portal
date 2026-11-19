@@ -942,7 +942,16 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     const seededRows = ["banner-images", "past-conference-info", "media-partner"].includes(active.id) ? existingWebsiteRows(active.id, eventId) : (rowsByFeature[active.id] ?? []);
     const storedRows = savedRows[active.id] ?? [];
     const normalizedStoredRows = active.id === "scientific-session-list"
-      ? storedRows.map(row => row.details?.["Session Title"] ? { ...row, title: row.details["Session Title"] } : row)
+      ? storedRows.map(row => {
+          const title = row.details?.["Session Title"] || row.title;
+          const expectedLink = scientificSessionUrlFromTitle(title);
+          const currentLink = row.details?.Link || "";
+          const currentSlug = currentLink.split("/").filter(Boolean).pop() || "";
+          const expectedSlug = expectedLink.split("/").filter(Boolean).pop() || "";
+          return title !== row.title || (currentLink && currentSlug !== expectedSlug)
+            ? { ...row, title, details: { ...(row.details ?? {}), Link: expectedLink } }
+            : row;
+        })
       : storedRows;
     const rows = ["banner-images", "media-partner"].includes(active.id)
       ? (() => {
@@ -951,7 +960,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
           return [...cleanStored, ...seededRows.filter(item => !cleanStored.some(row => row.title === item.title && row.details?.__managedOriginal === "true"))];
         })()
       : active.id === "scientific-session-list"
-        ? [...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title || row.details?.Title === seed.title || row.details?.__scientificSessionSourceTitle === seed.title)), ...normalizedStoredRows]
+        ? (normalizedStoredRows.length ? normalizedStoredRows : seededRows)
         : (storedRows.length ? storedRows : seededRows);
     const rowValue = (row: Row, column: string) => {
       const value = row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
