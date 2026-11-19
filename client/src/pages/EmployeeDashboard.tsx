@@ -445,6 +445,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [editingContext, setEditingContext] = useState<string | null>(null);
   const [websiteSelectedSection, setWebsiteSelectedSection] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [savingScientificSession, setSavingScientificSession] = useState(false);
   const [pageSize, setPageSize] = useState("10");
   const [brochureSearch, setBrochureSearch] = useState("");
   const [brochureRows, setBrochureRows] = useState<BrochureRecord[]>([]);
@@ -674,6 +675,54 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
   const saveForm = () => {
+    if (active.id === "add-scientific-session") {
+      if (savingScientificSession) return;
+      const title = formValues["Session Title"]?.trim() || "";
+      if (!title) { setNotice("Enter a session title before saving."); return; }
+      const scientificSourceTitle = editingRow?.details?.__scientificSessionSourceTitle || editingRow?.title;
+      const existing = savedRows["scientific-session-list"] ?? rowsByFeature["scientific-session-list"] ?? [];
+      const newRow: Row = {
+        title,
+        status: formValues.Status || "Active",
+        meta: "Just now",
+        note: "Created in this employee workspace",
+        details: {
+          ...formValues,
+          Link: scientificSessionUrlFromTitle(title),
+          Description: formValues["Session Description"] || "",
+          "Full Session Description": formValues["Full Session Description"] || formValues["Session Description"] || "",
+          "Related Sessions": "",
+          ...(scientificSourceTitle ? { __scientificSessionSourceTitle: scientificSourceTitle } : {}),
+          ...(!editingRow ? { __managedScientificSession: "true" } : {}),
+        },
+      };
+      const updated = editingRow
+        ? existing.map(row => row.title === editingRow.title || row.details?.["Session Title"] === editingRow.title || (scientificSourceTitle && (row.details?.__scientificSessionSourceTitle === scientificSourceTitle || row.details?.Title === scientificSourceTitle)) ? newRow : row)
+        : [...existing, newRow];
+      const items = updated.map(row => ({ title: row.title, link: row.details?.Link || "", description: row.details?.["Session Description"] || row.details?.Description || "", fullDescription: row.details?.["Full Session Description"] || row.details?.["Session Description"] || row.details?.Description || "", relatedSessions: updated.filter(other => other.title !== row.title && other.status !== "Hidden").map(other => other.title), isNew: row.details?.__managedScientificSession === "true", status: row.status }));
+      const managedKey = `velentra-managed-media-${eventId || "global"}`;
+      const sectionKey = `velentra-section-content-${eventId || "global"}`;
+      try {
+        const managedSerialized = JSON.stringify({ ...savedRows, "scientific-session-list": updated });
+        const sectionCurrent = JSON.parse(localStorage.getItem(sectionKey) || sessionStorage.getItem(sectionKey) || "{}");
+        const sectionSerialized = JSON.stringify({ ...sectionCurrent, "scientific-sessions": { ...(sectionCurrent["scientific-sessions"] || {}), items } });
+        localStorage.setItem(managedKey, managedSerialized); sessionStorage.setItem(managedKey, managedSerialized);
+        localStorage.setItem(sectionKey, sectionSerialized); sessionStorage.setItem(sectionKey, sectionSerialized);
+        setSavingScientificSession(true);
+        setSavedRows(current => ({ ...current, "scientific-session-list": updated }));
+        Promise.all([persistServerState(managedKey, eventId || "global", managedSerialized), persistServerState(sectionKey, eventId || "global", sectionSerialized)]).finally(() => {
+          document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
+          setSavingScientificSession(false);
+          setEditingRow(null); setEditingContext(null); setFormValues({});
+          setNotice(`Scientific Session ${editingRow ? "updated" : "added"} successfully.`);
+          selectFeature("scientific-session-list");
+        });
+      } catch {
+        setSavingScientificSession(false);
+        setNotice("The Scientific Session could not be saved. Please try again.");
+      }
+      return;
+    }
     if (active.id === "add-video-review") {
       const record: VideoReviewRecord = { id: editingVideoReviewId ?? `video-review-${Date.now()}`, serial: editingVideoReviewId ? (videoReviewRows.find(item => item.id === editingVideoReviewId)?.serial ?? videoReviewRows.length + 1) : videoReviewRows.length + 1, eventSlug: selectedVideoReviewEvent ?? eventId, eventTitle: eventTitle || "Selected past conference", title: formValues["Review title"] ?? "", reviewer: formValues["Reviewer name"] ?? "", videoUrl: formValues["Video URL"] ?? "", posterImage: formValues["Poster image"] ?? "", description: formValues.Description ?? "", status: formValues.Status ?? "Published" };
       setVideoReviewRows(current => editingVideoReviewId ? current.map(item => item.id === editingVideoReviewId ? record : item) : [...current, record]);
@@ -858,7 +907,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
       const title = formValues["Session Title"] ?? "";
       const generatedLink = formValues.Link || scientificSessionUrlFromTitle(title);
-      return <><div className="employee-page-heading employee-feature-heading"><div><h1>{editingRow ? "Edit Scientific Session" : "Add New Scientific Session"}</h1><p>{editingRow ? "Update the selected session and keep its website content synchronized." : "Add a scientific session to this event website."}</p></div></div><section className="employee-form-card employee-scientific-session-form"><div className="employee-form-card-heading"><div><h2>{editingRow ? "Edit Scientific Session" : "Add New Scientific Session"}</h2></div></div><div className="employee-form-grid"><label className="employee-form-wide"><span>Session Title</span><input value={title} onChange={event => { const value = event.target.value; setValue("Session Title", value); setValue("Link", scientificSessionUrlFromTitle(value)); }} placeholder="Enter session title" /></label><label className="employee-form-wide"><span>Link (auto-generated)</span><input type="url" value={generatedLink} readOnly /><small className="employee-form-help">The link is generated automatically from the session title.</small></label><label className="employee-form-wide"><span>Session Description</span><textarea rows={4} value={formValues["Session Description"] ?? ""} onChange={event => setValue("Session Description", event.target.value)} placeholder="Short description shown in the session list" /></label><label className="employee-form-wide"><span>Full Session Description</span><textarea rows={9} value={formValues["Full Session Description"] ?? formValues["Session Description"] ?? ""} onChange={event => setValue("Full Session Description", event.target.value)} placeholder="Detailed content shown on the individual session page" /></label><label><span>Status</span><select value={formValues.Status ?? "Active"} onChange={event => setValue("Status", event.target.value)}><option>Active</option><option>Inactive</option><option>Hidden</option></select></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => { setEditingRow(null); setEditingContext(null); setFormValues({}); selectFeature("scientific-session-list"); }}>Cancel</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {editingRow ? "Update Session" : "Save Session"}</button></div></section></>;
+      return <><div className="employee-page-heading employee-feature-heading"><div><h1>{editingRow ? "Edit Scientific Session" : "Add New Scientific Session"}</h1><p>{editingRow ? "Update the selected session and keep its website content synchronized." : "Add a scientific session to this event website."}</p></div></div><section className="employee-form-card employee-scientific-session-form"><div className="employee-form-card-heading"><div><h2>{editingRow ? "Edit Scientific Session" : "Add New Scientific Session"}</h2></div></div><div className="employee-form-grid"><label className="employee-form-wide"><span>Session Title</span><input value={title} onChange={event => { const value = event.target.value; setValue("Session Title", value); setValue("Link", scientificSessionUrlFromTitle(value)); }} placeholder="Enter session title" /></label><label className="employee-form-wide"><span>Link (auto-generated)</span><input type="url" value={generatedLink} readOnly /><small className="employee-form-help">The link is generated automatically from the session title.</small></label><label className="employee-form-wide"><span>Session Description</span><textarea rows={4} value={formValues["Session Description"] ?? ""} onChange={event => setValue("Session Description", event.target.value)} placeholder="Short description shown in the session list" /></label><label className="employee-form-wide"><span>Full Session Description</span><textarea rows={9} value={formValues["Full Session Description"] ?? formValues["Session Description"] ?? ""} onChange={event => setValue("Full Session Description", event.target.value)} placeholder="Detailed content shown on the individual session page" /></label><label><span>Status</span><select value={formValues.Status ?? "Active"} onChange={event => setValue("Status", event.target.value)}><option>Active</option><option>Inactive</option><option>Hidden</option></select></label></div><div className="employee-form-actions"><button className="employee-secondary-button" type="button" disabled={savingScientificSession} onClick={() => { setEditingRow(null); setEditingContext(null); setFormValues({}); selectFeature("scientific-session-list"); }}>Cancel</button><button className="employee-primary-button" type="button" disabled={savingScientificSession} onClick={saveForm}>{savingScientificSession ? "Saving…" : <><Check size={16} /> {editingRow ? "Update Session" : "Save Session"}</>}</button></div></section></>;
     }
     if (active.id === "add-gallery") {
       const setValue = (field: string, value: string) => setFormValues(current => ({ ...current, [field]: value }));
