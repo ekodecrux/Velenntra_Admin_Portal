@@ -646,11 +646,11 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
   const deleteRow = (row: Row) => {
-    const deletionKeys = [row.title, row.details?.Title, row.details?.["Session Title"], row.details?.__scientificSessionSourceTitle].filter(Boolean) as string[];
+    const deletionKeys = [row.title, row.details?.Title, row.details?.["Session Title"], row.details?.Link, row.details?.__scientificSessionSourceTitle].filter(Boolean) as string[];
     setDeletedRows(current => ({ ...current, [active.id]: [...new Set([...(current[active.id] ?? []), ...deletionKeys])] }));
     setSavedRows(current => {
       const existing = current[active.id] ?? [];
-      return { ...current, [active.id]: existing.filter(item => !deletionKeys.includes(item.title) && !deletionKeys.includes(item.details?.Title ?? "") && !deletionKeys.includes(item.details?.["Session Title"] ?? "") && !deletionKeys.includes(item.details?.__scientificSessionSourceTitle ?? "")) };
+      return { ...current, [active.id]: existing.filter(item => !deletionKeys.includes(item.title) && !deletionKeys.includes(item.details?.Title ?? "") && !deletionKeys.includes(item.details?.["Session Title"] ?? "") && !deletionKeys.includes(item.details?.Link ?? "") && !deletionKeys.includes(item.details?.__scientificSessionSourceTitle ?? "")) };
     });
     window.setTimeout(() => document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*")), 0);
     setNotice(`${row.title} was deleted from this event website.`);
@@ -700,7 +700,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         },
       };
       const updated = editingRow
-        ? existing.map(row => row.title === editingRow.title || row.details?.["Session Title"] === editingRow.title || (scientificSourceTitle && (row.details?.__scientificSessionSourceTitle === scientificSourceTitle || row.details?.Title === scientificSourceTitle)) ? newRow : row)
+        ? existing.map(row => row.title === editingRow.title || row.details?.["Session Title"] === editingRow.title || row.details?.Link === editingRow.details?.Link || (scientificSourceTitle && (row.details?.__scientificSessionSourceTitle === scientificSourceTitle || row.details?.Title === scientificSourceTitle)) ? newRow : row)
         : [...existing, newRow];
       const items = updated.map(row => ({ title: row.title, link: row.details?.Link || "", description: row.details?.["Session Description"] || row.details?.Description || "", fullDescription: row.details?.["Full Session Description"] || row.details?.["Session Description"] || row.details?.Description || "", relatedSessions: updated.filter(other => other.title !== row.title && other.status !== "Hidden").map(other => other.title), isNew: row.details?.__managedScientificSession === "true", status: row.status }));
       const managedKey = `velentra-managed-media-${eventId || "global"}`;
@@ -959,7 +959,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       return value;
     };
     const deletedForActive = new Set(deletedRows[active.id] ?? []);
-    const visibleRows = rows.filter(row => !deletedForActive.has(row.title) && !deletedForActive.has(row.details?.Title ?? "") && !deletedForActive.has(row.details?.["Session Title"] ?? "") && !deletedForActive.has(row.details?.__scientificSessionSourceTitle ?? ""));
+    const visibleRows = rows.filter(row => !deletedForActive.has(row.title) && !deletedForActive.has(row.details?.Title ?? "") && !deletedForActive.has(row.details?.["Session Title"] ?? "") && !deletedForActive.has(row.details?.Link ?? "") && !deletedForActive.has(row.details?.__scientificSessionSourceTitle ?? ""));
     const filteredRows = visibleRows.filter(row => !search.trim() || JSON.stringify(row).toLowerCase().includes(search.trim().toLowerCase()));
     const genericTotalPages = Math.max(1, Math.ceil(filteredRows.length / Number(pageSize)));
     const genericCurrentPage = Math.min(genericPage, genericTotalPages);

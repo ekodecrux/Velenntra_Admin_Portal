@@ -80,7 +80,7 @@
       const scientificDetailHref = slug => {
         const encodedSlug = encodeURIComponent(slug);
         if (!isEmbeddedPreview) return `/program/scientific-sessions/${encodedSlug}`;
-        return mirroredScientificSlugs.has(String(slug).toLowerCase())
+        return eventId === 'global' && mirroredScientificSlugs.has(String(slug).toLowerCase())
           ? `/event-site/mirror/program/scientific-sessions/${encodedSlug}/index.html`
           : `/event-site/scientific-session-detail.html?session=${encodedSlug}&event=${encodeURIComponent(eventId)}`;
       };
