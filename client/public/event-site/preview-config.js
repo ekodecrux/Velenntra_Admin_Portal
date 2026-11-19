@@ -73,6 +73,12 @@
       const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
       const normalizeInternalLinks = () => {
         const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
+        document.querySelectorAll('img[src],script[src],link[href]').forEach(element => {
+          const attribute = element.hasAttribute('src') ? 'src' : 'href';
+          const rawAsset = element.getAttribute(attribute) || '';
+          if (/^\/\/uploads\//i.test(rawAsset)) element.setAttribute(attribute, `/event-site${rawAsset.slice(1)}`);
+          else if (/^\/uploads\//i.test(rawAsset)) element.setAttribute(attribute, `/event-site${rawAsset}`);
+        });
         document.querySelectorAll('a[href]').forEach(anchor => {
           const rawHref = anchor.getAttribute('href') || '';
           const relativeSessionPath = rawHref.match(/^\/program\/scientific-sessions\/([^/?#]+)\/?(?:[?#].*)?$/i);
