@@ -67,7 +67,9 @@
       }
       const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
       const isEmbeddedPreview = window.location.pathname === '/event-site' || window.location.pathname.startsWith('/event-site/');
-      const scientificDetailHref = slug => isEmbeddedPreview ? `./index.html?session=${encodeURIComponent(slug)}` : `/program/scientific-sessions/${encodeURIComponent(slug)}`;
+      const scientificDetailHref = slug => isEmbeddedPreview
+        ? `./mirror/program/scientific-sessions/${encodeURIComponent(slug)}/index.html`
+        : `/program/scientific-sessions/${encodeURIComponent(slug)}`;
       const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
       const normalizeInternalLinks = () => {
         const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
@@ -206,7 +208,7 @@
               const related = document.createElement('a'); related.href = scientificDetailHref(scientificSlug(item.title)); related.textContent = `${index + 1}. ${item.title}`; relatedGrid.appendChild(related);
             });
             detail.appendChild(relatedGrid);
-            const back = document.createElement('a'); back.className = 'velentra-scientific-detail-back'; back.href = isEmbeddedPreview ? './index.html' : '/'; back.textContent = 'Back to Home'; detail.appendChild(back);
+            const back = document.createElement('a'); back.className = 'velentra-scientific-detail-back'; back.href = isEmbeddedPreview ? '/event-site/index.html' : '/'; back.textContent = 'Back to Home'; detail.appendChild(back);
             container.appendChild(title); container.appendChild(detail); detailSection.appendChild(container);
             const footer = wrapper.querySelector('footer'); wrapper.insertBefore(detailSection, footer || null);
           }
