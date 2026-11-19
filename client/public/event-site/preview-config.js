@@ -199,12 +199,17 @@
       const scientificSlug = value => String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       const detailMatch = window.location.pathname.match(/^\/program\/scientific-sessions\/([^/]+)\/?$/i)
         || new URLSearchParams(window.location.search).get('session')?.match(/^(.+)$/i);
-      if (isEmbeddedPreview && detailMatch && scientificItems.length) {
+      if (isEmbeddedPreview && detailMatch) {
         const requestedSlug = decodeURIComponent(detailMatch[1]).toLowerCase();
         const selectedSession = scientificItems.find(item => {
           const linkedSlug = String(item.link || '').split('/').filter(Boolean).pop()?.toLowerCase();
           return scientificSlug(item.title) === requestedSlug || linkedSlug === requestedSlug;
-        });
+        }) || {
+          title: requestedSlug.split('-').map(word => word ? word[0].toUpperCase() + word.slice(1) : '').join(' '),
+          description: 'Session details will be announced soon.',
+          fullDescription: 'Session details will be announced soon.',
+          status: 'Active'
+        };
         if (selectedSession) {
           const wrapper = document.querySelector('#wrapper');
           const existingDetail = document.getElementById('velentra-scientific-session-detail');
