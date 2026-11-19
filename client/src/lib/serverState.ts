@@ -63,6 +63,11 @@ export function installServerStateBridge() {
   bridgeInstalled = true;
 }
 
+export function persistServerState(storageKey: string, eventId: string, value: string) {
+  if (!shouldSync(storageKey)) return;
+  send("PUT", { storageKey, eventId: eventId || "global", value });
+}
+
 function writeWithoutSync(storageKey: string, value: string) {
   if (typeof window === "undefined") return;
   (originalSetItem ?? Storage.prototype.setItem).call(window.localStorage, storageKey, value);

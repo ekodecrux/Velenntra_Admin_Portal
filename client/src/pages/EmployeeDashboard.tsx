@@ -32,6 +32,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { WorkspaceHeader, WorkspaceFooter } from "@/components/WorkspaceChrome";
 import WebsiteEditor from "@/components/WebsiteEditor";
+import { persistServerState } from "@/lib/serverState";
 
 type FeatureKind = "dashboard" | "list" | "form" | "settings";
 type Feature = { id: string; label: string; description: string; kind: FeatureKind; icon: LucideIcon; createTarget?: string };
@@ -426,6 +427,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       const serialized = JSON.stringify(savedRows);
       localStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized);
       sessionStorage.setItem(`velentra-managed-media-${eventId || "global"}`, serialized);
+      persistServerState(`velentra-managed-media-${eventId || "global"}`, eventId || "global", serialized);
       document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
     } catch { /* Preview storage can be unavailable. */ }
   }, [eventId, savedRows]);
@@ -437,6 +439,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       const current = JSON.parse(localStorage.getItem(key) || sessionStorage.getItem(key) || "{}");
       current["scientific-sessions"] = { ...(current["scientific-sessions"] || {}), items: rows.map(row => ({ title: row.title, link: row.details?.Link || "", description: row.details?.["Session Description"] || row.details?.Description || "", fullDescription: row.details?.["Full Session Description"] || row.details?.Description || "", relatedSessions: rows.filter(other => other.title !== row.title && other.status !== "Hidden").map(other => other.title), isNew: row.details?.__managedScientificSession === "true", status: row.status })) };
       const serialized = JSON.stringify(current); localStorage.setItem(key, serialized); sessionStorage.setItem(key, serialized);
+      persistServerState(key, eventId || "global", serialized);
       document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*"));
     } catch { /* scoped website storage may be unavailable */ }
   }, [eventId, savedRows]);
