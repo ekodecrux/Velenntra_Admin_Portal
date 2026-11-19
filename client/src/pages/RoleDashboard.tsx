@@ -314,9 +314,16 @@ export default function RoleDashboard({ role, onBack, username, initialFeature =
     return ({ "Employee ID": editingEmployee.employeeId, "Employee name": editingEmployee.name, "Work email": editingEmployee.email, "Contact number": editingEmployee.contactNumber, Address: editingEmployee.address, Role: editingEmployee.role, "Account status": editingEmployee.status } as Record<string, string>)[field];
   };
   const editEvent = (event: EventRecord) => { setEditingEvent(event); selectFeature("create-event"); };
-  const deleteEvent = (event: EventRecord) => {
+  const deleteEvent = async (event: EventRecord) => {
     if (event.eventStatus.toLowerCase() === "published") { setNotice("Published events cannot be deleted."); return; }
     if (!window.confirm(`Delete ${event.title}? This event has not been published.`)) return;
+    try {
+      const response = await fetch(`/api/events/${encodeURIComponent(event.id)}`, { method: "DELETE", credentials: "same-origin" });
+      if (!response.ok) throw new Error("The production event registry could not be updated.");
+    } catch {
+      setNotice(`Unable to delete ${event.title}. The event website is still active.`);
+      return;
+    }
     clearEventWebsiteData(event.id);
     setEventRows(current => {
       const remaining = current.filter(item => item.id !== event.id);

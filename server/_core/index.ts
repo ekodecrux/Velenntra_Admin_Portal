@@ -7,7 +7,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { publicPlatformScript } from "./publicConfig";
 import { appRouter } from "../routers";
-import { deleteAppState, listAppState, resolveEventBySubdomain, upsertAppState } from "../state";
+import { deleteAppState, deleteEventById, listAppState, resolveEventBySubdomain, upsertAppState } from "../state";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 
@@ -64,6 +64,15 @@ async function startServer() {
     } catch (error) {
       console.error("[Events] Failed to resolve event:", error);
       return res.status(500).json({ error: "Unable to resolve event" });
+    }
+  });
+  app.delete("/api/events/:eventId", async (req, res) => {
+    try {
+      await deleteEventById(String(req.params.eventId || ""));
+      return res.status(204).end();
+    } catch (error) {
+      console.error("[Events] Failed to delete event:", error);
+      return res.status(400).json({ error: error instanceof Error ? error.message : "Unable to delete event" });
     }
   });
   app.get("/api/platform/config.js", (_req, res) => {
