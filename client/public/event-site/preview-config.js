@@ -67,6 +67,7 @@
       }
       const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
       const isEmbeddedPreview = window.location.pathname === '/event-site' || window.location.pathname.startsWith('/event-site/');
+      const isStandaloneScientificTemplate = window.location.pathname === '/event-site/scientific-session-detail.html';
       const mirroredScientificSlugs = new Set([
         'sustainable-aviation-fuels-green-diesel', 'biofuels-production-technologies', 'algae-based-biofuels-bioproducts',
         'bioethanol-biodiesel-biogas-production-technologies', 'lignocellulosic-biomass-for-biofuel-production',
@@ -81,7 +82,7 @@
         if (!isEmbeddedPreview) return `/program/scientific-sessions/${encodedSlug}`;
         return mirroredScientificSlugs.has(String(slug).toLowerCase())
           ? `/event-site/mirror/program/scientific-sessions/${encodedSlug}/index.html`
-          : `/event-site/index.html?session=${encodedSlug}`;
+          : `/event-site/scientific-session-detail.html?session=${encodedSlug}`;
       };
       const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
       const normalizeInternalLinks = () => {
@@ -199,7 +200,7 @@
       const scientificSlug = value => String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
       const detailMatch = window.location.pathname.match(/^\/program\/scientific-sessions\/([^/]+)\/?$/i)
         || new URLSearchParams(window.location.search).get('session')?.match(/^(.+)$/i);
-      if (isEmbeddedPreview && detailMatch) {
+      if (isEmbeddedPreview && detailMatch && !isStandaloneScientificTemplate) {
         const requestedSlug = decodeURIComponent(detailMatch[1]).toLowerCase();
         const selectedSession = scientificItems.find(item => {
           const linkedSlug = String(item.link || '').split('/').filter(Boolean).pop()?.toLowerCase();
@@ -236,6 +237,27 @@
             container.appendChild(title); container.appendChild(detail); detailSection.appendChild(container);
             const footer = wrapper.querySelector('footer'); wrapper.insertBefore(detailSection, footer || null);
           }
+        }
+      }
+      if (isStandaloneScientificTemplate && detailMatch) {
+        const requestedSlug = decodeURIComponent(detailMatch[1]).toLowerCase();
+        const selectedSession = scientificItems.find(item => {
+          const linkedSlug = String(item.link || '').split('/').filter(Boolean).pop()?.toLowerCase();
+          return scientificSlug(item.title) === requestedSlug || linkedSlug === requestedSlug;
+        }) || { title: requestedSlug.split('-').map(word => word ? word[0].toUpperCase() + word.slice(1) : '').join(' '), description: 'Session details will be announced soon.', fullDescription: 'Session details will be announced soon.', status: 'Active' };
+        const title = selectedSession.title || 'Scientific Session';
+        document.querySelectorAll('.page-title, .session-individual .s-titel').forEach(node => { node.textContent = title; });
+        const descriptionNode = document.querySelector('.session-individual .s-titel')?.parentElement?.querySelector('p');
+        if (descriptionNode) descriptionNode.textContent = selectedSession.fullDescription || selectedSession.description || 'Session details will be announced soon.';
+        const relatedList = document.querySelector('.session-individual .related-sessions > ul');
+        if (relatedList) {
+          relatedList.innerHTML = '';
+          scientificItems.filter(item => item.title && item.title !== title && (item.status || 'Active') !== 'Hidden').forEach((item, index) => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a'); link.href = scientificDetailHref(scientificSlug(item.title)); link.title = item.title;
+            const number = document.createElement('span'); number.textContent = `${index + 1}. `;
+            link.appendChild(number); link.appendChild(document.createTextNode(item.title)); listItem.appendChild(link); relatedList.appendChild(listItem);
+          });
         }
       }
       if (scientificItems.length) {
