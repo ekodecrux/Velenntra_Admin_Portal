@@ -250,7 +250,7 @@
         const descriptionNode = document.querySelector('.session-individual .s-titel')?.parentElement?.querySelector('p');
         if (descriptionNode) descriptionNode.textContent = selectedSession.fullDescription || selectedSession.description || 'Session details will be announced soon.';
         const relatedList = document.querySelector('.session-individual .related-sessions > ul');
-        if (relatedList) {
+        if (relatedList && scientificItems.length) {
           relatedList.innerHTML = '';
           scientificItems.filter(item => item.title && item.title !== title && (item.status || 'Active') !== 'Hidden').forEach((item, index) => {
             const listItem = document.createElement('li');
