@@ -598,7 +598,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   };
 
 
-  const beginEdit = (row: Row) => {
+  const beginEdit = async (row: Row) => {
     const target = createTargetByFeature[active.id];
     if (!target) {
       setNotice(`${row.title} is ready for review.`);
@@ -620,6 +620,26 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       } : {}),
     });
     selectFeature(target);
+    if (active.id === "scientific-session-list") {
+      const link = row.details?.Link || `/program/scientific-sessions/${gallerySlug(row.title)}`;
+      const mirrorPath = link.startsWith("/") ? link : `/program/scientific-sessions/${gallerySlug(row.title)}`;
+      try {
+        const response = await fetch(`/event-site/mirror${mirrorPath.replace(/\/$/, "")}/index.html`, { cache: "no-store" });
+        if (!response.ok) return;
+        const html = await response.text();
+        const document = new DOMParser().parseFromString(html, "text/html");
+        const websiteTitle = document.querySelector(".session-individual .s-titel, .page-title h1")?.textContent?.trim();
+        const websiteDescription = document.querySelector(".session-individual p")?.textContent?.trim();
+        if (!websiteTitle && !websiteDescription) return;
+        setFormValues(current => ({
+          ...current,
+          ...(websiteTitle ? { "Session Title": websiteTitle } : {}),
+          ...(websiteDescription ? { "Session Description": websiteDescription, "Full Session Description": websiteDescription } : {}),
+        }));
+      } catch {
+        // The editable local row remains available if a mirrored page is unavailable.
+      }
+    }
   };
 
   const deleteRow = (row: Row) => {
@@ -868,6 +888,9 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     const columns = listColumns[active.id] ?? ["Title", "Status", "Updated", "Notes", "Action"];
     const seededRows = ["banner-images", "past-conference-info", "media-partner"].includes(active.id) ? existingWebsiteRows(active.id, eventId) : (rowsByFeature[active.id] ?? []);
     const storedRows = savedRows[active.id] ?? [];
+    const normalizedStoredRows = active.id === "scientific-session-list"
+      ? storedRows.map(row => row.details?.["Session Title"] ? { ...row, title: row.details["Session Title"] } : row)
+      : storedRows;
     const rows = ["banner-images", "media-partner"].includes(active.id)
       ? (() => {
           const seed = seededRows[0];
@@ -875,7 +898,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
           return [...cleanStored, ...seededRows.filter(item => !cleanStored.some(row => row.title === item.title && row.details?.__managedOriginal === "true"))];
         })()
       : active.id === "scientific-session-list"
-        ? [...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title || row.details?.__scientificSessionSourceTitle === seed.title)), ...storedRows]
+        ? [...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title || row.details?.Title === seed.title || row.details?.__scientificSessionSourceTitle === seed.title)), ...normalizedStoredRows]
         : (storedRows.length ? storedRows : seededRows);
     const rowValue = (row: Row, column: string) => row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
     const filteredRows = rows.filter(row => !search.trim() || JSON.stringify(row).toLowerCase().includes(search.trim().toLowerCase()));
