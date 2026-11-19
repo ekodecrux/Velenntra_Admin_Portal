@@ -246,7 +246,12 @@
           return scientificSlug(item.title) === requestedSlug || linkedSlug === requestedSlug;
         }) || { title: requestedSlug.split('-').map(word => word ? word[0].toUpperCase() + word.slice(1) : '').join(' '), description: 'Session details will be announced soon.', fullDescription: 'Session details will be announced soon.', status: 'Active' };
         const title = selectedSession.title || 'Scientific Session';
-        document.querySelectorAll('.page-title, .session-individual .s-titel').forEach(node => { node.textContent = title; });
+        const pageTitleHeading = document.querySelector('.page-title h1');
+        if (pageTitleHeading) pageTitleHeading.textContent = title;
+        const breadcrumbTitle = document.querySelector('#page-title .breadcrumb li.active');
+        if (breadcrumbTitle) breadcrumbTitle.textContent = ` ${title} `;
+        const sessionTitle = document.querySelector('.session-individual .s-titel');
+        if (sessionTitle) sessionTitle.textContent = title;
         const descriptionNode = document.querySelector('.session-individual .s-titel')?.parentElement?.querySelector('p');
         if (descriptionNode) descriptionNode.textContent = selectedSession.fullDescription || selectedSession.description || 'Session details will be announced soon.';
         const relatedList = document.querySelector('.session-individual .related-sessions > ul');
