@@ -634,7 +634,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         setFormValues(current => ({
           ...current,
           ...(websiteTitle ? { "Session Title": websiteTitle } : {}),
-          ...(websiteDescription ? { "Session Description": websiteDescription, "Full Session Description": websiteDescription } : {}),
+          ...(websiteDescription ? { "Full Session Description": websiteDescription } : {}),
         }));
       } catch {
         // The editable local row remains available if a mirrored page is unavailable.
@@ -900,7 +900,11 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       : active.id === "scientific-session-list"
         ? [...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title || row.details?.Title === seed.title || row.details?.__scientificSessionSourceTitle === seed.title)), ...normalizedStoredRows]
         : (storedRows.length ? storedRows : seededRows);
-    const rowValue = (row: Row, column: string) => row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
+    const rowValue = (row: Row, column: string) => {
+      const value = row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
+      if (active.id === "scientific-session-list" && column === "Description" && value.length > 180) return `${value.slice(0, 180).trimEnd()}…`;
+      return value;
+    };
     const filteredRows = rows.filter(row => !search.trim() || JSON.stringify(row).toLowerCase().includes(search.trim().toLowerCase()));
     const genericTotalPages = Math.max(1, Math.ceil(filteredRows.length / Number(pageSize)));
     const genericCurrentPage = Math.min(genericPage, genericTotalPages);
