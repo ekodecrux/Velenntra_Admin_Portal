@@ -709,7 +709,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       status: formValues.Status || formValues["Display status"] || "Draft",
       meta: "Just now",
       note: "Created in this employee workspace",
-      details: { ...formValues, ...(returnTarget === "scientific-session-list" ? { Link: scientificLink } : {}), Description: formValues["Session Description"] || formValues.Description || "", "Full Session Description": formValues["Full Session Description"] || formValues["Session Description"] || formValues.Description || "", "Related Sessions": formValues["Related Sessions"] || "", ...(returnTarget === "scientific-session-list" && !editingRow ? { __managedScientificSession: "true" } : {}), ...(editingRow && ["banner-images", "media-partner"].includes(returnTarget) ? { __managedOriginal: "true" } : {}) },
+      details: { ...formValues, ...(returnTarget === "scientific-session-list" ? { Link: scientificLink, ...(editingRow ? { __scientificSessionSourceTitle: editingRow.title } : {}), ...(!editingRow ? { __managedScientificSession: "true" } : {}) } : {}), Description: formValues["Session Description"] || formValues.Description || "", "Full Session Description": formValues["Full Session Description"] || formValues["Session Description"] || formValues.Description || "", "Related Sessions": formValues["Related Sessions"] || "", ...(editingRow && ["banner-images", "media-partner"].includes(returnTarget) ? { __managedOriginal: "true" } : {}) },
     };
     if (["past-conference-info"].includes(returnTarget) || (editingRow && ["banner-images", "media-partner"].includes(returnTarget))) {
       try {
@@ -871,7 +871,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
           return [...cleanStored, ...seededRows.filter(item => !cleanStored.some(row => row.title === item.title && row.details?.__managedOriginal === "true"))];
         })()
       : active.id === "scientific-session-list"
-        ? [...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title)), ...storedRows]
+        ? [...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title || row.details?.__scientificSessionSourceTitle === seed.title)), ...storedRows]
         : (storedRows.length ? storedRows : seededRows);
     const rowValue = (row: Row, column: string) => row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
     const filteredRows = rows.filter(row => !search.trim() || JSON.stringify(row).toLowerCase().includes(search.trim().toLowerCase()));
