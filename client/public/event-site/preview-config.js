@@ -68,7 +68,7 @@
       const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
       const isEmbeddedPreview = window.location.pathname === '/event-site' || window.location.pathname.startsWith('/event-site/');
       const scientificDetailHref = slug => isEmbeddedPreview
-        ? `./mirror/program/scientific-sessions/${encodeURIComponent(slug)}/index.html`
+        ? `/event-site/mirror/program/scientific-sessions/${encodeURIComponent(slug)}/index.html`
         : `/program/scientific-sessions/${encodeURIComponent(slug)}`;
       const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
       const normalizeInternalLinks = () => {
