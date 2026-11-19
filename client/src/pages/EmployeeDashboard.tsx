@@ -607,6 +607,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     }
     setEditingRow(row);
     setEditingContext(active.id);
+    const initialSessionTitle = row.title;
+    const initialFullDescription = row.details?.["Full Session Description"] ?? row.details?.Description ?? "";
     setFormValues({
       ...(row.details ?? {}),
       Name: row.title,
@@ -634,8 +636,8 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         if (!websiteTitle && !websiteDescription) return;
         setFormValues(current => ({
           ...current,
-          ...(websiteTitle ? { "Session Title": websiteTitle } : {}),
-          ...(websiteDescription ? { "Full Session Description": websiteDescription } : {}),
+          ...(websiteTitle && current["Session Title"] === initialSessionTitle ? { "Session Title": websiteTitle } : {}),
+          ...(websiteDescription && current["Full Session Description"] === initialFullDescription ? { "Full Session Description": websiteDescription } : {}),
         }));
       } catch {
         // The editable local row remains available if a mirrored page is unavailable.

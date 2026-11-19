@@ -82,7 +82,7 @@
         if (!isEmbeddedPreview) return `/program/scientific-sessions/${encodedSlug}`;
         return mirroredScientificSlugs.has(String(slug).toLowerCase())
           ? `/event-site/mirror/program/scientific-sessions/${encodedSlug}/index.html`
-          : `/event-site/scientific-session-detail.html?session=${encodedSlug}`;
+          : `/event-site/scientific-session-detail.html?session=${encodedSlug}&event=${encodeURIComponent(eventId)}`;
       };
       const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
       const normalizeInternalLinks = () => {
