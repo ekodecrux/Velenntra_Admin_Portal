@@ -67,9 +67,22 @@
       }
       const eventId = new URLSearchParams(window.location.search).get('event') || window.__VELENTRA_EVENT_ID__ || 'global';
       const isEmbeddedPreview = window.location.pathname === '/event-site' || window.location.pathname.startsWith('/event-site/');
-      const scientificDetailHref = slug => isEmbeddedPreview
-        ? `/event-site/mirror/program/scientific-sessions/${encodeURIComponent(slug)}/index.html`
-        : `/program/scientific-sessions/${encodeURIComponent(slug)}`;
+      const mirroredScientificSlugs = new Set([
+        'sustainable-aviation-fuels-green-diesel', 'biofuels-production-technologies', 'algae-based-biofuels-bioproducts',
+        'bioethanol-biodiesel-biogas-production-technologies', 'lignocellulosic-biomass-for-biofuel-production',
+        'biorefineries-integrated-biomass-processing', 'ai-machine-learning-applications-in-bioenergy',
+        'microbial-synthetic-biology-approaches-for-biofuel-synthesis', 'pyrolysis-gasification-hydrothermal-liquefaction-of-biomass',
+        'carbon-capture-utilization-in-biofuel-processes', 'anaerobic-digestion-biogas-upgrading-technologies',
+        'hydrogen-production-from-biomass-bioenergy-applications', 'waste-to-energy-agricultural-industrial-waste-conversion',
+        'life-cycle-assessment-carbon-footprint-of-biofuels', 'biofuels-climate-change-mitigation-strategies'
+      ]);
+      const scientificDetailHref = slug => {
+        const encodedSlug = encodeURIComponent(slug);
+        if (!isEmbeddedPreview) return `/program/scientific-sessions/${encodedSlug}`;
+        return mirroredScientificSlugs.has(String(slug).toLowerCase())
+          ? `/event-site/mirror/program/scientific-sessions/${encodedSlug}/index.html`
+          : `/event-site/index.html?session=${encodedSlug}`;
+      };
       const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
       const normalizeInternalLinks = () => {
         const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
