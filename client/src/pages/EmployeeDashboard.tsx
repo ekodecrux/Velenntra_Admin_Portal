@@ -417,6 +417,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [activeId, setActiveId] = useState(initialFeature);
   const [mobileNav, setMobileNav] = useState(false);
   const [search, setSearch] = useState("");
+  const [genericPage, setGenericPage] = useState(1);
   const [notice, setNotice] = useState("");
   const [savedRows, setSavedRows] = useState<Record<string, Row[]>>(() => { try { return JSON.parse(localStorage.getItem(`velentra-managed-media-${eventId || "global"}`) || sessionStorage.getItem(`velentra-managed-media-${eventId || "global"}`) || "{}"); } catch { return {}; } });
   const [deletedRows, setDeletedRows] = useState<Record<string, string[]>>({});
@@ -585,6 +586,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     }
     setActiveId(id);
     setSearch("");
+    setGenericPage(1);
     setNotice("");
     setMobileNav(false);
   };
@@ -872,6 +874,12 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         ? [...seededRows.filter(seed => !storedRows.some(row => row.title === seed.title)), ...storedRows]
         : (storedRows.length ? storedRows : seededRows);
     const rowValue = (row: Row, column: string) => row.details?.[column] ?? (column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" || column === "Partner" ? row.title : column === "Status" ? row.status : column === "Date" || column === "Updated" ? row.meta : row.note);
+    const filteredRows = rows.filter(row => !search.trim() || JSON.stringify(row).toLowerCase().includes(search.trim().toLowerCase()));
+    const genericTotalPages = Math.max(1, Math.ceil(filteredRows.length / Number(pageSize)));
+    const genericCurrentPage = Math.min(genericPage, genericTotalPages);
+    const paginatedRows = ["banner-images", "media-partner"].includes(active.id)
+      ? filteredRows
+      : filteredRows.slice((genericCurrentPage - 1) * Number(pageSize), genericCurrentPage * Number(pageSize));
     return (
       <>
         <div className="employee-page-heading employee-feature-heading">
@@ -899,7 +907,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
         ) : (
           <div className="employee-table-card">
             <div className="employee-table-controls"><label className="employee-length-control">Show <select value={pageSize} onChange={event => setPageSize(event.target.value)}><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label><div className="employee-search"><Search size={16} /><input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search:" /></div>{createTargetByFeature[active.id] ? <button className="employee-primary-button" type="button" onClick={addRecord}><Plus size={15} /> {getFeature(createTargetByFeature[active.id]).label}</button> : null}</div>
-            <div className="employee-table-wrap"><table className={`employee-generic-table employee-${active.id}`}><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead><tbody>{( ["banner-images", "media-partner"].includes(active.id) ? rows : rows.slice(0, Number(pageSize)) ).map((row, index) => <tr key={`${row.title}-${index}`}>{columns.map(column => <td key={column}>{column === "S.No" ? <span className="employee-serial-cell">{index + 1}</span> : column === "Image" || column === "Logo" ? (() => { const source = row.details?.Image || row.details?.["Image URL"] || row.details?.Logo || row.details?.["Logo URL"] || (active.id === "banner-images" ? row.meta : ""); return source ? <img className="employee-media-thumb" src={source} alt="" /> : "—"; })() : column === "Website" ? (row.details?.["Website URL"] || row.note || "—") : column === "Action" ? <div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => beginEdit(row)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button>{createTargetByFeature[active.id] ? <button className="employee-row-delete" type="button" onClick={() => deleteRow(row)}>Delete</button> : null}</div> : column === "Status" ? <span className="employee-status-pill">{rowValue(row, column)}</span> : column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? <strong>{rowValue(row, column)}</strong> : rowValue(row, column)}</td>)}</tr>)}</tbody></table>{rows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {rows.length ? 1 : 0} to {Math.min(rows.length, ["banner-images", "media-partner"].includes(active.id) ? rows.length : Number(pageSize))} of {rows.length} entries</span>{!["banner-images", "media-partner"].includes(active.id) ? <div><button type="button" onClick={() => setNotice("Already on the first page.")}>Previous</button><button type="button" onClick={() => setNotice("Already on the last preview page.")}>Next</button></div> : null}</div>
+            <div className="employee-table-wrap"><table className={`employee-generic-table employee-${active.id}`}><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead><tbody>{paginatedRows.map((row, index) => <tr key={`${row.title}-${index}`}>{columns.map(column => <td key={column}>{column === "S.No" ? <span className="employee-serial-cell">{(genericCurrentPage - 1) * Number(pageSize) + index + 1}</span> : column === "Image" || column === "Logo" ? (() => { const source = row.details?.Image || row.details?.["Image URL"] || row.details?.Logo || row.details?.["Logo URL"] || (active.id === "banner-images" ? row.meta : ""); return source ? <img className="employee-media-thumb" src={source} alt="" /> : "—"; })() : column === "Website" ? (row.details?.["Website URL"] || row.note || "—") : column === "Action" ? <div className="employee-row-actions"><button className="employee-row-action" type="button" onClick={() => beginEdit(row)}>{["abstracts", "brochures", "unsubscribe-emails", "representatives", "registrations"].includes(active.id) ? "View" : "Edit"}</button>{createTargetByFeature[active.id] ? <button className="employee-row-delete" type="button" onClick={() => deleteRow(row)}>Delete</button> : null}</div> : column === "Status" ? <span className="employee-status-pill">{rowValue(row, column)}</span> : column === "Name" || column === "Name / title" || column === "Event Name" || column === "Title" ? <strong>{rowValue(row, column)}</strong> : rowValue(row, column)}</td>)}</tr>)}</tbody></table>{filteredRows.length === 0 ? <div className="employee-empty">No records match your search.</div> : null}</div><div className="employee-table-footer"><span>Showing {filteredRows.length ? (genericCurrentPage - 1) * Number(pageSize) + 1 : 0} to {filteredRows.length ? Math.min(genericCurrentPage * Number(pageSize), filteredRows.length) : 0} of {filteredRows.length} entries</span>{!["banner-images", "media-partner"].includes(active.id) ? <div><button type="button" disabled={genericCurrentPage <= 1} onClick={() => setGenericPage(current => Math.max(1, current - 1))}>Previous</button><button type="button" disabled={genericCurrentPage >= genericTotalPages} onClick={() => setGenericPage(current => Math.min(genericTotalPages, current + 1))}>Next</button></div> : null}</div>
           </div>
         )}
       </>
