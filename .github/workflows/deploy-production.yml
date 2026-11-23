@@ -61,6 +61,6 @@ jobs:
           sudo systemctl restart "$VPS_SERVICE"
           sleep 3
           sudo systemctl is-active --quiet "$VPS_SERVICE"
-          curl --fail --silent --show-error --max-time 15 http://127.0.0.1:3000/api/health
+          curl --fail --silent --show-error --max-time 15 "http://127.0.0.1:${PORT:-3000}/api/health" | grep -q '"status":"ok"'
           printf '\nDeployment completed: %s\n' "$(git rev-parse --short HEAD)"
           REMOTE
