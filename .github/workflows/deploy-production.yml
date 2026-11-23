@@ -35,12 +35,7 @@ jobs:
           test -n "$VPS_SERVICE"
 
           install -d -m 700 "$HOME/.ssh"
-          python3 - <<'PY'
-          import os
-          key = os.environ["VPS_SSH_KEY"].replace("\\r", "").replace("\\n", "\n")
-          with open(os.path.expanduser("~/.ssh/velentra_deploy_key"), "w") as handle:
-              handle.write(key.rstrip("\n") + "\n")
-          PY
+          python3 -c 'import os; key=os.environ["VPS_SSH_KEY"].replace("\\r", "").replace("\\n", "\n"); open(os.path.expanduser("~/.ssh/velentra_deploy_key"), "w").write(key.rstrip("\n") + "\n")'
           chmod 600 "$HOME/.ssh/velentra_deploy_key"
           ssh-keyscan -H "$VPS_HOST" >> "$HOME/.ssh/known_hosts"
 
