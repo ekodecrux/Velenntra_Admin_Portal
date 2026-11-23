@@ -84,7 +84,7 @@
           ? `/event-site/mirror/program/scientific-sessions/${encodedSlug}/index.html`
           : `/event-site/scientific-session-detail.html?session=${encodedSlug}&event=${encodeURIComponent(eventId)}`;
       };
-      const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}`;
+      const previewPageHref = route => route === '/' ? '/event-site/index.html' : `/event-site/mirror${route.endsWith('/') ? route : `${route}/`}index.html`;
       const normalizeInternalLinks = () => {
         const importedConferenceHosts = new Set(['biofuels-energy.magnusconferences.com', 'www.biofuels-energy.magnusconferences.com']);
         document.querySelectorAll('img[src],script[src],link[href]').forEach(element => {
@@ -176,6 +176,36 @@
         if (header) header.style.backgroundColor = values.themeColor;
       }
       if (values.accentColor && flashBar) flashBar.style.backgroundColor = values.accentColor;
+      const hybridText = document.querySelector('.hybrid-text');
+      if (values.topHeader && hybridText) hybridText.innerHTML = `<div>${String(values.topHeader).replace(/\n/g, '<br>')}</div>`;
+      const formatDate = value => {
+        if (!value) return '';
+        const parsed = new Date(`${value}T00:00:00`);
+        return Number.isNaN(parsed.getTime()) ? String(value) : parsed.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+      };
+      const dateRange = values.startDate || values.endDate ? `${formatDate(values.startDate)}${values.startDate && values.endDate ? ' - ' : ''}${formatDate(values.endDate)}` : '';
+      if ((dateRange || values.venue) && subtitle) subtitle.textContent = `${dateRange}${dateRange && values.venue ? ' | ' : ''}${values.venue || ''}`;
+      const dateBar = document.querySelector('.top-header .c-date');
+      if ((dateRange || values.venue) && dateBar) dateBar.textContent = `${dateRange}${dateRange && values.venue ? ' | ' : ''}${values.venue || ''}`;
+      const hotelAddress = document.querySelector('.top-header .top-add-text-1');
+      if ((values.hotel || values.address) && hotelAddress) hotelAddress.innerHTML = [values.hotel, values.address].filter(Boolean).join('<br>');
+      const aboutImage = document.querySelector('#about img, [id*="about"] img');
+      if (values.aboutImageUrl && aboutImage) aboutImage.src = values.aboutImageUrl;
+      if (values.bottomBarColor && dateBar) dateBar.style.backgroundColor = values.bottomBarColor;
+      const editableFooterAddress = document.querySelector('#footer .footer-organizer-sec .org-add, .footer-address, footer address, footer .address');
+      if (values.footerAddress && editableFooterAddress) editableFooterAddress.innerHTML = values.footerAddress;
+      const footerPhoneNodes = document.querySelectorAll('#footer .footer-organizer-sec .org-call');
+      if (values.phone && footerPhoneNodes[0]) footerPhoneNodes[0].innerHTML = `<strong>Phone:</strong> ${values.phone}`;
+      if (values.whatsapp && footerPhoneNodes[1]) footerPhoneNodes[1].innerHTML = `<strong>Whatsapp:</strong> ${values.whatsapp}`;
+      const footerMailLinks = document.querySelectorAll('#footer .list-icon a[href^="mailto:"]');
+      [values.email1, values.email2, values.email3].forEach((email, index) => {
+        const link = footerMailLinks[index];
+        if (email && link) { link.href = `mailto:${email}`; link.textContent = email; link.title = email; }
+      });
+      [[values.facebook, '#footer .social-facebook a'], [values.twitter, '#footer .social-twitter a'], [values.youtube, '#footer .social-youtube a']].forEach(([url, selector]) => {
+        const link = url && document.querySelector(selector);
+        if (link) link.href = url;
+      });
       const scientificContent = sectionValues['scientific-sessions'] || {};
       const scientificManagedRows = (() => {
         try {

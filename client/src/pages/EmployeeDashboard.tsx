@@ -31,13 +31,13 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { WorkspaceHeader, WorkspaceFooter } from "@/components/WorkspaceChrome";
-import WebsiteEditor from "@/components/WebsiteEditor";
+import WebsiteEditor, { defaultContent } from "@/components/WebsiteEditor";
 import { persistServerState } from "@/lib/serverState";
 
 type FeatureKind = "dashboard" | "list" | "form" | "settings";
 type Feature = { id: string; label: string; description: string; kind: FeatureKind; icon: LucideIcon; createTarget?: string };
 type Section = { label: string; items: Feature[]; direct?: boolean; icon?: LucideIcon };
-type FieldSpec = { label: string; type?: "text" | "email" | "url" | "date" | "select" | "textarea" | "file"; options?: string[]; placeholder?: string };
+type FieldSpec = { label: string; type?: "text" | "email" | "url" | "date" | "color" | "select" | "textarea" | "file"; options?: string[]; placeholder?: string };
 
 type Row = { title: string; status: string; meta: string; note: string; details?: Record<string, string> };
 type TestimonialRecord = { id: string; name: string; comment: string; image: string; designation: string; status: string; position: string };
@@ -201,8 +201,7 @@ const sections: Section[] = [
   {
     label: "Site Settings",
     icon: Settings2,
-    direct: true,
-    items: [item("website-editor", "Site Settings", "Manage the event website sections, content, images, logos, theme, footer, and conference credits.", Settings2, "form"), item("website-preview", "Website Preview", "Open the imported event website template.", FileText), item("header-section", "Header Section", "Edit the event website header content.", Settings2, "settings"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "settings"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "settings"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "settings")],
+    items: [item("header-section", "Header Section", "Edit the event website header content.", Settings2, "form"), item("footer-section", "Footer Section", "Edit the event website footer content.", Settings2, "form"), item("theme-settings", "Theme Settings", "Tune the event website visual theme.", Settings2, "form"), item("conference-credits", "Conference Credits", "Manage attribution and conference credit details.", Settings2, "form")],
   },
 ];
 
@@ -333,11 +332,11 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-testimonial": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Designation" }, { label: "Comment", type: "textarea" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-video-testimonial": [{ label: "Name" }, { label: "Video URL", type: "url" }, { label: "Status", type: "select", options: ["Active", "Inactive"] }],
   "add-home-tab": [{ label: "Title" }, { label: "Content", type: "textarea" }],
-  "header-section": ["Header copy", "Event start date", "Event end date", "Venue", "Hotel", "Address", "About image", ].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("description") || label.includes("keywords") ? "textarea" as const : label === "About image" ? "file" as const : "text" as const })),
-  "footer-section": ["Footer address", "Email 1", "Email 2", "Email 3", "Phone", "WhatsApp", "Website URL", "Conference short name", "Theme", "Facebook", "X / Twitter", "YouTube", "LinkedIn", "Instagram", "Blog"].map(label => ({ label, type: label.startsWith("Email") ? "email" as const : label.includes("URL") || label === "Facebook" || label === "X / Twitter" || label === "YouTube" || label === "LinkedIn" || label === "Instagram" || label === "Blog" ? "url" as const : "text" as const })),
-  "theme-settings": [{ label: "Theme color", type: "text" }, { label: "Accent color", type: "text" }, { label: "Conference logo", type: "file" }, { label: "Logo alt text" }, { label: "Logo title" }, { label: "Theme banner", type: "file" }],
+  "header-section": ["Top Header", "Heading", "Start Date", "End Date", "Venue", "Hotel", "Address", "About Conference Image", "Home Page Title", "Home Page Description", "Home Page Keywords", "Abstract Submission Page Title", "Abstract Submission Page Description", "Abstract Submission Page Keywords", "Brochure Page Title", "Brochure Page Description", "Brochure Page Keywords", "Registration Page Title", "Registration Page Description", "Registration Page Keywords", "Organizing Committee Page Title", "Organizing Committee Page Description", "Organizing Committee Page Keywords", "Sessions Page Title", "Sessions Page Description", "Sessions Page Keywords", "Venue Page Title", "Venue Page Description", "Venue Page Keywords"].map(label => ({ label, type: label.includes("Date") ? "date" as const : label.includes("Description") || label.includes("Keywords") || label.includes("Header") || label.includes("Heading") || label === "Address" ? "textarea" as const : label.includes("Image") ? "file" as const : "text" as const })),
+  "footer-section": ["Address", "For Program Enquiry", "General Queries", "Sponsors/Exhibitions", "Phone Number", "Whatsapp Number", "Website Link", "Conference Short Name", "Conference Theme", "Facebook Link", "Twitter Link", "Youtube Link", "LinkedIn Link", "Instagram Link", "Blog"].map(label => ({ label, type: label.includes("Enquiry") || label.includes("Queries") || label.includes("Exhibitions") ? "email" as const : label.includes("Link") || label === "Blog" ? "url" as const : "text" as const })),
+  "theme-settings": [{ label: "Theme Color", type: "color" }, { label: "Accent Color", type: "color" }, { label: "Conference Logo", type: "file" }, { label: "Conference Logo Alt Text" }, { label: "Conference Logo Title" }, { label: "Upload Theme Banner", type: "file" }],
   "website-editor": ["Website title", "Hero subtitle", "Start date", "End date", "Venue", "Header logo URL", "Hero banner URL", "About copy", "Gallery image URLs", "Media partner logo URLs", "Navigation links", "Footer address", "Contact email", "Primary color", "Accent color", "Website status"].map(label => ({ label, type: label.includes("date") ? "date" as const : label.includes("copy") || label.includes("description") || label.includes("links") ? "textarea" as const : label.includes("URL") || label.includes("color") ? "url" as const : "text" as const })),
-  "conference-credits": [{ label: "Credit title" }, { label: "Credit content", type: "textarea" }],
+  "conference-credits": [{ label: "Credit Name" }, { label: "Details", type: "textarea" }, { label: "Credit Badge", type: "file" }],
   "add-member": [{ label: "Name" }, { label: "Image", type: "file" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Country" }, { label: "Designation" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-representative": [{ label: "Name" }, { label: "Organization" }, { label: "Email", type: "email" }, { label: "Phone" }, { label: "Status", type: "select", options: ["Active", "Inactive", "Deleted"] }],
   "add-track": [{ label: "Track name" }, { label: "Description", type: "textarea" }],
@@ -352,7 +351,13 @@ const fieldSpecs: Record<string, FieldSpec[]> = {
   "add-page": [{ label: "Page title" }, { label: "Page slug" }, { label: "Content", type: "textarea" }],
 };
 
-const formActionLabels: Record<string, string> = { "add-scientific-session": "Save session", "unsubscribe-emails": "Add Unsubscribe Email", "website-editor": "Save Website", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
+const formActionLabels: Record<string, string> = { "add-scientific-session": "Save session", "unsubscribe-emails": "Add Unsubscribe Email", "website-editor": "Save Website", "header-section": "Update", "footer-section": "Update", "theme-settings": "Update", "conference-credits": "Update", prices: "Submit", "registration-dates": "Update", "default-currency": "Submit", "accommodation-prices": "Submit", "buttons-list": "Submit", "add-event": "Add", "add-session": "Submit", "add-testimonial": "Add", "add-video-testimonial": "Submit", "add-home-tab": "Add" };
+const siteSettingsAliases: Record<string, Record<string, string>> = {
+  "header-section": { "Top Header": "topHeader", Heading: "heading", "Start Date": "startDate", "End Date": "endDate", Venue: "venue", Hotel: "hotel", Address: "address", "About Conference Image": "aboutImageUrl" },
+  "footer-section": { Address: "footerAddress", "For Program Enquiry": "email1", "General Queries": "email2", "Sponsors/Exhibitions": "email3", "Phone Number": "phone", "Whatsapp Number": "whatsapp", "Website Link": "websiteUrl", "Conference Short Name": "confShortname", "Conference Theme": "theme", "Facebook Link": "facebook", "Twitter Link": "twitter", "Youtube Link": "youtube", "LinkedIn Link": "linkedin", "Instagram Link": "instagram", Blog: "blog" },
+  "theme-settings": { "Theme Color": "themeColor", "Accent Color": "accentColor", "Conference Logo": "conferenceLogoUrl", "Conference Logo Alt Text": "conferenceLogoAlt", "Conference Logo Title": "conferenceLogoTitle", "Upload Theme Banner": "themeBannerUrl" },
+  "conference-credits": { "Credit Name": "creditName", Details: "creditDetails", "Credit Badge": "creditBadgeUrl" },
+};
 const emailSearchTables = ["abstracts", "clients", "contact", "downloadbrochure", "editorialboard", "email_messages", "follow_up", "forms_submission", "registration", "registration_users"];
 
 const defaultRows = (feature: Feature): Row[] => [
@@ -470,7 +475,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
   const [editingVideoReviewId, setEditingVideoReviewId] = useState<string | null>(null);
   const [videoReviewSearch, setVideoReviewSearch] = useState("");
   const [selectedVideoReviewEvent, setSelectedVideoReviewEvent] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events"]));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set(["Events", "Site Settings"]));
   const [testimonialRows, setTestimonialRows] = useState<TestimonialRecord[]>(() => {
     try {
       const stored = localStorage.getItem(testimonialStorageKey(eventId)) ?? sessionStorage.getItem(testimonialStorageKey(eventId));
@@ -577,6 +582,41 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     "social-media": { name: "Social media links", fields: ["Facebook URL", "X / Twitter URL", "YouTube URL", "Blog URL", "Link labels"] },
   };
 
+  const siteSettingsIds = ["header-section", "footer-section", "theme-settings", "conference-credits"];
+  const readSiteSettingsValues = (id: string) => {
+    const defaults: Record<string, Record<string, string>> = {
+      "header-section": { "Heading": eventTitle || "", "Start Date": "", "End Date": "", Venue: "", Hotel: "", Address: "" },
+      "footer-section": { "Website URL": "", "Conference short name": eventTitle || "" },
+      "theme-settings": { "Theme color": "", "Accent color": "" },
+      "conference-credits": { "Credit title": "", "Credit content": "" },
+    };
+    try {
+      const key = `velentra-section-content-${eventId || "global"}`;
+      const raw = localStorage.getItem(key) || sessionStorage.getItem(key) || "{}";
+      const content = JSON.parse(raw) as Record<string, Record<string, string>>;
+      const sectionKey = ({ "header-section": "header", "footer-section": "footer", "theme-settings": "theme", "conference-credits": "conference-credits" } as Record<string, string>)[id] || id;
+      const fallbackKeys = ({ "header-section": ["header-section", "header"], "footer-section": ["footer-section", "footer"], "theme-settings": ["theme-settings"], "conference-credits": ["conference-credits"] } as Record<string, string[]>)[id] || [sectionKey, id];
+      const storedSection = Object.assign({}, ...fallbackKeys.map(candidate => content[candidate] || {}));
+      const legacyText = JSON.stringify(storedSection);
+      const isLegacyEntSample = /Otolaryngology|Occidental Aran Park|ent@inovineconferences|Autism Research-2027|ENT-2027/i.test(legacyText);
+      const section = Object.assign({}, ...fallbackKeys.map(candidate => defaultContent[candidate] || {}), ...(isLegacyEntSample ? [] : [storedSection]));
+      const values = { ...(defaults[id] || {}) };
+      (fieldSpecs[id] || []).forEach(field => {
+        const normalized = field.label.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const alias = siteSettingsAliases[id]?.[field.label];
+        const sourceKey = alias || Object.keys(section).find(candidate => candidate.toLowerCase().replace(/[^a-z0-9]/g, "") === normalized);
+        if (sourceKey && section[sourceKey] != null) values[field.label] = String(section[sourceKey]);
+      });
+      return values;
+    } catch {
+      return defaults[id] || {};
+    }
+  };
+  const openSiteSettingsPage = (id: string) => {
+    setFormValues(readSiteSettingsValues(id));
+    setWebsiteSelectedSection(id);
+    selectFeature(id);
+  };
   const selectFeature = (id: string) => {
     const parent = sections.find(section => section.items.some(feature => feature.id === id));
     if (parent) {
@@ -767,6 +807,21 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
     if (active.id === "website-editor") {
       try { const serialized = JSON.stringify(formValues); sessionStorage.setItem(`velentra-site-config-${eventId}`, serialized); localStorage.setItem(`velentra-site-config-${eventId}`, serialized); } catch { /* Preview storage can be unavailable. */ }
       setNotice("Website content, images, logos, and publishing settings saved for Employee and Admin access.");
+      return;
+    }
+    if (siteSettingsIds.includes(active.id)) {
+      try {
+        const key = `velentra-section-content-${eventId || "global"}`;
+        const current = JSON.parse(localStorage.getItem(key) || sessionStorage.getItem(key) || "{}");
+        const sectionId = ({ "header-section": "header", "footer-section": "footer", "theme-settings": "theme", "conference-credits": "conference-credits" } as Record<string, string>)[active.id] || active.id;
+        const canonicalValues = Object.fromEntries(Object.entries(formValues).map(([label, value]) => [siteSettingsAliases[active.id]?.[label] || label, value]));
+        const serialized = JSON.stringify({ ...current, [sectionId]: { ...(current[sectionId] || {}), ...canonicalValues } });
+        localStorage.setItem(key, serialized); sessionStorage.setItem(key, serialized);
+        persistServerState(key, eventId || "global", serialized).finally(() => document.querySelectorAll<HTMLIFrameElement>("iframe").forEach(frame => frame.contentWindow?.postMessage({ type: "velentra-config-sync" }, "*")));
+        setNotice(`${active.label} updated successfully.`);
+      } catch {
+        setNotice(`${active.label} could not be saved. Please try again.`);
+      }
       return;
     }
     if (active.id === "email-search") {
@@ -996,7 +1051,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
           </div>
         ) : isForm ? (
           <div className="employee-form-card">
-            <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select value={formValues[field.label] ?? field.options?.[0] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} value={field.type === "file" ? undefined : (formValues[field.label] ?? "")} onChange={event => { if (field.type === "file") { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => setFormValues(values => ({ ...values, [field.label]: String(reader.result ?? "") })); reader.readAsDataURL(file); } else setFormValues(values => ({ ...values, [field.label]: event.target.value })); }} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}</label>)}</div>
+            <div className="employee-form-grid">{activeFields.map(field => <label key={field.label}><span>{field.label}</span>{field.type === "select" ? <select value={formValues[field.label] ?? field.options?.[0] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))}>{field.options?.map(option => <option key={option}>{option}</option>)}</select> : field.type === "textarea" ? <textarea rows={4} value={formValues[field.label] ?? ""} onChange={event => setFormValues(values => ({ ...values, [field.label]: event.target.value }))} placeholder={field.placeholder ?? "Enter description"} /> : <input type={field.type ?? "text"} value={field.type === "file" ? undefined : (formValues[field.label] ?? "")} onChange={event => { if (field.type === "file") { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => setFormValues(values => ({ ...values, [field.label]: String(reader.result ?? "") })); reader.readAsDataURL(file); } else setFormValues(values => ({ ...values, [field.label]: event.target.value })); }} placeholder={field.placeholder ?? `Enter ${field.label.toLowerCase()}`} />}{field.type === "file" && formValues[field.label] ? <img className="employee-media-form-preview" src={formValues[field.label]} alt={`Current ${field.label}`} /> : null}</label>)}</div>
             <div className="employee-form-actions"><button className="employee-secondary-button" type="button" onClick={() => selectFeature(formReturnTargets[active.id] ?? "dashboard")}>Back</button><button className="employee-primary-button" type="button" onClick={saveForm}><Check size={16} /> {formActionLabels[active.id] ?? (active.id === "email-search" ? "Search Email" : "Submit")}</button></div>
           </div>
         ) : (
@@ -1014,7 +1069,7 @@ export default function EmployeeDashboard({ onBack, username, eventId = "global"
       <WorkspaceHeader role="employee" username={username} headerTitle={activeId === "website-editor" ? "Site Settings" : undefined} onHome={() => selectFeature("dashboard")} onOpenNavigation={() => setMobileNav(true)} onSettings={() => selectFeature("theme-settings")} onLogout={onBack} />
       <aside className={`employee-sidebar ${mobileNav ? "employee-sidebar-open" : ""}`}>
         <button type="button" className="employee-mobile-close" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={17} /></button>
-        {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button><div className="website-config-menu-list">{websiteConfigMenu.map(item => <button type="button" key={item.id} className={`website-config-menu-item ${websiteSelectedSection === item.id ? "website-config-menu-item-active" : ""}`} onClick={() => { if (item.id === "conference-schedule") { selectFeature("conference-sessions"); return; } if (item.id === "past-conference") { selectFeature("past-conference-info"); return; } if (item.id === "media-partner") { selectFeature("media-partner"); return; } setWebsiteSelectedSection(item.id); window.dispatchEvent(new CustomEvent("velentra:select-section", { detail: { sectionId: item.editorId } })); }}>{item.label}</button>)}</div>{websiteSelectedSection && websiteSectionDetails[websiteSelectedSection] ? <div className="website-config-selected-details"><span>Modify section</span><strong>{websiteSectionDetails[websiteSelectedSection].name}</strong><ul>{websiteSectionDetails[websiteSelectedSection].fields.map(field => <li key={field}><button type="button" onClick={() => window.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId: websiteConfigMenu.find(item => item.id === websiteSelectedSection)?.editorId ?? websiteSelectedSection, field } }))}>{field}</button></li>)}</ul></div> : null}</div> : <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => feature.id === "website-editor" ? openWebsiteConfigurationTab() : selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => { if (nestedFeature.id === "add-scientific-session") { setEditingRow(null); setEditingContext(null); setFormValues({}); } selectFeature(nestedFeature.id); }}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>}
+        {activeId === "website-editor" ? <div className="website-config-sidebar-mode"><button type="button" onClick={() => selectFeature("dashboard")}><ArrowLeft size={15} /> Back To Home</button><div className="website-config-menu-list">{websiteConfigMenu.map(item => <button type="button" key={item.id} className={`website-config-menu-item ${websiteSelectedSection === item.id ? "website-config-menu-item-active" : ""}`} onClick={() => { if (item.id === "conference-schedule") { selectFeature("conference-sessions"); return; } if (item.id === "past-conference") { selectFeature("past-conference-info"); return; } if (item.id === "media-partner") { selectFeature("media-partner"); return; } setWebsiteSelectedSection(item.id); window.dispatchEvent(new CustomEvent("velentra:select-section", { detail: { sectionId: item.editorId } })); }}>{item.label}</button>)}</div>{websiteSelectedSection && websiteSectionDetails[websiteSelectedSection] ? <div className="website-config-selected-details"><span>Modify section</span><strong>{websiteSectionDetails[websiteSelectedSection].name}</strong><ul>{websiteSectionDetails[websiteSelectedSection].fields.map(field => <li key={field}><button type="button" onClick={() => window.dispatchEvent(new CustomEvent("velentra:edit-section-field", { detail: { sectionId: websiteConfigMenu.find(item => item.id === websiteSelectedSection)?.editorId ?? websiteSelectedSection, field } }))}>{field}</button></li>)}</ul></div> : null}</div> : <div className="employee-sidebar-scroll">{sections.map(section => { const feature = section.items[0]; const Icon = feature.icon; if (section.direct) return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item ${activeId === feature.id ? "employee-nav-item-active" : ""}`} onClick={() => feature.id === "website-editor" ? openWebsiteConfigurationTab() : selectFeature(feature.id)}><Icon size={15} /><span>{feature.label}</span>{activeId === feature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button></div>; const isExpanded = expandedSections.has(section.label); const groupActive = section.items.some(item => item.id === activeId); const SectionIcon = section.icon ?? Icon; return <div className="employee-nav-section" key={section.label}><button type="button" className={`employee-nav-item employee-nav-group-toggle ${groupActive ? "employee-nav-item-active" : ""}`} aria-expanded={isExpanded} onClick={() => toggleSection(section.label)}><SectionIcon size={15} /><span>{section.label}</span>{isExpanded ? <ChevronDown size={14} className="employee-nav-chevron" /> : <ChevronRight size={14} className="employee-nav-chevron" />}</button>{isExpanded ? <div className="employee-nav-submenu">{section.items.map(nestedFeature => { const NestedIcon = nestedFeature.icon; return <button type="button" key={nestedFeature.id} className={`employee-nav-item ${activeId === nestedFeature.id ? "employee-nav-item-active" : ""}`} onClick={() => { if (nestedFeature.id === "add-scientific-session") { setEditingRow(null); setEditingContext(null); setFormValues({}); selectFeature(nestedFeature.id); return; } if (siteSettingsIds.includes(nestedFeature.id)) { openSiteSettingsPage(nestedFeature.id); return; } selectFeature(nestedFeature.id); }}><NestedIcon size={15} /><span>{nestedFeature.label}</span>{activeId === nestedFeature.id ? <ChevronRight size={14} className="employee-nav-chevron" /> : null}</button>; })}</div> : null}</div>; })}</div>}
       </aside>
       {mobileNav ? <button className="employee-nav-scrim" type="button" aria-label="Close navigation" onClick={() => setMobileNav(false)} /> : null}
       <main className="employee-main">
