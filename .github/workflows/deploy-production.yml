@@ -53,6 +53,9 @@ jobs:
           corepack enable
           corepack prepare pnpm@10.18.0 --activate
           pnpm install --frozen-lockfile
+          set -a
+          . /etc/velentraconferences.env
+          set +a
           pnpm db:migrate
           pnpm build
           sudo systemctl restart "$VPS_SERVICE"
